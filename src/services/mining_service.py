@@ -6,7 +6,7 @@ This service provides comprehensive integration with SupportXMR.com mining pool:
 Real API Data Structure:
 - Pool Stats: hashRate, miners, totalHashes, lastBlockFoundTime, totalBlocksFound, etc.
 - Miner Stats: totalHashes, validShares, amtDue, amtPaid, etc.
-- Real-time mining data from XMRT wallet: 46UxNFuGM2E3UwmZWWJicaRPoRwqwW4byQkaTHkX8yPcVihp91qAVtSFipWUGJJUyTXgzSqxDQtNLf2bsp2DX2qCCgC5mg
+- Real-time mining data from XMRT wallet: 46UxNFuGM2E3UwmZWWJicaRPoRwqwW4byQkaTHkX8yPcVihp91qAVtSFipWUGJJUyTXgzSqxzDQtNLf2bsp2DX2qCCgC5mg
 
 Features:
 - Live mining statistics dashboard
@@ -44,7 +44,7 @@ class EnhancedSupportXMRService:
         self.miner_stats_url = f"{self.api_base_url}/miner"
 
         # XMRT mining wallet
-        self.mining_wallet = "46UxNFuGM2E3UwmZWWJicaRPoRwqwW4byQkaTHkX8yPcVihp91qAVtSFipWUGJJUyTXgzSqxDQtNLf2bsp2DX2qCCgC5mg"
+        self.mining_wallet = "46UxNFuGM2E3UwmZWWJicaRPoRwqwW4byQkaTHkX8yPcVihp91qAVtSFipWUGJJUyTXgzSqxzDQtNLf2bsp2DX2qCCgC5mg"
 
         # Treasury allocation
         self.treasury_allocation = Decimal('0.85')

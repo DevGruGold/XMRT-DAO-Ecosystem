@@ -2,7 +2,7 @@
 MESHNET API Integration for XMRT-DAO-Ecosystem Flask App
 Provides REST API endpoints for MESHNET functionality
 """
-
+from src.services.meshnet_service import MESHNETService
 from flask import Blueprint, jsonify, request
 import asyncio
 import json

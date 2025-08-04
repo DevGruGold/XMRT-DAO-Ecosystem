@@ -9,7 +9,7 @@ This service handles all blockchain interactions including:
 - Cross-chain bridge operations
 
 Based on the XMRT Technical Architecture specifications:
-- Contract Address: 0xaE2402dFdD313B8c40AF06d3292B50dE1eD75F68 (Sepolia)
+- Contract Address: 0x77307DFbc436224d5e6f2048d2b6bDfA66998a15 (Sepolia)
 - Total Supply: 21,000,000 XMRT
 - Staking with governance capabilities
 """
@@ -46,7 +46,7 @@ class Web3Service:
             'sepolia': {
                 'rpc_url': config.get('sepolia_rpc_url', 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID'),
                 'chain_id': 11155111,
-                'xmrt_token_address': '0xaE2402dFdD313B8c40AF06d3292B50dE1eD75F68',
+                'xmrt_token_address': '0x77307DFbc436224d5e6f2048d2b6bDfA66998a15',
                 'governor_address': config.get('sepolia_governor_address', ''),
                 'staking_address': config.get('sepolia_staking_address', ''),
                 'treasury_address': config.get('sepolia_treasury_address', '')

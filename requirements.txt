@@ -1,33 +1,35 @@
 # XMRT-DAO-Ecosystem Requirements
 # Flask and web framework
-Flask==3.0.0
-flask-cors==4.0.0
-gunicorn==21.2.0
+Flask
+flask-cors
+gunicorn
 
 # API and HTTP clients
-requests==2.32.3
-urllib3==2.2.2
+requests
+urllib3
 
 # GitHub integration
-PyGithub==2.7.0
+PyGithub
 
 # Async support
-asyncio-mqtt==0.16.2
+asyncio-mqtt
 
 # Meshtastic integration
-meshtastic==2.3.3
-pyserial==3.5
+meshtastic
+pyserial
+ping3
+
 
 # Data processing
-python-dotenv==1.0.0
-dataclasses-json==0.6.1
+python-dotenv
+dataclasses-json
 
 # Logging and monitoring
-structlog==23.2.0
+structlog
 
 # Web3 and blockchain (future enhancement)
-web3==6.15.1
+web3
 
 # Development and testing
-pytest==7.4.4
-pytest-asyncio==0.23.2
+pytest
+pytest-asyncio

@@ -5,12 +5,13 @@ This configuration file contains all the essential settings for the XMRT DAO Eco
 based on the comprehensive XMRT documentation and deployed infrastructure.
 
 Key Features:
-- Correct Sepolia contract addresses
+- Correct Sepolia contract addresses for XMRT Token and XMRT-IP NFT
 - Multi-chain support configuration
 - AI agent configuration
 - Mining pool integration settings
 - Treasury management parameters
 - Governance system parameters
+- IP ownership rights management
 """
 
 import os
@@ -23,50 +24,51 @@ class XMRTConfig:
     TOKEN_CONFIG = {
         "name": "XMRT Token",
         "symbol": "XMRT",
-        "total_supply": 21_000_000,  # 21 million tokens
         "decimals": 18,
-        "description": "XMR Token bridging real-world Monero mining with DeFi governance"
+        "total_supply": 20_999_990,  # Updated from Etherscan data
+        "chain_id": 11155111  # Sepolia testnet
     }
 
-    # Network Configurations
-    NETWORKS = {
+    # XMRT Intellectual Property NFT Configuration  
+    IP_NFT_CONFIG = {
+        "name": "XMRT Intellectual Property",
+        "symbol": "XMRT-IP",
+        "total_supply": 1,  # Single unique NFT representing IP ownership
+        "owner": "Joseph Andrew Lee (DevGruGold)",
+        "description": "On-chain representation of intellectual property ownership rights for the XMRT ecosystem",
+        "chain_id": 11155111  # Sepolia testnet
+    }
+
+    # Blockchain Network Configurations
+    NETWORK_CONFIG = {
         "sepolia": {
-            "name": "Ethereum Sepolia Testnet",
+            "name": "Sepolia Testnet",
             "chain_id": 11155111,
-            "rpc_url": os.getenv("SEPOLIA_RPC_URL", "https://sepolia.infura.io/v3/YOUR_PROJECT_ID"),
+            "rpc_url": os.getenv("SEPOLIA_RPC_URL", "https://sepolia.infura.io/v3/YOUR_INFURA_KEY"),
             "explorer_url": "https://sepolia.etherscan.io",
             "contracts": {
-                # Updated with correct deployed address
+                # Updated with correct deployed addresses from Etherscan
                 "xmrt_token": "0x77307DFbc436224d5e6f2048d2b6bDfA66998a15",
+                "xmrt_ip_nft": "0x9d691fc136a846d7442d1321a2d1b6aaef494eda",
+                "creator_wallet": "0xaE2402dFdD313B8c40AF06d3292B50dE1eD75F68",
                 "governor": os.getenv("SEPOLIA_GOVERNOR_ADDRESS", ""),
                 "staking": os.getenv("SEPOLIA_STAKING_ADDRESS", ""),
                 "treasury": os.getenv("SEPOLIA_TREASURY_ADDRESS", ""),
                 "bridge": os.getenv("SEPOLIA_BRIDGE_ADDRESS", "")
-            },
-            "gas_settings": {
-                "gas_price_gwei": 20,
-                "gas_limit": 500000,
-                "max_fee_per_gas": 50,
-                "max_priority_fee_per_gas": 2
             }
         },
         "mainnet": {
             "name": "Ethereum Mainnet",
             "chain_id": 1,
-            "rpc_url": os.getenv("MAINNET_RPC_URL", "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"),
+            "rpc_url": os.getenv("MAINNET_RPC_URL", "https://mainnet.infura.io/v3/YOUR_INFURA_KEY"),
             "explorer_url": "https://etherscan.io",
             "contracts": {
                 "xmrt_token": os.getenv("MAINNET_TOKEN_ADDRESS", ""),
+                "xmrt_ip_nft": os.getenv("MAINNET_IP_NFT_ADDRESS", ""),
                 "governor": os.getenv("MAINNET_GOVERNOR_ADDRESS", ""),
                 "staking": os.getenv("MAINNET_STAKING_ADDRESS", ""),
                 "treasury": os.getenv("MAINNET_TREASURY_ADDRESS", ""),
                 "bridge": os.getenv("MAINNET_BRIDGE_ADDRESS", "")
-            },
-            "gas_settings": {
-                "gas_price_gwei": 30,
-                "gas_limit": 300000,
-                "max_fee_per_gas": 100,
-                "max_priority_fee_per_gas": 5
             }
         },
         "polygon": {
@@ -91,224 +93,210 @@ class XMRTConfig:
         }
     }
 
-    # Default network
-    DEFAULT_NETWORK = os.getenv("DEFAULT_NETWORK", "sepolia")
-
-    # Treasury Configuration (Based on documentation: $1.5M treasury)
-    TREASURY_CONFIG = {
-        "total_value_target": 1_500_000,  # $1.5M USD
-        "asset_allocation": {
-            "ETH": 0.30,      # 30% ETH
-            "USDC": 0.40,     # 40% USDC
-            "XMR": 0.20,      # 20% XMR
-            "XMRT": 0.10      # 10% XMRT
-        },
-        "rebalancing_threshold": 0.05,  # 5% deviation triggers rebalancing
-        "emergency_reserves": 0.15,     # 15% kept as emergency reserves
-        "max_single_transaction": 50000  # $50k max per transaction
-    }
-
-    # Governance Configuration (95% efficiency target from docs)
+    # Governance System Configuration
     GOVERNANCE_CONFIG = {
-        "voting_delay": 1,              # 1 block delay
-        "voting_period": 45818,         # ~1 week in blocks
-        "proposal_threshold": 0,        # No minimum tokens to propose
-        "quorum_fraction": 4,           # 4% quorum required
-        "execution_delay": 172800,      # 2 days timelock
-        "efficiency_target": 0.95,     # 95% governance efficiency
-        "participation_target": 0.70   # 70% participation rate
+        "voting_period": 7 * 24 * 3600,  # 7 days in seconds
+        "voting_delay": 1 * 24 * 3600,   # 1 day in seconds
+        "proposal_threshold": 100_000,    # XMRT tokens required to create proposal
+        "quorum_percentage": 4,           # 4% quorum requirement
+        "timelock_delay": 2 * 24 * 3600,  # 2 days execution delay
+        "max_operations": 10,             # Maximum operations per proposal
+        "grace_period": 14 * 24 * 3600,   # 14 days grace period
+        "target_efficiency": 95.0,        # Target governance efficiency %
+        "target_participation": 75.7,     # Target participation rate %
+        "ip_owner_privileges": {
+            "can_veto_proposals": True,
+            "emergency_pause": True, 
+            "upgrade_authorization": True,
+            "treasury_override": False  # Limited for decentralization
+        }
     }
 
-    # Staking Configuration
-    STAKING_CONFIG = {
-        "min_stake_period": 7,          # 7 days minimum
-        "early_unstaking_penalty": 0.10, # 10% penalty
-        "base_apr": 0.125,              # 12.5% base APR
-        "max_apr": 0.25,                # 25% maximum APR
-        "rewards_distribution_interval": 86400  # Daily rewards
+    # AI Agent Configuration (Enhanced)
+    AI_CONFIG = {
+        "eliza_agent": {
+            "name": "XMRT-DAO-Agent",
+            "autonomy_level": 85,  # 85% autonomy as specified
+            "decision_threshold": 0.7,
+            "learning_rate": 0.01,
+            "max_actions_per_cycle": 5,
+            "treasury_limits": {
+                "max_transaction": 50_000,  # USD
+                "daily_limit": 100_000,     # USD
+                "approval_threshold": 25_000  # USD
+            },
+            "capabilities": [
+                "treasury_management",
+                "proposal_analysis", 
+                "cross_chain_operations",
+                "mining_optimization",
+                "governance_participation",
+                "risk_assessment"
+            ]
+        },
+        "gpt5_orchestrator": {
+            "enabled": True,
+            "coordination_interval": 300,  # 5 minutes
+            "health_check_interval": 60,   # 1 minute
+            "max_concurrent_operations": 3
+        }
     }
 
-    # Mining Integration (MobileMonero.com)
+    # Mining Integration Configuration (MobileMonero.com)
     MINING_CONFIG = {
         "pool_url": "https://api.mobilemonero.com/v1",
         "pool_name": "MobileMonero.com",
         "miner_address": os.getenv("XMRT_MINER_ADDRESS", ""),
         "api_key": os.getenv("MOBILE_MONERO_API_KEY", ""),
-        "update_interval": 600,         # 10 minutes
-        "revenue_tracking": True,
-        "auto_treasury_deposit": True,
-        "min_deposit_amount": 0.1       # 0.1 XMR minimum
+        "update_interval": 600,  # 10 minutes
+        "revenue_targets": {
+            "daily_xmr": 2.3,
+            "monthly_usd": 45_000
+        },
+        "treasury_allocation": {
+            "mining_rewards": 0.60,    # 60% to treasury
+            "staking_rewards": 0.25,   # 25% to staking rewards
+            "development": 0.10,       # 10% to development
+            "community": 0.05          # 5% to community incentives
+        }
     }
 
-    # AI Agent Configuration (Eliza Framework)
-    AI_CONFIG = {
-        "agent_name": "XMRT-DAO-Agent",
-        "autonomy_level": 0.85,         # 85% autonomy
-        "decision_confidence_threshold": 0.75,
-        "max_treasury_decision": 10000, # $10k max autonomous decision
-        "improvement_cycle_interval": 3600,  # 1 hour cycles
-        "learning_rate": 0.1,
-        "risk_tolerance": 0.3,          # Conservative risk profile
-        "models": {
-            "primary": "gpt-4",
-            "fallback": "gpt-3.5-turbo",
-            "embedding": "text-embedding-ada-002"
+    # Treasury Management Configuration
+    TREASURY_CONFIG = {
+        "total_value_target": 1_500_000,  # $1.5M as per documentation
+        "asset_allocation": {
+            "ETH": 0.25,     # 25%
+            "XMR": 0.15,     # 15% 
+            "USDC": 0.50,    # 50%
+            "XMRT": 0.10     # 10%
         },
-        "capabilities": [
-            "treasury_management",
-            "governance_participation", 
-            "risk_assessment",
-            "performance_reporting",
-            "community_engagement",
-            "cross_chain_operations"
-        ]
+        "rebalancing": {
+            "threshold": 0.05,     # 5% deviation triggers rebalancing
+            "frequency": "weekly",
+            "ai_managed": True
+        },
+        "security": {
+            "multi_sig_threshold": 3,
+            "daily_withdrawal_limit": 100_000,  # USD
+            "emergency_pause_threshold": 0.20   # 20% loss triggers pause
+        }
     }
 
-    # Cross-Chain Bridge Configuration
-    BRIDGE_CONFIG = {
-        "protocols": {
-            "wormhole": {
-                "enabled": True,
-                "guardian_rpc": os.getenv("WORMHOLE_RPC", ""),
-                "supported_chains": ["ethereum", "polygon", "arbitrum"]
-            },
-            "layerzero": {
-                "enabled": True,
-                "endpoint": os.getenv("LAYERZERO_ENDPOINT", ""),
-                "supported_chains": ["ethereum", "polygon", "arbitrum", "optimism", "base"]
-            }
+    # Cross-Chain Configuration
+    CROSS_CHAIN_CONFIG = {
+        "wormhole": {
+            "enabled": True,
+            "core_bridge": "0x706abc4E45D419950511e474C7B9Ed348A4a716c",  # Ethereum
+            "token_bridge": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
+            "supported_chains": [1, 137, 42161, 10, 8453]  # Ethereum, Polygon, Arbitrum, Optimism, Base
         },
-        "fees": {
-            "base_fee": 0.001,          # 0.1% base bridge fee
-            "gas_multiplier": 1.5       # 1.5x gas estimation
+        "layerzero": {
+            "enabled": True,
+            "endpoint": os.getenv("LAYERZERO_ENDPOINT", ""),
+            "supported_chains": [101, 109, 110, 111, 184]  # LayerZero chain IDs
         },
-        "limits": {
-            "min_bridge_amount": 10,    # 10 XMRT minimum
-            "max_bridge_amount": 100000, # 100k XMRT maximum
-            "daily_limit": 500000       # 500k XMRT daily limit
+        "bridge_fees": {
+            "ethereum_to_polygon": 0.001,   # ETH
+            "ethereum_to_arbitrum": 0.0005, # ETH
+            "base_fee_usd": 1.0
+        }
+    }
+
+    # Zero-Knowledge Privacy Configuration
+    ZK_CONFIG = {
+        "noir": {
+            "enabled": True,
+            "circuit_path": "./circuits/governance.nr",
+            "proving_key": os.getenv("NOIR_PROVING_KEY", ""),
+            "verification_key": os.getenv("NOIR_VERIFICATION_KEY", "")
+        },
+        "risc_zero": {
+            "enabled": True,
+            "host_url": os.getenv("RISC_ZERO_HOST", ""),
+            "guest_code": "./risc_zero/governance_guest"
         }
     }
 
     # API Configuration
     API_CONFIG = {
-        "version": "1.0.0",
-        "base_url": os.getenv("API_BASE_URL", "http://localhost:5000"),
-        "rate_limits": {
+        "rate_limiting": {
             "requests_per_minute": 100,
-            "requests_per_hour": 1000
+            "burst_limit": 20
         },
         "authentication": {
             "jwt_secret": os.getenv("JWT_SECRET", "your-secret-key"),
-            "token_expiry": 3600,       # 1 hour
-            "refresh_token_expiry": 604800  # 7 days
+            "token_expiry": 3600  # 1 hour
         },
         "cors": {
             "origins": ["http://localhost:3000", "https://xmrt.io"],
             "methods": ["GET", "POST", "PUT", "DELETE"],
-            "headers": ["Content-Type", "Authorization"]
+            "allow_credentials": True
         }
     }
 
-    # Database Configuration
-    DATABASE_CONFIG = {
-        "postgresql": {
-            "host": os.getenv("DB_HOST", "localhost"),
-            "port": os.getenv("DB_PORT", 5432),
-            "database": os.getenv("DB_NAME", "xmrt_dao"),
-            "username": os.getenv("DB_USER", "xmrt"),
-            "password": os.getenv("DB_PASSWORD", ""),
-            "pool_size": 20,
-            "max_overflow": 30
-        },
-        "redis": {
-            "host": os.getenv("REDIS_HOST", "localhost"),
-            "port": os.getenv("REDIS_PORT", 6379),
-            "password": os.getenv("REDIS_PASSWORD", ""),
-            "db": 0,
-            "decode_responses": True
-        }
-    }
-
-    # Monitoring Configuration
+    # Monitoring and Alerting Configuration
     MONITORING_CONFIG = {
-        "prometheus": {
+        "metrics": {
             "enabled": True,
-            "port": 8000,
-            "metrics_path": "/metrics"
-        },
-        "logging": {
-            "level": os.getenv("LOG_LEVEL", "INFO"),
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            "max_file_size": "100MB",
-            "backup_count": 5
+            "prometheus_port": 9090,
+            "collection_interval": 30  # seconds
         },
         "alerts": {
-            "treasury_threshold": 0.05,    # 5% change alert
-            "governance_efficiency": 0.90, # Below 90% efficiency alert
-            "system_uptime": 0.999,        # Below 99.9% uptime alert
-            "response_time": 1.0           # Above 1s response time alert
+            "treasury_threshold": 0.05,    # 5% change
+            "governance_participation": 0.70,  # 70% minimum
+            "ai_agent_health": 300,        # 5 minutes offline
+            "mining_revenue": 0.20         # 20% decline
+        },
+        "notifications": {
+            "discord_webhook": os.getenv("DISCORD_WEBHOOK", ""),
+            "telegram_bot_token": os.getenv("TELEGRAM_BOT_TOKEN", ""),
+            "email_smtp": os.getenv("EMAIL_SMTP", "")
         }
     }
 
-    # Security Configuration
-    SECURITY_CONFIG = {
-        "multi_sig": {
-            "required_signatures": 3,
-            "total_signers": 5,
-            "emergency_signatures": 2
-        },
-        "rate_limiting": {
-            "enabled": True,
-            "requests_per_second": 10,
-            "burst_limit": 50
-        },
-        "encryption": {
-            "algorithm": "AES-256",
-            "key_rotation_interval": 2592000  # 30 days
-        }
-    }
-
-    # Environment-specific configurations
+    # Environment-Specific Configurations
     ENVIRONMENT_CONFIGS = {
         "development": {
             "debug": True,
             "auto_reload": True,
-            "log_level": "DEBUG",
-            "network": "sepolia"
+            "mock_blockchain": True,
+            "test_mode": True
         },
         "staging": {
             "debug": False,
             "auto_reload": False,
-            "log_level": "INFO",
-            "network": "sepolia"
+            "mock_blockchain": False,
+            "test_mode": True
         },
         "production": {
             "debug": False,
             "auto_reload": False,
-            "log_level": "WARNING",
-            "network": "mainnet"
+            "mock_blockchain": False,
+            "test_mode": False,
+            "ssl_required": True,
+            "rate_limiting_strict": True
         }
     }
 
     @classmethod
-    def get_config(cls, environment: str = None) -> Dict[str, Any]:
-        """Get configuration for specific environment"""
-        env = environment or os.getenv("ENVIRONMENT", "development")
+    def get_config(cls, env: str = None) -> Dict[str, Any]:
+        """Get configuration for specified environment"""
+        if env is None:
+            env = os.getenv("ENVIRONMENT", "development")
 
+        # Base configuration
         base_config = {
             "token": cls.TOKEN_CONFIG,
-            "networks": cls.NETWORKS,
-            "default_network": cls.DEFAULT_NETWORK,
-            "treasury": cls.TREASURY_CONFIG,
+            "ip_nft": cls.IP_NFT_CONFIG,
+            "networks": cls.NETWORK_CONFIG,
             "governance": cls.GOVERNANCE_CONFIG,
-            "staking": cls.STAKING_CONFIG,
-            "mining": cls.MINING_CONFIG,
             "ai": cls.AI_CONFIG,
-            "bridge": cls.BRIDGE_CONFIG,
+            "mining": cls.MINING_CONFIG,
+            "treasury": cls.TREASURY_CONFIG,
+            "cross_chain": cls.CROSS_CHAIN_CONFIG,
+            "zk": cls.ZK_CONFIG,
             "api": cls.API_CONFIG,
-            "database": cls.DATABASE_CONFIG,
-            "monitoring": cls.MONITORING_CONFIG,
-            "security": cls.SECURITY_CONFIG
+            "monitoring": cls.MONITORING_CONFIG
         }
 
         # Merge with environment-specific config
@@ -316,6 +304,17 @@ class XMRTConfig:
             base_config.update(cls.ENVIRONMENT_CONFIGS[env])
 
         return base_config
+
+    @classmethod
+    def get_contract_address(cls, contract_name: str, network: str = "sepolia") -> str:
+        """Get contract address for specified network"""
+        config = cls.get_config()
+        return config["networks"][network]["contracts"].get(contract_name, "")
+
+    @classmethod
+    def is_ip_owner(cls, address: str) -> bool:
+        """Check if address is the IP owner (Joseph Andrew Lee)"""
+        return address.lower() == cls.NETWORK_CONFIG["sepolia"]["contracts"]["creator_wallet"].lower()
 
 # Export default configuration
 config = XMRTConfig.get_config()

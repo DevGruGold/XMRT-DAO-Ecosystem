@@ -1,7 +1,8 @@
 """
 XMRT-DAO-Ecosystem Main Flask Application
-Version 2.1.0: The Eliza Command Interface Launch
+Version 2.2.0: The Phoenix Protocol
 This is the root entry point for the Gunicorn server.
+It correctly imports all necessary components from the 'src' package.
 """
 
 import os
@@ -11,11 +12,23 @@ from datetime import datetime
 from flask import Flask, jsonify, request, render_template, current_app
 from flask_cors import CORS
 
-# --- Service and Blueprint Imports ---
-from services.mining_service import EnhancedSupportXMRService
-from services.meshnet_service import MESHNETService
-from api.meshnet_routes import meshnet_bp, init_meshnet_service
-from services.eliza_agent_service import ElizaAgentService
+# --- CORRECTED IMPORTS ---
+# This is the definitive fix. We are telling Python to look inside the 'src'
+# directory to find all the application modules.
+try:
+    from src.services.mining_service import EnhancedSupportXMRService
+    from src.services.meshnet_service import MESHNETService
+    from src.api.meshnet_routes import meshnet_bp, init_meshnet_service
+    from src.services.eliza_agent_service import ElizaAgentService
+except ModuleNotFoundError:
+    # This block helps with local development if the path isn't set.
+    import sys
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
+    from services.mining_service import EnhancedSupportXMRService
+    from services.meshnet_service import MESHNETService
+    from api.meshnet_routes import meshnet_bp, init_meshnet_service
+    from services.eliza_agent_service import ElizaAgentService
+
 
 # --- Logging Configuration ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -23,26 +36,23 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     """Create and configure the Flask application."""
-    app = Flask(__name__, template_folder='templates')
+    # We point to the templates folder inside 'src'
+    app = Flask(__name__, template_folder='src/templates')
     CORS(app)
 
     # --- Configuration ---
     app.config.update({
-        'SECRET_KEY': os.environ.get('SECRET_KEY', 'dev-secret-key-for-xmrt-launch'),
+        'SECRET_KEY': os.environ.get('SECRET_KEY', 'dev-secret-key-for-xmrt-phoenix'),
     })
 
     # --- Service Initialization ---
-    # Use a context to ensure services are available to all routes
     with app.app_context():
-        # Initialize Mining Service
         current_app.mining_service = EnhancedSupportXMRService(config={})
         logger.info("✅ EnhancedSupportXMRService initialized.")
 
-        # Initialize MESHNET Service
         current_app.meshnet_service = init_meshnet_service(config={})
         logger.info("✅ MESHNETService initialized.")
         
-        # Initialize Eliza Agent Service and give her access to the other services
         current_app.eliza_agent = ElizaAgentService(
             mining_service=current_app.mining_service, 
             meshnet_service=current_app.meshnet_service
@@ -57,7 +67,7 @@ def create_app():
 
     @app.route('/')
     def chatbot_ui():
-        """Serve the main Eliza chatbot UI from templates/index.html."""
+        """Serve the main Eliza chatbot UI."""
         return render_template('index.html')
 
     @app.route('/api/chat', methods=['POST'])
@@ -69,7 +79,6 @@ def create_app():
         
         user_message = data['message']
         
-        # Run the async agent command and get the result
         try:
             reply = asyncio.run(current_app.eliza_agent.process_command(user_message))
             return jsonify({'success': True, 'reply': reply})
@@ -80,9 +89,9 @@ def create_app():
     @app.route('/health')
     def health_check():
         """Comprehensive health check for all core services."""
-        # This route is now fully async-aware
         async def do_health_check():
             try:
+                # This check now uses the services from the application context
                 mining_health, meshnet_health = await asyncio.gather(
                     current_app.mining_service.ping_mining_infrastructure(),
                     current_app.meshnet_service.get_mesh_network_health()
@@ -128,6 +137,5 @@ def create_app():
     return app
 
 # --- Application Entry Point for Gunicorn ---
-# This line is crucial for Gunicorn to find the app object when it imports the file.
 app = create_app()
 

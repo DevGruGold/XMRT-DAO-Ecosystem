@@ -1,44 +1,53 @@
 """
 XMRT-DAO-Ecosystem Main Flask Application
 Enhanced with comprehensive MESHNET integration via Meshtastic
+and fully asynchronous service architecture.
 """
 
-from flask import Flask, render_template, jsonify, request
-from flask_cors import CORS
+import os
 import logging
 import asyncio
 from datetime import datetime
-import os
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
-# Import services
-# The new, correct line
-from src.services.mining_service import EnhancedSupportXMRService
-from src.services.meshnet_service import MESHNETService
-from src.api.meshnet_routes import meshnet_bp, init_meshnet_service
+# --- Service and Blueprint Imports ---
+# Correctly import the refactored services and blueprints
+from services.mining_service import EnhancedSupportXMRService
+from services.meshnet_service import MESHNETService
+from api.meshnet_routes import meshnet_bp, init_meshnet_service
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# --- Logging Configuration ---
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def create_app():
-    """Create and configure the Flask application"""
+    """Create and configure the Flask application."""
     app = Flask(__name__)
     CORS(app)
 
-    # Configuration
+    # --- Configuration ---
+    # Centralized configuration for easy management
     app.config.update({
-        'SECRET_KEY': os.environ.get('SECRET_KEY', 'dev-secret-key'),
+        'SECRET_KEY': os.environ.get('SECRET_KEY', 'dev-secret-key-for-xmrt'),
         'XMRT_TOKEN_ADDRESS': '0x77307DFbc436224d5e6f2048d2b6bDfA66998a15',
         'XMRT_IP_NFT_ADDRESS': '0x9d691fc136a846d7442d1321a2d1b6aaef494eda',
         'MINING_WALLET': '46UxNFuGM2E3UwmZWWJicaRPoRwqwW4byQkaTHkX8yPcVihp91qAVtSFipWUGJJUyTXgzSqxDQtNLf2bsp2DX2qCCgC5mg',
-        'SUPPORTXMR_API': 'https://supportxmr.com/api'
+        'SUPPORTXMR_API': 'https://supportxmr.com/api',
+        'CACHE_TTL': int(os.environ.get('CACHE_TTL', 120)),
+        'MIN_HASHRATE': int(os.environ.get('MIN_HASHRATE', 1000)),
+        'OFFLINE_THRESHOLD': int(os.environ.get('OFFLINE_THRESHOLD', 30))
     })
 
-    # Initialize services
-mining_service = EnhancedSupportXMRService({ ... })
-        'mining_wallet': app.config['MINING_WALLET'],
-        'api_url': app.config['SUPPORTXMR_API']
-    })
+    # --- Service Initialization ---
+    # Initialize the enhanced mining service with proper configuration
+    mining_service_config = {
+        'cache_ttl': app.config['CACHE_TTL'],
+        'min_hashrate': app.config['MIN_HASHRATE'],
+        'offline_threshold': app.config['OFFLINE_THRESHOLD']
+    }
+    mining_service = EnhancedSupportXMRService(mining_service_config)
+    logger.info("✅ EnhancedSupportXMRService initialized.")
 
     # Initialize MESHNET service
     meshnet_config = {
@@ -46,204 +55,97 @@ mining_service = EnhancedSupportXMRService({ ... })
         'update_interval': int(os.environ.get('MESH_UPDATE_INTERVAL', '30'))
     }
     meshnet_service = init_meshnet_service(meshnet_config)
+    logger.info("✅ MESHNETService initialized.")
+    
+    # NOTE: Background task initialization for MESHNET should be handled by a proper task runner
+    # For now, we assume it's handled or will be added via a background worker setup.
+    
+    # --- Blueprint Registration ---
+    app.register_blueprint(meshnet_bp, url_prefix='/api/meshnet')
+    logger.info("✅ MESHNET API blueprint registered.")
 
-    # Initialize MESHNET in the background
-    try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(meshnet_service.initialize_mesh_interface())
-        loop.run_until_complete(meshnet_service.integrate_mining_participants())
-        loop.close()
-        logger.info("✅ MESHNET service initialized successfully")
-    except Exception as e:
-        logger.error(f"❌ Failed to initialize MESHNET: {e}")
-
-    # Register blueprints
-    app.register_blueprint(meshnet_bp)
+    # --- Core API Routes ---
 
     @app.route('/')
     def home():
-        """Home page with XMRT-DAO-Ecosystem overview"""
+        """Home page with XMRT-DAO-Ecosystem overview."""
         return jsonify({
             'name': 'XMRT-DAO-Ecosystem',
-            'version': '2.0.0',
+            'version': '2.0.1', # Version bump for this glorious launch
+            'status': 'Online and Operational',
             'description': 'Advanced DAO Ecosystem with MESHNET Integration',
-            'features': [
-                'SupportXMR Mining Integration',
-                'Meshtastic MESHNET Connectivity',
-                'Enhanced Mining Leaderboard',
-                'Participant Verification System',
-                'Real-time Network Monitoring',
-                'Cross-chain Compatibility'
-            ],
-            'contracts': {
-                'xmrt_token': app.config['XMRT_TOKEN_ADDRESS'],
-                'xmrt_ip_nft': app.config['XMRT_IP_NFT_ADDRESS']
-            },
-            'apis': {
-                'mining': '/api/mining/',
-                'meshnet': '/api/meshnet/',
-                'health': '/health'
-            },
             'timestamp': datetime.now().isoformat()
         })
 
     @app.route('/health')
     def health_check():
-        """Comprehensive health check"""
+        """Comprehensive health check for all core services."""
         try:
-            # Check mining service
-            mining_healthy = True
-            try:
-                mining_data = mining_service.get_mining_stats()
-                mining_status = "operational"
-            except Exception as e:
-                mining_healthy = False
-                mining_status = f"error: {str(e)}"
-
-            # Check MESHNET service
-            meshnet_healthy = True
-            try:
-                meshnet_status = meshnet_service.get_mesh_network_status()
-                meshnet_status_msg = f"{meshnet_status['network_health']} - {meshnet_status['total_nodes']} nodes"
-            except Exception as e:
-                meshnet_healthy = False
-                meshnet_status_msg = f"error: {str(e)}"
-
-            overall_healthy = mining_healthy and meshnet_healthy
+            # Run async checks concurrently
+            mining_health, meshnet_health = asyncio.run(
+                asyncio.gather(
+                    mining_service.ping_mining_infrastructure(),
+                    meshnet_service.get_mesh_network_health()
+                )
+            )
+            
+            overall_healthy = (mining_health.get('supportxmr_ping', {}).get('status') == 'online' and 
+                               mining_health.get('api_accessibility', {}).get('status') == 'accessible' and
+                               meshnet_health.get('network_health') == 'healthy')
 
             return jsonify({
                 'healthy': overall_healthy,
                 'status': 'operational' if overall_healthy else 'degraded',
                 'services': {
-                    'mining': {
-                        'healthy': mining_healthy,
-                        'status': mining_status
-                    },
-                    'meshnet': {
-                        'healthy': meshnet_healthy,
-                        'status': meshnet_status_msg
-                    }
+                    'mining_infra': mining_health,
+                    'meshnet_infra': meshnet_health
                 },
                 'timestamp': datetime.now().isoformat()
             }), 200 if overall_healthy else 503
 
         except Exception as e:
-            return jsonify({
-                'healthy': False,
-                'status': f'health check failed: {str(e)}',
-                'timestamp': datetime.now().isoformat()
-            }), 500
+            logger.error(f"Health check failed catastrophically: {e}")
+            return jsonify({'healthy': False, 'status': f'health check failed: {str(e)}'}), 500
 
-    @app.route('/api/status')
-    def get_system_status():
-        """Get comprehensive system status"""
+    @app.route('/api/dashboard')
+    def get_system_dashboard():
+        """Get the comprehensive mining and ecosystem dashboard."""
         try:
-            # Get mining stats
-            mining_stats = mining_service.get_mining_stats()
-
-            # Get MESHNET status
-            meshnet_status = meshnet_service.get_mesh_network_status()
-
-            # Get enhanced leaderboard
-            leaderboard = meshnet_service.get_enhanced_leaderboard()
-
-            return jsonify({
-                'success': True,
-                'data': {
-                    'mining': mining_stats,
-                    'meshnet': meshnet_status,
-                    'leaderboard_preview': leaderboard[:5],  # Top 5 miners
-                    'system_info': {
-                        'xmrt_token': app.config['XMRT_TOKEN_ADDRESS'],
-                        'xmrt_ip_nft': app.config['XMRT_IP_NFT_ADDRESS'],
-                        'mining_wallet': app.config['MINING_WALLET'],
-                        'mesh_connectivity_bonus': '10%'
-                    }
-                },
-                'timestamp': datetime.now().isoformat()
-            })
-
+            dashboard_data = asyncio.run(mining_service.get_comprehensive_mining_dashboard())
+            return jsonify({'success': True, 'data': dashboard_data})
         except Exception as e:
-            return jsonify({
-                'success': False,
-                'error': str(e),
-                'timestamp': datetime.now().isoformat()
-            }), 500
+            logger.error(f"Error fetching dashboard data: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
 
-    @app.route('/api/mining/stats')  
-    def get_mining_stats():
-        """Get current mining statistics"""
-        try:
-            stats = mining_service.get_mining_stats()
-            return jsonify({
-                'success': True,
-                'data': stats,
-                'timestamp': datetime.now().isoformat()
-            })
-        except Exception as e:
-            return jsonify({
-                'success': False,
-                'error': str(e)
-            }), 500
-
-    @app.route('/api/mining/leaderboard')
-    def get_mining_leaderboard():
-        """Get enhanced mining leaderboard with MESHNET connectivity"""
-        try:
-            leaderboard = meshnet_service.get_enhanced_leaderboard()
-            return jsonify({
-                'success': True,
-                'data': {
-                    'leaderboard': leaderboard,
-                    'total_participants': len(leaderboard),
-                    'mesh_connected': len([e for e in leaderboard if e['mesh_connected']]),
-                    'efficiency_bonus': '10% for MESHNET connectivity'
-                },
-                'timestamp': datetime.now().isoformat()
-            })
-        except Exception as e:
-            return jsonify({
-                'success': False,
-                'error': str(e)
-            }), 500
+    # --- Error Handlers ---
 
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({
             'error': 'Endpoint not found',
-            'available_endpoints': [
-                '/',
-                '/health', 
-                '/api/status',
-                '/api/mining/stats',
-                '/api/mining/leaderboard',
-                '/api/meshnet/status',
-                '/api/meshnet/leaderboard',
-                '/api/meshnet/nodes',
-                '/api/meshnet/health'
-            ]
+            'message': 'The requested URL was not found on the server.'
         }), 404
 
     @app.errorhandler(500)
     def internal_error(error):
+        logger.error(f"Internal Server Error: {error}")
         return jsonify({
             'error': 'Internal server error',
-            'message': 'Please check the logs for more details'
+            'message': 'An unexpected error occurred. Please check the logs.'
         }), 500
 
     return app
 
-# Create the Flask app
-app = create_app()
-
+# --- Application Entry Point ---
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    # This block is for local development, not for Gunicorn
+    app = create_app()
+    port = int(os.environ.get('PORT', 5001))
     debug = os.environ.get('FLASK_ENV') == 'development'
 
-    logger.info(f"🚀 Starting XMRT-DAO-Ecosystem with MESHNET on port {port}")
-    logger.info(f"🔗 XMRT Token: {app.config['XMRT_TOKEN_ADDRESS']}")
-    logger.info(f"🎨 XMRT IP NFT: {app.config['XMRT_IP_NFT_ADDRESS']}")
-    logger.info(f"⛏️  Mining Wallet: {app.config['MINING_WALLET']}")
-
+    logger.info(f"🚀 Starting XMRT-DAO-Ecosystem in local development mode on port {port}")
     app.run(host='0.0.0.0', port=port, debug=debug)
+else:
+    # This block is for Gunicorn production
+    # We create the app instance for Gunicorn to discover
+    app = create_app()

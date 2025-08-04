@@ -8,4 +8,7 @@ PyGithub==2.7.0
 requests==2.31.0
 python-dotenv==1.0.0
 gunicorn==21.2.0
+# RAGlight dependencies (placeholder - actual package would be added when available)
+chromadb==0.4.22
+sentence-transformers==2.2.2
 

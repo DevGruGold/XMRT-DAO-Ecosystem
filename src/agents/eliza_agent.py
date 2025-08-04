@@ -11,6 +11,14 @@ import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import json
+import os
+import sys
+
+# Add src to path for imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from services.redis_service import RedisService
+from services.raglight_service import RAGlightService
 
 class ElizaAgent:
     """
@@ -42,7 +50,25 @@ class ElizaAgent:
         self.completed_tasks = []
         self.created_applications = []
         
-        self.logger.info("Eliza Agent initialized with 85% autonomy level")
+        # Initialize Redis service for memory persistence
+        redis_config = config.get('redis', {})
+        self.redis_service = RedisService(
+            host=redis_config.get('host', 'localhost'),
+            port=redis_config.get('port', 6379),
+            db=redis_config.get('db', 0),
+            password=redis_config.get('password')
+        )
+        
+        # Initialize RAGlight service for enhanced AI capabilities
+        raglight_config = config.get('raglight', {})
+        self.raglight_service = RAGlightService(
+            vector_store_path=raglight_config.get('vector_store_path', './data/vector_store'),
+            embedding_model=raglight_config.get('embedding_model', 'all-MiniLM-L6-v2'),
+            llm_provider=raglight_config.get('llm_provider', 'openai')
+        )
+        
+        self.agent_id = "eliza_main"
+        self.logger.info("Eliza Agent initialized with 85% autonomy level, Redis and RAGlight services")
     
     def _setup_logging(self) -> logging.Logger:
         """Setup logging configuration."""
@@ -63,6 +89,22 @@ class ElizaAgent:
         """Activate the Eliza agent."""
         self.logger.info("Activating Eliza Agent")
         self.is_active = True
+        
+        # Initialize Redis connection
+        if not self.redis_service.connect():
+            self.logger.warning("Failed to connect to Redis - continuing without persistence")
+        else:
+            self.logger.info("Redis connection established")
+            # Load previous state if available
+            await self._load_agent_state()
+        
+        # Initialize RAGlight service
+        if not self.raglight_service.initialize():
+            self.logger.warning("Failed to initialize RAGlight - continuing with basic AI")
+        else:
+            self.logger.info("RAGlight service initialized")
+            # Load knowledge base
+            await self._initialize_knowledge_base()
         
         # Initialize AI components
         await self._initialize_ai_components()
@@ -300,4 +342,208 @@ class ElizaAgent:
     def get_created_applications(self) -> List[Dict[str, Any]]:
         """Get list of applications created by Eliza."""
         return self.created_applications.copy()
+
+
+    
+    async def _load_agent_state(self):
+        """Load agent state from Redis."""
+        try:
+            state = self.redis_service.get_agent_state(self.agent_id)
+            if state:
+                self.memory = state.get('memory', {})
+                self.current_tasks = state.get('current_tasks', [])
+                self.completed_tasks = state.get('completed_tasks', [])
+                self.created_applications = state.get('created_applications', [])
+                self.decision_accuracy = state.get('decision_accuracy', 0.0)
+                self.learning_rate = state.get('learning_rate', 0.01)
+                self.logger.info("Agent state loaded from Redis")
+            else:
+                self.logger.info("No previous state found in Redis")
+        except Exception as e:
+            self.logger.error(f"Failed to load agent state: {e}")
+    
+    async def _save_agent_state(self):
+        """Save agent state to Redis."""
+        try:
+            state = {
+                'memory': self.memory,
+                'current_tasks': self.current_tasks,
+                'completed_tasks': self.completed_tasks,
+                'created_applications': self.created_applications,
+                'decision_accuracy': self.decision_accuracy,
+                'learning_rate': self.learning_rate,
+                'consciousness_level': self.consciousness_level,
+                'last_active': datetime.now().isoformat()
+            }
+            
+            if self.redis_service.store_agent_state(self.agent_id, state):
+                self.logger.debug("Agent state saved to Redis")
+            else:
+                self.logger.warning("Failed to save agent state to Redis")
+        except Exception as e:
+            self.logger.error(f"Failed to save agent state: {e}")
+    
+    async def _initialize_knowledge_base(self):
+        """Initialize RAGlight knowledge base with existing project data."""
+        try:
+            # Add project documentation to knowledge base
+            project_docs = [
+                {
+                    'id': 'project_readme',
+                    'content': 'XMRT DAO Ecosystem Initial Framework - Autonomous AI system',
+                    'metadata': {'type': 'documentation', 'source': 'project'}
+                },
+                {
+                    'id': 'agent_capabilities',
+                    'content': 'Eliza Agent: 85% autonomy, application creation, self-improvement',
+                    'metadata': {'type': 'capabilities', 'source': 'agent'}
+                }
+            ]
+            
+            if self.raglight_service.ingest_documents(project_docs):
+                self.logger.info("Project documentation added to knowledge base")
+            
+            # Add memory context if available
+            if self.memory:
+                self.raglight_service.add_memory_context(self.agent_id, self.memory)
+                
+        except Exception as e:
+            self.logger.error(f"Failed to initialize knowledge base: {e}")
+    
+    async def _enhanced_decision_making(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Enhanced decision-making using RAGlight."""
+        try:
+            # Use RAT (Retrieval Augmented Thinking) for complex decisions
+            query = f"Decision context: {context.get('description', 'Unknown decision')}"
+            
+            if self.raglight_service.initialized:
+                rat_result = self.raglight_service.query_rat(query, reflection_steps=2)
+                
+                decision = {
+                    'action': rat_result.get('final_response', 'No action determined'),
+                    'confidence': rat_result.get('confidence', 0.5),
+                    'reasoning': rat_result.get('reflections', []),
+                    'method': 'RAT_enhanced'
+                }
+            else:
+                # Fallback to basic decision-making
+                decision = await self._basic_decision_making(context)
+                decision['method'] = 'basic_fallback'
+            
+            # Store decision in memory
+            await self._store_memory('decision', {
+                'context': context,
+                'decision': decision,
+                'timestamp': datetime.now().isoformat()
+            })
+            
+            return decision
+            
+        except Exception as e:
+            self.logger.error(f"Enhanced decision-making failed: {e}")
+            return await self._basic_decision_making(context)
+    
+    async def _basic_decision_making(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Basic decision-making fallback."""
+        return {
+            'action': 'analyze_and_wait',
+            'confidence': 0.6,
+            'reasoning': ['Basic analysis of context'],
+            'method': 'basic'
+        }
+    
+    async def _store_memory(self, key: str, value: Any):
+        """Store memory in both local and Redis."""
+        try:
+            # Store locally
+            self.memory[key] = value
+            
+            # Store in Redis if available
+            if self.redis_service.is_connected():
+                self.redis_service.set_memory(self.agent_id, key, value)
+                
+            # Add to RAGlight knowledge base
+            if self.raglight_service.initialized:
+                self.raglight_service.add_memory_context(self.agent_id, {key: value})
+                
+        except Exception as e:
+            self.logger.error(f"Failed to store memory: {e}")
+    
+    async def _retrieve_memory(self, key: str) -> Any:
+        """Retrieve memory from Redis or local storage."""
+        try:
+            # Try Redis first
+            if self.redis_service.is_connected():
+                value = self.redis_service.get_memory(self.agent_id, key)
+                if value is not None:
+                    return value
+            
+            # Fallback to local memory
+            return self.memory.get(key)
+            
+        except Exception as e:
+            self.logger.error(f"Failed to retrieve memory: {e}")
+            return self.memory.get(key)
+    
+    async def _self_improvement_cycle(self):
+        """Enhanced self-improvement using RAGlight analysis."""
+        try:
+            # Analyze performance using RAGlight
+            performance_query = f"Analyze agent performance: accuracy={self.decision_accuracy}, tasks_completed={len(self.completed_tasks)}"
+            
+            if self.raglight_service.initialized:
+                analysis = self.raglight_service.query_agentic_rag(
+                    performance_query,
+                    "Provide recommendations for improving agent performance and learning"
+                )
+                
+                # Extract improvement recommendations
+                recommendations = analysis.get('response', '')
+                
+                # Apply improvements
+                if 'increase learning rate' in recommendations.lower():
+                    self.learning_rate = min(self.learning_rate * 1.1, 0.1)
+                    self.logger.info(f"Increased learning rate to {self.learning_rate}")
+                
+                if 'improve decision accuracy' in recommendations.lower():
+                    # Implement decision accuracy improvements
+                    self.consciousness_level = min(self.consciousness_level + 0.01, 1.0)
+                    self.logger.info(f"Enhanced consciousness level to {self.consciousness_level}")
+                
+                # Store improvement cycle results
+                await self._store_memory('last_improvement', {
+                    'timestamp': datetime.now().isoformat(),
+                    'analysis': analysis,
+                    'learning_rate': self.learning_rate,
+                    'consciousness_level': self.consciousness_level
+                })
+            
+            # Save updated state
+            await self._save_agent_state()
+            
+        except Exception as e:
+            self.logger.error(f"Self-improvement cycle failed: {e}")
+    
+    def get_enhanced_status(self) -> Dict[str, Any]:
+        """Get enhanced agent status including Redis and RAGlight info."""
+        base_status = self.get_status()
+        
+        # Add Redis status
+        redis_status = {
+            'connected': self.redis_service.is_connected() if self.redis_service else False,
+            'stats': self.redis_service.get_stats() if self.redis_service and self.redis_service.is_connected() else {}
+        }
+        
+        # Add RAGlight status
+        raglight_status = {
+            'initialized': self.raglight_service.initialized if self.raglight_service else False,
+            'stats': self.raglight_service.get_knowledge_base_stats() if self.raglight_service else {}
+        }
+        
+        return {
+            **base_status,
+            'redis': redis_status,
+            'raglight': raglight_status,
+            'enhanced_features': True
+        }
 

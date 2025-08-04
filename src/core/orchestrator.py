@@ -11,6 +11,13 @@ import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import json
+import os
+import sys
+
+# Add src to path for imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from services.redis_service import RedisService
 
 class XMRTOrchestrator:
     """
@@ -36,7 +43,17 @@ class XMRTOrchestrator:
         self.services = {}
         self.applications = {}
         
-        self.logger.info("XMRT Orchestrator initialized")
+        # Initialize Redis service for system-wide caching and coordination
+        redis_config = config.get('redis', {})
+        self.redis_service = RedisService(
+            host=redis_config.get('host', 'localhost'),
+            port=redis_config.get('port', 6379),
+            db=redis_config.get('db', 1),  # Use different DB than agents
+            password=redis_config.get('password')
+        )
+        
+        self.orchestrator_id = "xmrt_orchestrator"
+        self.logger.info("XMRT Orchestrator initialized with Redis integration")
     
     def _setup_logging(self) -> logging.Logger:
         """Setup logging configuration."""

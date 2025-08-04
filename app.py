@@ -46,6 +46,17 @@ def create_config():
             'enabled': True,
             'auto_commit': True,
             'auto_deploy': True
+        },
+        'redis': {
+            'host': os.getenv('REDIS_HOST', 'localhost'),
+            'port': int(os.getenv('REDIS_PORT', 6379)),
+            'db': int(os.getenv('REDIS_DB', 0)),
+            'password': os.getenv('REDIS_PASSWORD')
+        },
+        'raglight': {
+            'vector_store_path': os.getenv('RAGLIGHT_VECTOR_STORE', './data/vector_store'),
+            'embedding_model': os.getenv('RAGLIGHT_EMBEDDING_MODEL', 'all-MiniLM-L6-v2'),
+            'llm_provider': os.getenv('RAGLIGHT_LLM_PROVIDER', 'openai')
         }
     }
 
@@ -94,7 +105,7 @@ def status():
     status_data = {
         "timestamp": datetime.now().isoformat(),
         "orchestrator": orchestrator.get_status() if orchestrator else None,
-        "eliza_agent": eliza_agent.get_status() if eliza_agent else None,
+        "eliza_agent": eliza_agent.get_enhanced_status() if eliza_agent and hasattr(eliza_agent, 'get_enhanced_status') else (eliza_agent.get_status() if eliza_agent else None),
         "github_service": github_service.get_status() if github_service else None
     }
     

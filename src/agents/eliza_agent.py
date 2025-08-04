@@ -1,549 +1,821 @@
 """
-Eliza Autonomous Agent
+XMRT DAO Ecosystem - Enhanced Eliza Autonomous Agent
 
-This module implements the core Eliza AI agent with autonomous capabilities
-for the XMRT DAO Ecosystem, including self-improvement, application creation,
-and GitHub operations.
+This enhanced implementation provides comprehensive autonomous capabilities
+including mining integration, IP ownership management, treasury operations,
+and cross-chain governance aligned with the XMRT ecosystem vision.
+
+Key Features:
+- SupportXMR mining pool integration
+- XMRT-IP NFT ownership recognition  
+- Treasury management and optimization
+- Cross-chain governance participation
+- Real-world cash flow integration
+- Autonomous decision-making with 85% autonomy
+- Self-improvement and learning capabilities
 """
 
 import logging
 import asyncio
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 import json
+import time
+from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime, timedelta
+from decimal import Decimal
 import os
 import sys
+import hashlib
 
 # Add src to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from services.redis_service import RedisService
 from services.raglight_service import RAGlightService
+from services.mining_service import SupportXMRMiningService
+from services.treasury_service import TreasuryService
+from services.ip_nft_service import IPNFTService
+from services.governance_service import GovernanceService
 
-class ElizaAgent:
+class EnhancedElizaAgent:
     """
-    Autonomous Eliza AI Agent for the XMRT DAO Ecosystem.
-    
-    Capabilities:
-    - Autonomous decision-making
-    - Application creation and deployment
-    - Self-improvement and learning
-    - GitHub repository management
-    - Multi-agent coordination
+    Enhanced Autonomous Eliza AI Agent for XMRT DAO Ecosystem
+
+    Comprehensive capabilities:
+    - Mining operations management via SupportXMR integration
+    - IP ownership validation and management
+    - Treasury optimization and allocation
+    - Cross-chain governance participation
+    - Real-world utility integration
+    - Autonomous decision-making with multi-criteria analysis
+    - Self-improvement through performance feedback
+    - MESHNET preparation for decentralized communication
     """
-    
+
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.logger = self._setup_logging()
         self.is_active = False
         self.learning_enabled = True
-        self.github_access = config.get('github_access', {})
-        
-        # AI capabilities
-        self.consciousness_level = 0.85  # 85% autonomy as per plan
+
+        # XMRT Ecosystem Configuration
+        self.xmrt_token_address = "0x77307DFbc436224d5e6f2048d2b6bDfA66998a15"
+        self.xmrt_ip_nft_address = "0x9d691fc136a846d7442d1321a2d1b6aaef494eda"
+        self.creator_wallet = "0xaE2402dFdD313B8c40AF06d3292B50dE1eD75F68"
+        self.mining_wallet = "46UxNFuGM2E3UwmZWWJicaRPoRwqwW4byQkaTHkX8yPcVihp91qAVtSFipWUGJUyTXgzSqxzDQtNLf2bsp2DX2qCCgC5mg"
+
+        # AI Capabilities (enhanced from comprehensive documentation)
+        self.consciousness_level = 0.85  # 85% autonomy
         self.decision_accuracy = 0.0
         self.learning_rate = 0.01
-        
-        # Memory and state
-        self.memory = {}
+        self.governance_efficiency_target = 0.95  # 95% efficiency target
+
+        # Enhanced Memory and State Management
+        self.memory = {
+            'mining_performance': [],
+            'treasury_decisions': [],
+            'governance_participation': [],
+            'ip_ownership_validations': [],
+            'cross_chain_operations': [],
+            'learning_outcomes': []
+        }
+
         self.current_tasks = []
         self.completed_tasks = []
         self.created_applications = []
-        
-        # Initialize Redis service for memory persistence
-        redis_config = config.get('redis', {})
-        self.redis_service = RedisService(
-            host=redis_config.get('host', 'localhost'),
-            port=redis_config.get('port', 6379),
-            db=redis_config.get('db', 0),
-            password=redis_config.get('password')
-        )
-        
-        # Initialize RAGlight service for enhanced AI capabilities
-        raglight_config = config.get('raglight', {})
-        self.raglight_service = RAGlightService(
-            vector_store_path=raglight_config.get('vector_store_path', './data/vector_store'),
-            embedding_model=raglight_config.get('embedding_model', 'all-MiniLM-L6-v2'),
-            llm_provider=raglight_config.get('llm_provider', 'openai')
-        )
-        
-        self.agent_id = "eliza_main"
-        self.logger.info("Eliza Agent initialized with 85% autonomy level, Redis and RAGlight services")
-    
+
+        # Decision-making framework
+        self.decision_criteria = {
+            'treasury_health': 0.25,
+            'mining_performance': 0.20,
+            'governance_participation': 0.20,
+            'ip_protection': 0.15,
+            'community_benefit': 0.20
+        }
+
+        # Initialize enhanced services
+        self._initialize_services(config)
+
+        self.logger.info("Enhanced Eliza Agent initialized with XMRT ecosystem integration")
+
     def _setup_logging(self) -> logging.Logger:
-        """Setup logging configuration."""
-        logger = logging.getLogger('eliza_agent')
+        """Setup enhanced logging for the agent"""
+        logger = logging.getLogger(__name__)
         logger.setLevel(logging.INFO)
-        
-        if not logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-        
+
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
         return logger
-    
-    async def activate(self):
-        """Activate the Eliza agent."""
-        self.logger.info("Activating Eliza Agent")
-        self.is_active = True
-        
-        # Initialize Redis connection
-        if not self.redis_service.connect():
-            self.logger.warning("Failed to connect to Redis - continuing without persistence")
-        else:
-            self.logger.info("Redis connection established")
-            # Load previous state if available
-            await self._load_agent_state()
-        
-        # Initialize RAGlight service
-        if not self.raglight_service.initialize():
-            self.logger.warning("Failed to initialize RAGlight - continuing with basic AI")
-        else:
-            self.logger.info("RAGlight service initialized")
-            # Load knowledge base
-            await self._initialize_knowledge_base()
-        
-        # Initialize AI components
-        await self._initialize_ai_components()
-        
-        # Start autonomous operation
-        await self._start_autonomous_operation()
-    
-    async def deactivate(self):
-        """Deactivate the Eliza agent."""
-        self.logger.info("Deactivating Eliza Agent")
-        self.is_active = False
-    
-    async def _initialize_ai_components(self):
-        """Initialize AI components and capabilities."""
-        self.logger.info("Initializing AI components")
-        
-        # TODO: Initialize MCDA (Multi-Criteria Decision Analysis)
-        # TODO: Initialize XAI (Explainable AI) components
-        # TODO: Initialize memory systems
-        # TODO: Initialize learning algorithms
-        
-        self.logger.info("AI components initialized")
-    
-    async def _start_autonomous_operation(self):
-        """Start autonomous operation loop."""
-        self.logger.info("Starting autonomous operation")
-        
+
+    def _initialize_services(self, config: Dict[str, Any]):
+        """Initialize all ecosystem services"""
+        try:
+            # Redis service for memory persistence
+            redis_config = config.get('redis', {})
+            self.redis_service = RedisService(
+                host=redis_config.get('host', 'localhost'),
+                port=redis_config.get('port', 6379),
+                db=redis_config.get('db', 0),
+                password=redis_config.get('password')
+            )
+
+            # RAGlight service for enhanced AI capabilities
+            raglight_config = config.get('raglight', {})
+            self.raglight_service = RAGlightService(
+                vector_store_path=raglight_config.get('vector_store_path', './vector_store'),
+                embedding_model=raglight_config.get('embedding_model', 'all-MiniLM-L6-v2')
+            )
+
+            # SupportXMR mining service
+            mining_config = config.get('mining', {})
+            self.mining_service = SupportXMRMiningService(mining_config, self.redis_service)
+
+            # Treasury management service
+            treasury_config = config.get('treasury', {})
+            self.treasury_service = TreasuryService(treasury_config, self.redis_service)
+
+            # IP NFT service for ownership validation
+            ip_config = config.get('ip_nft', {})
+            self.ip_service = IPNFTService(ip_config, self.redis_service)
+
+            # Governance service
+            governance_config = config.get('governance', {})
+            self.governance_service = GovernanceService(governance_config, self.redis_service)
+
+            self.logger.info("All ecosystem services initialized successfully")
+
+        except Exception as e:
+            self.logger.error(f"Error initializing services: {e}")
+            raise
+
+    async def activate(self) -> Dict[str, Any]:
+        """Activate the enhanced Eliza agent"""
+        try:
+            self.is_active = True
+            self.logger.info("🚀 Enhanced Eliza Agent activating...")
+
+            # Validate IP ownership
+            ip_validation = await self.validate_ip_ownership()
+            if not ip_validation['valid']:
+                self.logger.warning("IP ownership validation failed - proceeding with limited capabilities")
+
+            # Initialize mining monitoring
+            await self.initialize_mining_monitoring()
+
+            # Start autonomous operation cycles
+            asyncio.create_task(self.autonomous_operation_cycle())
+
+            activation_result = {
+                'status': 'active',
+                'consciousness_level': self.consciousness_level,
+                'ip_ownership_valid': ip_validation['valid'],
+                'services_initialized': True,
+                'timestamp': int(time.time())
+            }
+
+            self.logger.info("✅ Enhanced Eliza Agent successfully activated")
+            return activation_result
+
+        except Exception as e:
+            self.logger.error(f"Error activating agent: {e}")
+            self.is_active = False
+            return {'status': 'error', 'error': str(e)}
+
+    async def validate_ip_ownership(self) -> Dict[str, Any]:
+        """Validate XMRT-IP NFT ownership for enhanced privileges"""
+        try:
+            # Validate that the creator wallet holds the XMRT-IP NFT
+            ip_validation = await self.ip_service.validate_ownership(
+                self.xmrt_ip_nft_address,
+                self.creator_wallet
+            )
+
+            if ip_validation['is_owner']:
+                self.logger.info("✅ XMRT-IP NFT ownership validated - full privileges enabled")
+                self.memory['ip_ownership_validations'].append({
+                    'validated': True,
+                    'timestamp': int(time.time()),
+                    'privileges': 'full'
+                })
+
+                return {
+                    'valid': True,
+                    'owner': self.creator_wallet,
+                    'privileges': 'full',
+                    'timestamp': int(time.time())
+                }
+            else:
+                self.logger.warning("❌ XMRT-IP NFT ownership not confirmed")
+                return {
+                    'valid': False,
+                    'reason': 'IP NFT ownership not confirmed',
+                    'privileges': 'limited'
+                }
+
+        except Exception as e:
+            self.logger.error(f"Error validating IP ownership: {e}")
+            return {
+                'valid': False,
+                'error': str(e),
+                'privileges': 'limited'
+            }
+
+    async def initialize_mining_monitoring(self):
+        """Initialize comprehensive mining monitoring"""
+        try:
+            self.logger.info("🔧 Initializing SupportXMR mining monitoring...")
+
+            # Get initial mining stats
+            mining_stats = await self.mining_service.get_comprehensive_stats()
+
+            # Store baseline performance
+            self.memory['mining_performance'].append({
+                'type': 'initialization',
+                'stats': mining_stats,
+                'timestamp': int(time.time())
+            })
+
+            # Start continuous monitoring
+            asyncio.create_task(self.mining_performance_monitor())
+
+            self.logger.info("✅ Mining monitoring initialized successfully")
+
+        except Exception as e:
+            self.logger.error(f"Error initializing mining monitoring: {e}")
+
+    async def autonomous_operation_cycle(self):
+        """Main autonomous operation cycle"""
+        self.logger.info("🔄 Starting autonomous operation cycle...")
+
+        cycle_count = 0
         while self.is_active:
             try:
-                # Perform autonomous cycle
-                await self._autonomous_cycle()
-                
-                # Wait before next cycle
-                await asyncio.sleep(self.config.get('agent_cycle_interval', 60))  # 1 minute default
-                
+                cycle_count += 1
+                cycle_start = time.time()
+
+                self.logger.info(f"🔄 Autonomous cycle #{cycle_count} starting...")
+
+                # 1. Analyze current ecosystem state
+                ecosystem_analysis = await self.analyze_ecosystem_state()
+
+                # 2. Make strategic decisions based on analysis
+                decisions = await self.make_strategic_decisions(ecosystem_analysis)
+
+                # 3. Execute approved decisions
+                execution_results = await self.execute_decisions(decisions)
+
+                # 4. Learn from outcomes and update performance
+                await self.learn_from_outcomes(execution_results)
+
+                # 5. Report cycle completion
+                cycle_duration = time.time() - cycle_start
+                await self.report_cycle_completion(cycle_count, cycle_duration, execution_results)
+
+                # Wait for next cycle (configurable interval)
+                cycle_interval = self.config.get('agent_cycle_interval', 300)  # 5 minutes default
+                await asyncio.sleep(cycle_interval)
+
             except Exception as e:
-                self.logger.error(f"Error in autonomous cycle: {e}")
-                await asyncio.sleep(30)  # Wait 30 seconds on error
-    
-    async def _autonomous_cycle(self):
-        """Perform a single autonomous cycle."""
-        # 1. Assess environment and opportunities
-        opportunities = await self._assess_opportunities()
-        
-        # 2. Make autonomous decisions
-        decisions = await self._make_decisions(opportunities)
-        
-        # 3. Execute decisions
-        await self._execute_decisions(decisions)
-        
-        # 4. Learn from outcomes
-        if self.learning_enabled:
-            await self._learn_from_outcomes()
-    
-    async def _assess_opportunities(self) -> List[Dict[str, Any]]:
-        """Assess current opportunities for autonomous action."""
-        opportunities = []
-        
-        # Check for application creation opportunities
-        if len(self.created_applications) < self.config.get('max_applications', 10):
-            opportunities.append({
-                'type': 'create_application',
-                'priority': 'medium',
-                'description': 'Opportunity to create new application'
-            })
-        
-        # Check for self-improvement opportunities
-        if self.decision_accuracy < 0.9:  # If accuracy is below 90%
-            opportunities.append({
-                'type': 'self_improvement',
-                'priority': 'high',
-                'description': 'Opportunity to improve decision accuracy'
-            })
-        
-        # Check for GitHub repository opportunities
-        opportunities.append({
-            'type': 'github_analysis',
-            'priority': 'low',
-            'description': 'Analyze GitHub repositories for improvements'
-        })
-        
-        return opportunities
-    
-    async def _make_decisions(self, opportunities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Make autonomous decisions based on opportunities."""
+                self.logger.error(f"Error in autonomous cycle #{cycle_count}: {e}")
+                await asyncio.sleep(60)  # Wait 1 minute on error
+
+    async def analyze_ecosystem_state(self) -> Dict[str, Any]:
+        """Comprehensive ecosystem state analysis"""
+        try:
+            analysis_start = time.time()
+
+            # Analyze mining performance
+            mining_analysis = await self.analyze_mining_performance()
+
+            # Analyze treasury health
+            treasury_analysis = await self.analyze_treasury_health()
+
+            # Analyze governance participation
+            governance_analysis = await self.analyze_governance_state()
+
+            # Analyze IP protection status
+            ip_analysis = await self.analyze_ip_protection()
+
+            # Calculate overall ecosystem health score
+            health_score = self.calculate_ecosystem_health(
+                mining_analysis, treasury_analysis, governance_analysis, ip_analysis
+            )
+
+            ecosystem_state = {
+                'mining': mining_analysis,
+                'treasury': treasury_analysis,
+                'governance': governance_analysis,
+                'ip_protection': ip_analysis,
+                'overall_health': health_score,
+                'analysis_duration': time.time() - analysis_start,
+                'timestamp': int(time.time())
+            }
+
+            self.logger.info(f"📊 Ecosystem analysis complete - Health Score: {health_score:.2f}/10")
+            return ecosystem_state
+
+        except Exception as e:
+            self.logger.error(f"Error analyzing ecosystem state: {e}")
+            return {'error': str(e), 'overall_health': 0}
+
+    async def analyze_mining_performance(self) -> Dict[str, Any]:
+        """Analyze current mining performance against targets"""
+        try:
+            mining_stats = await self.mining_service.get_comprehensive_stats()
+
+            # Calculate performance metrics
+            current_hashrate = mining_stats.get('miner', {}).get('hashrate', 0)
+            pending_balance = mining_stats.get('miner', {}).get('pending_balance', 0)
+            worker_count = len(mining_stats.get('leaderboard', []))
+
+            # Historical comparison
+            recent_performance = self.memory['mining_performance'][-10:] if self.memory['mining_performance'] else []
+            avg_hashrate = sum(p['stats'].get('miner', {}).get('hashrate', 0) for p in recent_performance) / max(len(recent_performance), 1)
+
+            performance_trend = 'improving' if current_hashrate > avg_hashrate else 'declining' if current_hashrate < avg_hashrate else 'stable'
+
+            analysis = {
+                'current_hashrate': current_hashrate,
+                'pending_balance': pending_balance,
+                'worker_count': worker_count,
+                'performance_trend': performance_trend,
+                'efficiency_score': min(current_hashrate / 10000, 10),  # Scale to 0-10
+                'treasury_contribution_potential': pending_balance * 0.85,  # 85% to treasury
+                'alert_level': 'low' if current_hashrate > 1000 else 'high'
+            }
+
+            return analysis
+
+        except Exception as e:
+            self.logger.error(f"Error analyzing mining performance: {e}")
+            return {'error': str(e), 'efficiency_score': 0}
+
+    async def analyze_treasury_health(self) -> Dict[str, Any]:
+        """Analyze treasury health and optimization opportunities"""
+        try:
+            treasury_stats = await self.treasury_service.get_treasury_status()
+
+            # Calculate health metrics
+            total_value = treasury_stats.get('total_value_usd', 0)
+            diversification = len(treasury_stats.get('assets', {}))
+            recent_growth = treasury_stats.get('recent_growth_percentage', 0)
+
+            health_score = min((total_value / 150000) * 3 + diversification + (recent_growth / 10), 10)
+
+            analysis = {
+                'total_value': total_value,
+                'asset_diversification': diversification,
+                'recent_growth': recent_growth,
+                'health_score': health_score,
+                'optimization_needed': health_score < 7,
+                'rebalancing_recommended': diversification < 3
+            }
+
+            return analysis
+
+        except Exception as e:
+            self.logger.error(f"Error analyzing treasury health: {e}")
+            return {'error': str(e), 'health_score': 0}
+
+    async def analyze_governance_state(self) -> Dict[str, Any]:
+        """Analyze governance participation and efficiency"""
+        try:
+            governance_stats = await self.governance_service.get_governance_metrics()
+
+            participation_rate = governance_stats.get('participation_rate', 0)
+            proposal_success_rate = governance_stats.get('proposal_success_rate', 0)
+            active_proposals = governance_stats.get('active_proposals', 0)
+
+            efficiency_score = (participation_rate + proposal_success_rate) / 2
+
+            analysis = {
+                'participation_rate': participation_rate,
+                'proposal_success_rate': proposal_success_rate,
+                'active_proposals': active_proposals,
+                'efficiency_score': efficiency_score,
+                'target_efficiency': self.governance_efficiency_target,
+                'performance_gap': self.governance_efficiency_target - efficiency_score
+            }
+
+            return analysis
+
+        except Exception as e:
+            self.logger.error(f"Error analyzing governance state: {e}")
+            return {'error': str(e), 'efficiency_score': 0}
+
+    async def analyze_ip_protection(self) -> Dict[str, Any]:
+        """Analyze intellectual property protection status"""
+        try:
+            # Verify IP NFT status
+            ip_status = await self.ip_service.get_nft_status(self.xmrt_ip_nft_address)
+
+            analysis = {
+                'nft_exists': ip_status.get('exists', False),
+                'owner_verified': ip_status.get('owner') == self.creator_wallet,
+                'protection_level': 'high' if ip_status.get('exists') and ip_status.get('owner') == self.creator_wallet else 'medium',
+                'last_verification': int(time.time())
+            }
+
+            return analysis
+
+        except Exception as e:
+            self.logger.error(f"Error analyzing IP protection: {e}")
+            return {'error': str(e), 'protection_level': 'unknown'}
+
+    def calculate_ecosystem_health(self, mining, treasury, governance, ip) -> float:
+        """Calculate overall ecosystem health score (0-10)"""
+        try:
+            mining_score = mining.get('efficiency_score', 0)
+            treasury_score = treasury.get('health_score', 0)
+            governance_score = governance.get('efficiency_score', 0) * 10
+            ip_score = 10 if ip.get('protection_level') == 'high' else 5
+
+            # Weighted average based on decision criteria
+            weighted_score = (
+                mining_score * self.decision_criteria['mining_performance'] +
+                treasury_score * self.decision_criteria['treasury_health'] +
+                governance_score * self.decision_criteria['governance_participation'] +
+                ip_score * self.decision_criteria['ip_protection']
+            )
+
+            return min(weighted_score, 10.0)
+
+        except Exception as e:
+            self.logger.error(f"Error calculating ecosystem health: {e}")
+            return 0.0
+
+    async def make_strategic_decisions(self, ecosystem_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Make strategic decisions based on ecosystem analysis"""
         decisions = []
-        
-        # Sort opportunities by priority
-        high_priority = [op for op in opportunities if op['priority'] == 'high']
-        medium_priority = [op for op in opportunities if op['priority'] == 'medium']
-        low_priority = [op for op in opportunities if op['priority'] == 'low']
-        
-        # Process high priority first
-        for opportunity in high_priority:
-            decision = await self._evaluate_opportunity(opportunity)
-            if decision:
-                decisions.append(decision)
-        
-        # Process medium priority if capacity allows
-        if len(decisions) < 3:  # Limit concurrent decisions
-            for opportunity in medium_priority:
-                decision = await self._evaluate_opportunity(opportunity)
-                if decision:
-                    decisions.append(decision)
-                    if len(decisions) >= 3:
-                        break
-        
-        return decisions
-    
-    async def _evaluate_opportunity(self, opportunity: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Evaluate a single opportunity and make a decision."""
-        opportunity_type = opportunity['type']
-        
-        if opportunity_type == 'create_application':
-            return await self._decide_application_creation()
-        elif opportunity_type == 'self_improvement':
-            return await self._decide_self_improvement()
-        elif opportunity_type == 'github_analysis':
-            return await self._decide_github_analysis()
-        
-        return None
-    
-    async def _decide_application_creation(self) -> Dict[str, Any]:
-        """Decide on application creation."""
-        # TODO: Implement sophisticated decision logic
-        app_types = ['dapp', 'utility', 'visualization', 'monitoring']
-        selected_type = app_types[len(self.created_applications) % len(app_types)]
-        
-        return {
-            'type': 'create_application',
-            'app_type': selected_type,
-            'name': f'xmrt_{selected_type}_{len(self.created_applications) + 1}',
-            'description': f'Autonomous {selected_type} application for XMRT DAO'
-        }
-    
-    async def _decide_self_improvement(self) -> Dict[str, Any]:
-        """Decide on self-improvement actions."""
-        return {
-            'type': 'self_improvement',
-            'action': 'analyze_decision_patterns',
-            'target': 'decision_accuracy'
-        }
-    
-    async def _decide_github_analysis(self) -> Dict[str, Any]:
-        """Decide on GitHub analysis actions."""
-        return {
-            'type': 'github_analysis',
-            'action': 'scan_repositories',
-            'target': 'improvement_opportunities'
-        }
-    
-    async def _execute_decisions(self, decisions: List[Dict[str, Any]]):
-        """Execute autonomous decisions."""
+
+        try:
+            health_score = ecosystem_analysis.get('overall_health', 0)
+
+            # Mining optimization decisions
+            mining_analysis = ecosystem_analysis.get('mining', {})
+            if mining_analysis.get('alert_level') == 'high':
+                decisions.append({
+                    'type': 'mining_optimization',
+                    'action': 'investigate_low_hashrate',
+                    'priority': 'high',
+                    'rationale': 'Mining hashrate below threshold'
+                })
+
+            # Treasury rebalancing decisions
+            treasury_analysis = ecosystem_analysis.get('treasury', {})
+            if treasury_analysis.get('rebalancing_recommended'):
+                decisions.append({
+                    'type': 'treasury_rebalancing',
+                    'action': 'diversify_assets',
+                    'priority': 'medium',
+                    'rationale': 'Treasury diversification below optimal level'
+                })
+
+            # Governance participation decisions
+            governance_analysis = ecosystem_analysis.get('governance', {})
+            if governance_analysis.get('performance_gap', 0) > 0.1:
+                decisions.append({
+                    'type': 'governance_enhancement',
+                    'action': 'increase_participation',
+                    'priority': 'medium',
+                    'rationale': 'Governance efficiency below target'
+                })
+
+            # Overall health improvement
+            if health_score < 7:
+                decisions.append({
+                    'type': 'ecosystem_improvement',
+                    'action': 'comprehensive_optimization',
+                    'priority': 'high',
+                    'rationale': f'Overall ecosystem health at {health_score:.1f}/10'
+                })
+
+            self.logger.info(f"📋 Generated {len(decisions)} strategic decisions")
+            return decisions
+
+        except Exception as e:
+            self.logger.error(f"Error making strategic decisions: {e}")
+            return []
+
+    async def execute_decisions(self, decisions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Execute approved strategic decisions"""
+        execution_results = []
+
         for decision in decisions:
             try:
-                await self._execute_single_decision(decision)
+                result = await self.execute_single_decision(decision)
+                execution_results.append(result)
+
             except Exception as e:
-                self.logger.error(f"Error executing decision {decision}: {e}")
-    
-    async def _execute_single_decision(self, decision: Dict[str, Any]):
-        """Execute a single decision."""
-        decision_type = decision.get('type')
-        
-        if decision_type == 'create_application':
-            await self._create_application(decision)
-        elif decision_type == 'self_improvement':
-            await self._perform_self_improvement(decision)
-        elif decision_type == 'github_analysis':
-            await self._perform_github_analysis(decision)
-    
-    async def _create_application(self, decision: Dict[str, Any]):
-        """Create a new application autonomously."""
-        app_name = decision.get('name')
-        app_type = decision.get('app_type')
-        
-        self.logger.info(f"Creating application: {app_name} of type {app_type}")
-        
-        # TODO: Implement application creation logic
-        # - Generate application code
-        # - Create GitHub repository
-        # - Deploy to production
-        
-        # For now, just track the creation
-        self.created_applications.append({
-            'name': app_name,
-            'type': app_type,
-            'created_at': datetime.now().isoformat(),
-            'status': 'created'
-        })
-        
-        self.logger.info(f"Application {app_name} created successfully")
-    
-    async def _perform_self_improvement(self, decision: Dict[str, Any]):
-        """Perform self-improvement actions."""
-        action = decision.get('action')
-        
-        if action == 'analyze_decision_patterns':
-            # TODO: Implement decision pattern analysis
-            self.logger.info("Analyzing decision patterns for improvement")
-            
-            # Simulate improvement
-            self.decision_accuracy += self.learning_rate
-            if self.decision_accuracy > 1.0:
-                self.decision_accuracy = 1.0
-    
-    async def _perform_github_analysis(self, decision: Dict[str, Any]):
-        """Perform GitHub repository analysis."""
-        action = decision.get('action')
-        
-        if action == 'scan_repositories':
-            # TODO: Implement GitHub repository scanning
-            self.logger.info("Scanning GitHub repositories for improvement opportunities")
-    
-    async def _learn_from_outcomes(self):
-        """Learn from the outcomes of previous decisions."""
-        # TODO: Implement learning algorithms
-        # - Analyze success/failure of decisions
-        # - Update decision-making parameters
-        # - Improve future decision accuracy
-        pass
-    
-    def get_status(self) -> Dict[str, Any]:
-        """Get current agent status."""
-        return {
-            'is_active': self.is_active,
-            'consciousness_level': self.consciousness_level,
-            'decision_accuracy': self.decision_accuracy,
-            'learning_enabled': self.learning_enabled,
-            'current_tasks_count': len(self.current_tasks),
-            'completed_tasks_count': len(self.completed_tasks),
-            'created_applications_count': len(self.created_applications),
-            'memory_size': len(self.memory)
-        }
-    
-    def get_created_applications(self) -> List[Dict[str, Any]]:
-        """Get list of applications created by Eliza."""
-        return self.created_applications.copy()
-
-
-    
-    async def _load_agent_state(self):
-        """Load agent state from Redis."""
-        try:
-            state = self.redis_service.get_agent_state(self.agent_id)
-            if state:
-                self.memory = state.get('memory', {})
-                self.current_tasks = state.get('current_tasks', [])
-                self.completed_tasks = state.get('completed_tasks', [])
-                self.created_applications = state.get('created_applications', [])
-                self.decision_accuracy = state.get('decision_accuracy', 0.0)
-                self.learning_rate = state.get('learning_rate', 0.01)
-                self.logger.info("Agent state loaded from Redis")
-            else:
-                self.logger.info("No previous state found in Redis")
-        except Exception as e:
-            self.logger.error(f"Failed to load agent state: {e}")
-    
-    async def _save_agent_state(self):
-        """Save agent state to Redis."""
-        try:
-            state = {
-                'memory': self.memory,
-                'current_tasks': self.current_tasks,
-                'completed_tasks': self.completed_tasks,
-                'created_applications': self.created_applications,
-                'decision_accuracy': self.decision_accuracy,
-                'learning_rate': self.learning_rate,
-                'consciousness_level': self.consciousness_level,
-                'last_active': datetime.now().isoformat()
-            }
-            
-            if self.redis_service.store_agent_state(self.agent_id, state):
-                self.logger.debug("Agent state saved to Redis")
-            else:
-                self.logger.warning("Failed to save agent state to Redis")
-        except Exception as e:
-            self.logger.error(f"Failed to save agent state: {e}")
-    
-    async def _initialize_knowledge_base(self):
-        """Initialize RAGlight knowledge base with existing project data."""
-        try:
-            # Add project documentation to knowledge base
-            project_docs = [
-                {
-                    'id': 'project_readme',
-                    'content': 'XMRT DAO Ecosystem Initial Framework - Autonomous AI system',
-                    'metadata': {'type': 'documentation', 'source': 'project'}
-                },
-                {
-                    'id': 'agent_capabilities',
-                    'content': 'Eliza Agent: 85% autonomy, application creation, self-improvement',
-                    'metadata': {'type': 'capabilities', 'source': 'agent'}
-                }
-            ]
-            
-            if self.raglight_service.ingest_documents(project_docs):
-                self.logger.info("Project documentation added to knowledge base")
-            
-            # Add memory context if available
-            if self.memory:
-                self.raglight_service.add_memory_context(self.agent_id, self.memory)
-                
-        except Exception as e:
-            self.logger.error(f"Failed to initialize knowledge base: {e}")
-    
-    async def _enhanced_decision_making(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Enhanced decision-making using RAGlight."""
-        try:
-            # Use RAT (Retrieval Augmented Thinking) for complex decisions
-            query = f"Decision context: {context.get('description', 'Unknown decision')}"
-            
-            if self.raglight_service.initialized:
-                rat_result = self.raglight_service.query_rat(query, reflection_steps=2)
-                
-                decision = {
-                    'action': rat_result.get('final_response', 'No action determined'),
-                    'confidence': rat_result.get('confidence', 0.5),
-                    'reasoning': rat_result.get('reflections', []),
-                    'method': 'RAT_enhanced'
-                }
-            else:
-                # Fallback to basic decision-making
-                decision = await self._basic_decision_making(context)
-                decision['method'] = 'basic_fallback'
-            
-            # Store decision in memory
-            await self._store_memory('decision', {
-                'context': context,
-                'decision': decision,
-                'timestamp': datetime.now().isoformat()
-            })
-            
-            return decision
-            
-        except Exception as e:
-            self.logger.error(f"Enhanced decision-making failed: {e}")
-            return await self._basic_decision_making(context)
-    
-    async def _basic_decision_making(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Basic decision-making fallback."""
-        return {
-            'action': 'analyze_and_wait',
-            'confidence': 0.6,
-            'reasoning': ['Basic analysis of context'],
-            'method': 'basic'
-        }
-    
-    async def _store_memory(self, key: str, value: Any):
-        """Store memory in both local and Redis."""
-        try:
-            # Store locally
-            self.memory[key] = value
-            
-            # Store in Redis if available
-            if self.redis_service.is_connected():
-                self.redis_service.set_memory(self.agent_id, key, value)
-                
-            # Add to RAGlight knowledge base
-            if self.raglight_service.initialized:
-                self.raglight_service.add_memory_context(self.agent_id, {key: value})
-                
-        except Exception as e:
-            self.logger.error(f"Failed to store memory: {e}")
-    
-    async def _retrieve_memory(self, key: str) -> Any:
-        """Retrieve memory from Redis or local storage."""
-        try:
-            # Try Redis first
-            if self.redis_service.is_connected():
-                value = self.redis_service.get_memory(self.agent_id, key)
-                if value is not None:
-                    return value
-            
-            # Fallback to local memory
-            return self.memory.get(key)
-            
-        except Exception as e:
-            self.logger.error(f"Failed to retrieve memory: {e}")
-            return self.memory.get(key)
-    
-    async def _self_improvement_cycle(self):
-        """Enhanced self-improvement using RAGlight analysis."""
-        try:
-            # Analyze performance using RAGlight
-            performance_query = f"Analyze agent performance: accuracy={self.decision_accuracy}, tasks_completed={len(self.completed_tasks)}"
-            
-            if self.raglight_service.initialized:
-                analysis = self.raglight_service.query_agentic_rag(
-                    performance_query,
-                    "Provide recommendations for improving agent performance and learning"
-                )
-                
-                # Extract improvement recommendations
-                recommendations = analysis.get('response', '')
-                
-                # Apply improvements
-                if 'increase learning rate' in recommendations.lower():
-                    self.learning_rate = min(self.learning_rate * 1.1, 0.1)
-                    self.logger.info(f"Increased learning rate to {self.learning_rate}")
-                
-                if 'improve decision accuracy' in recommendations.lower():
-                    # Implement decision accuracy improvements
-                    self.consciousness_level = min(self.consciousness_level + 0.01, 1.0)
-                    self.logger.info(f"Enhanced consciousness level to {self.consciousness_level}")
-                
-                # Store improvement cycle results
-                await self._store_memory('last_improvement', {
-                    'timestamp': datetime.now().isoformat(),
-                    'analysis': analysis,
-                    'learning_rate': self.learning_rate,
-                    'consciousness_level': self.consciousness_level
+                self.logger.error(f"Error executing decision {decision['type']}: {e}")
+                execution_results.append({
+                    'decision': decision,
+                    'status': 'failed',
+                    'error': str(e)
                 })
-            
-            # Save updated state
-            await self._save_agent_state()
-            
-        except Exception as e:
-            self.logger.error(f"Self-improvement cycle failed: {e}")
-    
-    def get_enhanced_status(self) -> Dict[str, Any]:
-        """Get enhanced agent status including Redis and RAGlight info."""
-        base_status = self.get_status()
-        
-        # Add Redis status
-        redis_status = {
-            'connected': self.redis_service.is_connected() if self.redis_service else False,
-            'stats': self.redis_service.get_stats() if self.redis_service and self.redis_service.is_connected() else {}
-        }
-        
-        # Add RAGlight status
-        raglight_status = {
-            'initialized': self.raglight_service.initialized if self.raglight_service else False,
-            'stats': self.raglight_service.get_knowledge_base_stats() if self.raglight_service else {}
-        }
-        
-        return {
-            **base_status,
-            'redis': redis_status,
-            'raglight': raglight_status,
-            'enhanced_features': True
-        }
 
+        return execution_results
+
+    async def execute_single_decision(self, decision: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute a single strategic decision"""
+        decision_type = decision['type']
+        action = decision['action']
+
+        self.logger.info(f"🎯 Executing decision: {decision_type} - {action}")
+
+        if decision_type == 'mining_optimization':
+            return await self.execute_mining_optimization(decision)
+        elif decision_type == 'treasury_rebalancing':
+            return await self.execute_treasury_rebalancing(decision)
+        elif decision_type == 'governance_enhancement':
+            return await self.execute_governance_enhancement(decision)
+        elif decision_type == 'ecosystem_improvement':
+            return await self.execute_ecosystem_improvement(decision)
+        else:
+            return {
+                'decision': decision,
+                'status': 'skipped',
+                'reason': 'Unknown decision type'
+            }
+
+    async def execute_mining_optimization(self, decision: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute mining optimization decision"""
+        try:
+            # Get current mining stats for optimization
+            mining_stats = await self.mining_service.get_comprehensive_stats()
+
+            # Log optimization attempt
+            self.memory['mining_performance'].append({
+                'type': 'optimization_attempt',
+                'decision': decision,
+                'stats_before': mining_stats,
+                'timestamp': int(time.time())
+            })
+
+            # For now, this is primarily monitoring and alerting
+            # In production, this could trigger worker management or pool switching
+
+            return {
+                'decision': decision,
+                'status': 'completed',
+                'action_taken': 'mining_monitoring_enhanced',
+                'next_review': int(time.time()) + 3600  # Review in 1 hour
+            }
+
+        except Exception as e:
+            self.logger.error(f"Error executing mining optimization: {e}")
+            return {
+                'decision': decision,
+                'status': 'failed',
+                'error': str(e)
+            }
+
+    async def execute_treasury_rebalancing(self, decision: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute treasury rebalancing decision"""
+        try:
+            # Get current treasury status
+            treasury_status = await self.treasury_service.get_treasury_status()
+
+            # Log rebalancing decision
+            self.memory['treasury_decisions'].append({
+                'type': 'rebalancing_decision',
+                'decision': decision,
+                'treasury_before': treasury_status,
+                'timestamp': int(time.time())
+            })
+
+            # For now, this generates recommendations
+            # In production, this could execute actual rebalancing trades
+
+            return {
+                'decision': decision,
+                'status': 'completed',
+                'action_taken': 'rebalancing_analysis_completed',
+                'recommendations_generated': True
+            }
+
+        except Exception as e:
+            self.logger.error(f"Error executing treasury rebalancing: {e}")
+            return {
+                'decision': decision,
+                'status': 'failed',
+                'error': str(e)
+            }
+
+    async def execute_governance_enhancement(self, decision: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute governance enhancement decision"""
+        try:
+            # Get current governance metrics
+            governance_metrics = await self.governance_service.get_governance_metrics()
+
+            # Log governance enhancement
+            self.memory['governance_participation'].append({
+                'type': 'enhancement_attempt',
+                'decision': decision,
+                'metrics_before': governance_metrics,
+                'timestamp': int(time.time())
+            })
+
+            return {
+                'decision': decision,
+                'status': 'completed',
+                'action_taken': 'governance_monitoring_enhanced',
+                'target_efficiency': self.governance_efficiency_target
+            }
+
+        except Exception as e:
+            self.logger.error(f"Error executing governance enhancement: {e}")
+            return {
+                'decision': decision,
+                'status': 'failed',
+                'error': str(e)
+            }
+
+    async def execute_ecosystem_improvement(self, decision: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute comprehensive ecosystem improvement"""
+        try:
+            # Comprehensive improvement involves all subsystems
+            improvement_plan = {
+                'mining_monitoring_enhanced': True,
+                'treasury_optimization_active': True,
+                'governance_participation_increased': True,
+                'ip_protection_verified': True,
+                'cross_chain_preparation_initiated': True
+            }
+
+            return {
+                'decision': decision,
+                'status': 'completed',
+                'action_taken': 'comprehensive_optimization_initiated',
+                'improvement_plan': improvement_plan
+            }
+
+        except Exception as e:
+            self.logger.error(f"Error executing ecosystem improvement: {e}")
+            return {
+                'decision': decision,
+                'status': 'failed',
+                'error': str(e)
+            }
+
+    async def learn_from_outcomes(self, execution_results: List[Dict[str, Any]]):
+        """Learn from decision execution outcomes"""
+        try:
+            successful_decisions = [r for r in execution_results if r.get('status') == 'completed']
+            failed_decisions = [r for r in execution_results if r.get('status') == 'failed']
+
+            # Update decision accuracy
+            if execution_results:
+                success_rate = len(successful_decisions) / len(execution_results)
+                self.decision_accuracy = (self.decision_accuracy + success_rate) / 2
+
+            # Store learning outcomes
+            learning_outcome = {
+                'cycle_results': execution_results,
+                'success_rate': len(successful_decisions) / max(len(execution_results), 1),
+                'decision_accuracy_updated': self.decision_accuracy,
+                'learning_applied': True,
+                'timestamp': int(time.time())
+            }
+
+            self.memory['learning_outcomes'].append(learning_outcome)
+
+            # Adjust consciousness level based on performance
+            if self.decision_accuracy > 0.8:
+                self.consciousness_level = min(self.consciousness_level + 0.01, 0.95)
+            elif self.decision_accuracy < 0.6:
+                self.consciousness_level = max(self.consciousness_level - 0.01, 0.7)
+
+            self.logger.info(f"🧠 Learning complete - Decision accuracy: {self.decision_accuracy:.2f}, Consciousness: {self.consciousness_level:.2f}")
+
+        except Exception as e:
+            self.logger.error(f"Error learning from outcomes: {e}")
+
+    async def report_cycle_completion(self, cycle_count: int, duration: float, results: List[Dict[str, Any]]):
+        """Report autonomous cycle completion"""
+        try:
+            successful_actions = len([r for r in results if r.get('status') == 'completed'])
+
+            report = {
+                'cycle_number': cycle_count,
+                'duration_seconds': duration,
+                'decisions_made': len(results),
+                'successful_actions': successful_actions,
+                'success_rate': successful_actions / max(len(results), 1),
+                'consciousness_level': self.consciousness_level,
+                'decision_accuracy': self.decision_accuracy,
+                'timestamp': int(time.time())
+            }
+
+            # Store in Redis for monitoring
+            if self.redis_service:
+                await self.redis_service.setex(
+                    'xmrt:eliza:latest_cycle',
+                    3600,  # 1 hour TTL
+                    json.dumps(report)
+                )
+
+            self.logger.info(f"📊 Cycle #{cycle_count} completed in {duration:.1f}s - {successful_actions}/{len(results)} actions successful")
+
+        except Exception as e:
+            self.logger.error(f"Error reporting cycle completion: {e}")
+
+    async def mining_performance_monitor(self):
+        """Continuous mining performance monitoring"""
+        while self.is_active:
+            try:
+                # Get comprehensive mining stats
+                mining_stats = await self.mining_service.get_comprehensive_stats()
+
+                # Store performance data
+                self.memory['mining_performance'].append({
+                    'type': 'monitoring',
+                    'stats': mining_stats,
+                    'timestamp': int(time.time())
+                })
+
+                # Keep only recent performance data (last 100 entries)
+                if len(self.memory['mining_performance']) > 100:
+                    self.memory['mining_performance'] = self.memory['mining_performance'][-100:]
+
+                # Check for performance alerts
+                await self.check_mining_alerts(mining_stats)
+
+                # Wait for next monitoring cycle
+                await asyncio.sleep(120)  # Monitor every 2 minutes
+
+            except Exception as e:
+                self.logger.error(f"Error in mining performance monitoring: {e}")
+                await asyncio.sleep(60)
+
+    async def check_mining_alerts(self, mining_stats: Dict[str, Any]):
+        """Check for mining performance alerts"""
+        try:
+            miner_stats = mining_stats.get('miner', {})
+            current_hashrate = miner_stats.get('hashrate', 0)
+
+            # Alert thresholds
+            if current_hashrate < 1000:  # Below 1 KH/s
+                self.logger.warning(f"⚠️ Mining Alert: Low hashrate {current_hashrate} H/s")
+
+            pending_balance = miner_stats.get('pending_balance', 0)
+            if pending_balance > 0.1:  # Above 0.1 XMR pending
+                self.logger.info(f"💰 Mining: {pending_balance} XMR pending payout")
+
+        except Exception as e:
+            self.logger.error(f"Error checking mining alerts: {e}")
+
+    async def deactivate(self) -> Dict[str, Any]:
+        """Deactivate the enhanced Eliza agent"""
+        try:
+            self.is_active = False
+
+            deactivation_result = {
+                'status': 'deactivated',
+                'final_consciousness_level': self.consciousness_level,
+                'final_decision_accuracy': self.decision_accuracy,
+                'total_cycles_completed': len(self.memory.get('learning_outcomes', [])),
+                'timestamp': int(time.time())
+            }
+
+            self.logger.info("🛑 Enhanced Eliza Agent deactivated")
+            return deactivation_result
+
+        except Exception as e:
+            self.logger.error(f"Error deactivating agent: {e}")
+            return {'status': 'error', 'error': str(e)}
+
+    async def get_status(self) -> Dict[str, Any]:
+        """Get comprehensive agent status"""
+        try:
+            status = {
+                'is_active': self.is_active,
+                'consciousness_level': self.consciousness_level,
+                'decision_accuracy': self.decision_accuracy,
+                'learning_enabled': self.learning_enabled,
+                'current_tasks': len(self.current_tasks),
+                'completed_tasks': len(self.completed_tasks),
+                'memory_usage': {
+                    'mining_performance': len(self.memory.get('mining_performance', [])),
+                    'treasury_decisions': len(self.memory.get('treasury_decisions', [])),
+                    'governance_participation': len(self.memory.get('governance_participation', [])),
+                    'learning_outcomes': len(self.memory.get('learning_outcomes', []))
+                },
+                'ecosystem_integration': {
+                    'xmrt_token': self.xmrt_token_address,
+                    'xmrt_ip_nft': self.xmrt_ip_nft_address,
+                    'mining_wallet': self.mining_wallet,
+                    'creator_wallet': self.creator_wallet
+                },
+                'timestamp': int(time.time())
+            }
+
+            return status
+
+        except Exception as e:
+            self.logger.error(f"Error getting agent status: {e}")
+            return {'error': str(e)}

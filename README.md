@@ -1,288 +1,296 @@
-# XMRT DAO Ecosystem - Enhanced Framework
+# XMRT-DAO-Ecosystem 🌐⛏️
 
-## 🚀 Live Mining Integration & Smart Contract Ecosystem
+**Advanced Decentralized Autonomous Organization with Meshtastic MESHNET Integration**
 
-The XMRT DAO Ecosystem has been **significantly enhanced** with real-world mining integration, accurate smart contract addresses, and comprehensive treasury management. This framework now represents a **fully operational** autonomous decentralized organization with live revenue generation through Monero mining.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/Flask-3.0.0-red.svg)](https://flask.palletsprojects.com/)
+[![Meshtastic](https://img.shields.io/badge/Meshtastic-2.3.3-green.svg)](https://meshtastic.org/)
 
-## 🔗 Deployed Smart Contracts (Sepolia Testnet)
+## 🚀 Overview
 
-| Contract | Address | Type | Purpose |
-|----------|---------|------|---------|
-| **XMRT Token** | `0x77307DFbc436224d5e6f2048d2b6bDfA66998a15` | ERC-20 | Governance & Utility Token |
-| **XMRT IP NFT** | `0x9d691fc136a846d7442d1321a2d1b6aaef494eda` | ERC-721 | **Intellectual Property Rights of Joseph Andrew Lee** |  
-| **Creator Wallet** | `0xaE2402dFdD313B8c40AF06d3292B50dE1eD75F68` | EOA | Ecosystem Creator & Deployer |
+The **XMRT-DAO-Ecosystem** is a cutting-edge implementation of a decentralized autonomous organization that bridges traditional cryptocurrency mining with innovative mesh networking technology. This system combines real-world Monero mining through SupportXMR with Meshtastic mesh networking to create a resilient, decentralized ecosystem.
 
-### 📊 Live Contract Stats
-- **XMRT Token Supply**: 20,999,990 XMRT
-- **Current Holders**: 10+
-- **IP NFT**: 1 unique NFT representing ecosystem IP ownership
-- **Network**: Sepolia Testnet (preparing for Polygon/Starknet mainnet)
+### 🌟 Key Features
 
-## ⛏️ Live Mining Integration - SupportXMR
+- **🌐 Meshtastic MESHNET Integration**: Full integration with Meshtastic mesh networking hardware
+- **⛏️ SupportXMR Mining Integration**: Real-time mining statistics and participant tracking
+- **🏆 Enhanced Leaderboard**: Mining leaderboard with mesh connectivity bonuses
+- **📡 Participant Verification**: Ping-based verification system via MESHNET
+- **🔗 Dual Token System**: ERC-20 utility token + ERC-721 IP NFT
+- **📊 Real-time Monitoring**: Live network and mining statistics
+- **🛡️ Decentralized Governance**: On-chain voting and proposal system
 
-### Real-World Revenue Generation
-The XMRT ecosystem is **actively generating revenue** through Monero mining via SupportXMR pool:
+## 📋 Contract Information
 
-- **Mining Pool**: [SupportXMR.com](https://supportxmr.com)
-- **XMRT Mining Wallet**: `46UxNFuGM2E3UwmZWWJicaRPoRwqwW4byQkaTHkX8yPcVihp91qAVtSFipWUGJJUyTXgzSqxzDQtNLf2bsp2DX2qCCgC5mg`
-- **Live API Integration**: Real-time pool statistics and miner performance data
-- **Treasury Allocation**: 85% to DAO treasury, 15% for operations
+### **Deployed Contracts (Sepolia Testnet)**
 
-### 📈 Current Mining Performance (Live Data)
+- **XMRT Token (ERC-20)**: `0x77307DFbc436224d5e6f2048d2b6bDfA66998a15`
+- **XMRT-IP NFT (ERC-721)**: `0x9d691fc136a846d7442d1321a2d1b6aaef494eda`
+- **Mining Wallet**: `46UxNFuGM2E3UwmZWWJicaRPoRwqwW4byQkaTHkX8yPcVihp91qAVtSFipWUGJJUyTXgzSqxDQtNLf2bsp2DX2qCCgC5mg`
+
+### **Token Economics**
+- **Max Supply**: 20,999,990 XMRT
+- **IP NFT Supply**: 1 unique NFT (represents intellectual property ownership)
+- **Mining Pool**: SupportXMR integration
+- **Treasury Allocation**: 85% treasury, 15% operations
+
+## 🏗️ Architecture
+
 ```
-Pool Hash Rate: 1,663+ MH/s
-Active Pool Miners: 4,980+
-XMRT Mining Revenue: 0.00626459 XMR (pending)
-Treasury Allocation: 0.0053249 XMR
-Operational Fund: 0.00093969 XMR
+┌─────────────────────────────────────────────────────────────┐
+│                   XMRT-DAO-ECOSYSTEM                       │
+├─────────────────────────────────────────────────────────────┤
+│  Flask API Layer                                           │
+│  ├── Mining API (/api/mining/)                            │
+│  ├── MESHNET API (/api/meshnet/)                          │
+│  └── System Status (/api/status)                          │
+├─────────────────────────────────────────────────────────────┤
+│  Service Layer                                             │
+│  ├── MiningService (SupportXMR Integration)               │
+│  └── MESHNETService (Meshtastic Integration)              │
+├─────────────────────────────────────────────────────────────┤
+│  External Integrations                                     │
+│  ├── SupportXMR API                                       │
+│  ├── Meshtastic Hardware                                  │
+│  └── Ethereum Network (Sepolia)                           │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## 🏗️ Enhanced Architecture
+## 🛠️ Installation & Setup
 
-### Core Components Enhanced
+### **Prerequisites**
+- Python 3.8+
+- Git
+- Optional: Meshtastic hardware (HELTEC, TBEAM, etc.)
 
-1. **XMRT Orchestrator** - Central coordination with live mining data
-2. **Enhanced Eliza Agent** - AI agent with mining monitoring capabilities  
-3. **SupportXMR Service** - Real-time mining pool integration
-4. **Treasury Service** - Automated XMR revenue allocation
-5. **GitHub Service** - Autonomous repository management
-6. **Web Interface** - Live mining dashboard and ecosystem monitoring
+### **Quick Start**
 
-### 🆕 New Features Implemented
-
-#### Real-Time Mining Dashboard
-- **Live Pool Statistics**: Hash rate, miners, blocks found
-- **XMRT Miner Performance**: Individual wallet tracking
-- **Treasury Allocations**: Automated 85/15 split visualization
-- **Health Monitoring**: Ecosystem status indicators
-- **API Integration**: Direct SupportXMR API connectivity
-
-#### Smart Contract Integration  
-- **Accurate Addresses**: All contracts properly referenced
-- **IP NFT Recognition**: Intellectual property tokenization
-- **Multi-Network Preparation**: Ready for Polygon/Starknet deployment
-- **Backwards Compatibility**: Works with existing basic contracts
-
-#### Enhanced Configuration System
-- **XMRTConfig Class**: Centralized configuration management
-- **Contract Address Validation**: Automatic address verification
-- **Mining Settings**: Configurable thresholds and allocations
-- **Future Network Support**: Polygon/Starknet preparation
-
-## 🚀 Quick Start
-
-### Prerequisites
+1. **Clone the repository**
 ```bash
-Python 3.11+
-Git
-GitHub Personal Access Token
-Redis (optional, for caching)
-```
-
-### Installation & Setup
-```bash
-# Clone the enhanced repository
 git clone https://github.com/DevGruGold/XMRT-DAO-Ecosystem.git
 cd XMRT-DAO-Ecosystem
-
-# Install dependencies  
-pip install -r requirements.txt
-
-# Configure environment variables
-export GITHUB_TOKEN="your_github_token"
-export GITHUB_USERNAME="DevGruGold"
-export GITHUB_EMAIL="joeyleepcs@gmail.com"
-
-# Run the enhanced application
-python app.py
 ```
 
-### 📊 Access Live Mining Dashboard
+2. **Install dependencies**
 ```bash
-# Start the application
+pip install -r requirements.txt
+```
+
+3. **Set environment variables**
+```bash
+export MESH_PORT="simulate"  # Use "simulate" for testing, "/dev/ttyUSB0" for hardware
+export MESH_UPDATE_INTERVAL="30"
+export FLASK_ENV="development"
+export PORT="5000"
+```
+
+4. **Run the application**
+```bash
 python app.py
-
-# Access endpoints:
-GET /mining/dashboard          # Live mining dashboard
-GET /mining/pool/stats         # SupportXMR pool statistics  
-GET /mining/xmrt/performance   # XMRT mining wallet stats
-GET /treasury/allocation       # Current treasury allocations
-GET /health                    # Ecosystem health check
 ```
 
-## 🔧 API Endpoints Enhanced
+## 🌐 MESHNET Integration
 
-### Mining Integration
-- `GET /mining/dashboard` - Comprehensive live mining dashboard
-- `GET /mining/pool/stats` - Real-time SupportXMR pool statistics
-- `GET /mining/xmrt/performance` - XMRT wallet mining performance
-- `GET /mining/ping` - Infrastructure connectivity verification
+### **Supported Hardware**
+- **HELTEC WiFi LoRa 32 V3**
+- **LILYGO T-Beam**
+- **HELTEC WiFi LoRa 32 V2**
+- **RAK WisBlock**
 
-### Treasury Management
-- `GET /treasury/allocation` - Current treasury fund allocations
-- `GET /treasury/projections` - Revenue projections and analytics
-- `POST /treasury/rebalance` - Trigger treasury rebalancing (AI agent)
+### **MESHNET Features**
 
-### Contract Integration
-- `GET /contracts/info` - Smart contract addresses and metadata
-- `GET /contracts/xmrt/stats` - XMRT token statistics
-- `GET /contracts/ip-nft/info` - IP NFT ownership information
-
-### Ecosystem Health
-- `GET /health/comprehensive` - Full ecosystem health assessment
-- `GET /health/mining` - Mining infrastructure health
-- `GET /health/api` - API accessibility status
-
-## 💰 Treasury Allocation System
-
-### Automated Revenue Distribution
-The enhanced system automatically allocates mining revenue:
-
-```
-Total Mining Revenue: 100%
-├── Treasury Fund: 85% → DAO governance and growth
-└── Operational Fund: 15% → Infrastructure and maintenance
-```
-
-### Treasury Features
-- **Real-time Tracking**: Live XMR balance monitoring
-- **Allocation Transparency**: Public allocation percentages
-- **AI Management**: Autonomous treasury optimization
-- **Governance Integration**: DAO voting on major allocations
-
-## 🤖 Enhanced AI Integration
-
-### Eliza Agent Capabilities Enhanced
-- **Mining Monitoring**: Continuous mining performance analysis
-- **Treasury Management**: Automated allocation and optimization
-- **Health Monitoring**: Ecosystem status monitoring and alerting  
-- **Revenue Optimization**: Mining efficiency recommendations
-- **Governance Participation**: Automated DAO proposal evaluation
-
-### AI Agent Configuration
+#### **🔄 Simulation Mode**
+For testing without hardware:
 ```python
-ELIZA_AGENT_CONFIG = {
-    "name": "XMRT-DAO-Agent",
-    "model_provider": "openai", 
-    "autonomy_level": 0.85,  # 85% autonomy
-    "treasury_management": True,
-    "governance_participation": True,
-    "mining_monitoring": True
+# Automatically creates simulated mesh nodes
+meshnet_service = MESHNETService({'mesh_port': 'simulate'})
+```
+
+#### **📡 Hardware Mode**
+For real Meshtastic devices:
+```python
+# Connect to actual hardware
+meshnet_service = MESHNETService({'mesh_port': '/dev/ttyUSB0'})
+```
+
+#### **⛏️ Mining Integration**
+- Real-time SupportXMR pool statistics
+- Mesh-connected miner verification
+- 10% efficiency bonus for mesh connectivity
+- Automatic participant ping verification
+
+## 🔗 API Endpoints
+
+### **Mining Endpoints**
+```http
+GET /api/mining/stats          # Current mining statistics
+GET /api/mining/leaderboard    # Enhanced leaderboard with mesh status
+```
+
+### **MESHNET Endpoints**
+```http
+GET /api/meshnet/status        # Network status and health metrics
+GET /api/meshnet/leaderboard   # Mining leaderboard with connectivity scores
+GET /api/meshnet/nodes         # All discovered mesh nodes
+GET /api/meshnet/mining/stats  # Combined mining and mesh statistics
+POST /api/meshnet/verify/<wallet>  # Verify participant connectivity
+POST /api/meshnet/initialize   # Initialize/reinitialize MESHNET
+GET /api/meshnet/health        # MESHNET service health check
+```
+
+### **System Endpoints**
+```http
+GET /                          # System overview and information
+GET /health                    # Comprehensive health check
+GET /api/status               # Complete system status
+```
+
+## 📊 Enhanced Leaderboard System
+
+The enhanced leaderboard combines traditional mining metrics with mesh connectivity:
+
+```json
+{
+  "rank": 1,
+  "wallet_address": "worker_001",
+  "hash_rate": 150.0,
+  "xmr_earned": 0.00124,
+  "mesh_connected": true,
+  "mesh_node_id": "mesh_001",
+  "connectivity_score": 95,
+  "efficiency_bonus": 1.1,
+  "mesh_node_info": {
+    "short_name": "ALPHA",
+    "hardware_model": "HELTEC_V3",
+    "signal_strength": -85,
+    "snr": 12.5,
+    "position": {"lat": 10.0, "lon": -84.0}
+  }
 }
 ```
 
-## 🌐 Future Enhancements
+## 🔧 Configuration
 
-### Phase 3 - MESHNET Integration
-- **Meshtastic Connectivity**: Decentralized mining coordination
-- **Offline Mining Verification**: Mesh network validation
-- **Distributed Hashrate**: Multi-node mining aggregation
-- **Mesh Communication**: Worker-to-worker coordination
+### **Environment Variables**
+```bash
+# MESHNET Configuration
+MESH_PORT="simulate"           # "simulate" or hardware port like "/dev/ttyUSB0"
+MESH_UPDATE_INTERVAL="30"      # Update interval in seconds
 
-### Mainnet Deployment Strategy
-- **Polygon Mainnet**: Gas-optimized contract deployment
-- **Starknet Integration**: Zero-knowledge privacy features
-- **Cross-Chain Bridge**: Multi-network token operations
-- **Scaling Solutions**: Layer 2 optimization
+# Flask Configuration
+FLASK_ENV="development"        # "development" or "production"
+PORT="5000"                   # Server port
+SECRET_KEY="your-secret-key"  # Flask secret key
 
-### Advanced Features Pipeline
-- **Worker Leaderboard**: Community mining rankings
-- **Staking Integration**: XMRT token staking rewards
-- **Governance Automation**: AI-powered proposal execution
-- **Revenue Sharing**: Token holder mining rewards
+# Optional: Override default contract addresses
+XMRT_TOKEN_ADDRESS="0x77307DFbc436224d5e6f2048d2b6bDfA66998a15"
+XMRT_IP_NFT_ADDRESS="0x9d691fc136a846d7442d1321a2d1b6aaef494eda"
+```
 
-## 📈 Performance Metrics (Live)
+## 🚀 Deployment
 
-### System Performance
-- **API Response Time**: <200ms average
-- **Mining Data Refresh**: Every 2 minutes
-- **Dashboard Updates**: Real-time via WebSocket
-- **Uptime Target**: 99.9%
+### **Render.com Deployment**
+```bash
+# Build Command
+pip install -r requirements.txt
 
-### Mining Performance  
-- **Pool Participation**: Active in 4,980+ miner pool
-- **Hash Contribution**: Contributing to 1,663+ MH/s pool rate
-- **Revenue Generation**: Consistent XMR earnings
-- **Treasury Growth**: Automated 85% allocation
+# Start Command  
+gunicorn --bind 0.0.0.0:$PORT app:app
 
-## 🛡️ Security & Reliability
+# Environment Variables
+MESH_PORT=simulate
+MESH_UPDATE_INTERVAL=30
+```
 
-### Enhanced Security Features
-- **Contract Address Validation**: Automatic verification
-- **API Rate Limiting**: DDoS protection
-- **Redis Caching**: Performance optimization
-- **Error Handling**: Comprehensive exception management
-- **Health Monitoring**: Continuous system monitoring
+### **Local Development**
+```bash
+python app.py
+```
 
-### Reliability Measures
-- **Redundant API Calls**: Failover mechanisms
-- **Cache Fallbacks**: Cached data availability
-- **Connection Pooling**: Optimized network usage
-- **Automated Recovery**: Self-healing capabilities
+### **Production with Gunicorn**
+```bash
+gunicorn --workers 4 --bind 0.0.0.0:5000 app:app
+```
+
+## 📈 Monitoring & Metrics
+
+### **Network Health Metrics**
+- **Total Nodes**: Number of discovered mesh nodes
+- **Active Nodes**: Nodes active within last 5 minutes
+- **Mining Nodes**: Nodes participating in mining
+- **Mesh Connectivity Rate**: Percentage of miners connected to mesh
+- **Network Health**: Overall network status (Excellent/Good/Fair)
+
+### **Mining Metrics**
+- **Total Hash Rate**: Combined hash rate from all participants
+- **Mesh Hash Rate**: Hash rate from mesh-connected miners
+- **Efficiency Bonus**: 10% bonus for mesh connectivity
+- **XMR Earnings**: Real-time earnings from SupportXMR
+
+## 🔒 Security & Privacy
+
+- **Hardware Security**: Mesh networks operate independently of internet
+- **Decentralized Verification**: Participant verification through mesh pings
+- **Privacy Protection**: No personal data stored, only wallet addresses
+- **Secure Communications**: Meshtastic encryption for mesh communications
 
 ## 🤝 Contributing
 
-### Development Guidelines
-- **Mining Integration**: Follow SupportXMR API best practices
-- **Contract Updates**: Validate all address changes
-- **Treasury Features**: Maintain allocation transparency
-- **Testing**: Include live API integration tests
-- **Documentation**: Update mining dashboard documentation
+We welcome contributions! Please see our contributing guidelines:
 
-### Code Structure
-```
-XMRT-DAO-Ecosystem/
-├── src/
-│   ├── services/
-│   │   ├── mining_service.py     # Enhanced SupportXMR integration
-│   │   ├── treasury_service.py   # Automated allocation system
-│   │   └── ip_nft_service.py     # IP ownership verification
-│   └── agents/
-│       └── eliza_agent.py        # Enhanced AI capabilities
-├── config/
-│   └── xmrt_config.py           # Centralized configuration
-└── docs/
-    └── mining_integration.md     # Mining integration guide
-```
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## 📊 Live Dashboard Preview
+## 📚 Documentation
 
-```
-🚀 LIVE XMRT DAO ECOSYSTEM MINING DASHBOARD
-============================================================
-📅 Last Updated: 2025-08-04 16:36:08 UTC
+- **[API Documentation](docs/api.md)** - Complete API reference
+- **[MESHNET Guide](docs/meshnet.md)** - Meshtastic integration guide
+- **[Mining Integration](docs/mining.md)** - SupportXMR setup and configuration
+- **[Deployment Guide](docs/deployment.md)** - Production deployment instructions
 
-🔗 XMRT Smart Contracts (Sepolia)
-   Token (ERC-20): 0x77307DFbc436224d5e6f2048d2b6bDfA66998a15
-   IP NFT (ERC-721): 0x9d691fc136a846d7442d1321a2d1b6aaef494eda
+## 🗺️ Roadmap
 
-⛏️ SupportXMR Pool Statistics  
-   Pool Hash Rate: 1,663.63 MH/s
-   Active Miners: 4,980
-   Blocks Found: 459,919+
+### **Phase 1: Foundation** ✅
+- [x] SupportXMR mining integration
+- [x] Basic Flask API
+- [x] MESHNET service implementation
+- [x] Enhanced leaderboard system
 
-💰 XMRT Mining Performance
-   XMR Due: 0.00626459 XMR
-   Treasury Allocation: 0.0053249 XMR (85%)
-   Operational Fund: 0.00093969 XMR (15%)
+### **Phase 2: Enhancement** 🔄
+- [ ] Real-time WebSocket updates
+- [ ] Advanced mesh routing
+- [ ] Mobile application
+- [ ] Cross-chain bridge integration
 
-✅ Ecosystem Health: ALL SYSTEMS OPERATIONAL
-============================================================
-```
+### **Phase 3: Scaling** 🔮
+- [ ] Mainnet deployment (Polygon/Starknet)
+- [ ] Advanced governance features
+- [ ] AI-powered network optimization
+- [ ] Global mesh network expansion
 
-## 📞 Support & Contact
+## 📜 License
 
-- **Repository**: [DevGruGold/XMRT-DAO-Ecosystem](https://github.com/DevGruGold/XMRT-DAO-Ecosystem)
-- **Creator**: Joseph Andrew Lee (DevGruGold)
-- **Email**: joeyleepcs@gmail.com
-- **Mining Pool**: [SupportXMR.com](https://supportxmr.com)
-- **Live Dashboard**: `/mining/dashboard` endpoint
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Meshtastic Project** - For the amazing mesh networking platform
+- **SupportXMR** - For reliable Monero mining pool services
+- **Ethereum Community** - For the robust blockchain infrastructure
+- **Flask Community** - For the excellent web framework
+
+## 📞 Support
+
+- **GitHub Issues**: [Create an issue](https://github.com/DevGruGold/XMRT-DAO-Ecosystem/issues)
+- **Documentation**: Check the `/docs` directory
+- **Community**: Join our mesh network discussions
 
 ---
 
-**Status**: ✅ **LIVE and OPERATIONAL** - Real-world revenue generation active
-**Integration**: 🔗 **SupportXMR Mining Pool** - Live API connectivity
-**Contracts**: 📋 **Sepolia Testnet** - Preparing for mainnet deployment
-**Treasury**: 💰 **Automated Allocation** - 85% DAO / 15% Operations
+**Built with ❤️ by the XMRT-DAO community**
 
-*This ecosystem represents the intersection of real-world mining revenue, blockchain governance, and AI-powered automation.*
+*Bridging traditional mining with next-generation mesh networking technology*

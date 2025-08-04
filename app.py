@@ -11,7 +11,8 @@ from datetime import datetime
 import os
 
 # Import services
-from services.mining_service import EnhancedSupportXMRService
+# The new, correct line
+from src.services.mining_service import EnhancedSupportXMRService
 from src.services.meshnet_service import MESHNETService
 from src.api.meshnet_routes import meshnet_bp, init_meshnet_service
 

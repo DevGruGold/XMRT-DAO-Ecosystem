@@ -21,3 +21,5 @@ chromadb==0.4.22
 sentence-transformers==2.2.2
 # Monitoring dependencies
 prometheus-client==0.19.0
+ping3==4.0.7
+aiohttp==3.9.1

@@ -18,6 +18,9 @@ from src.services.mining_service import EnhancedSupportXMRService
 from src.services.meshnet_service import MESHNETService
 from src.api.meshnet_routes import meshnet_bp, init_meshnet_service
 
+from flask import render_template, request
+from src.services.eliza_agent_service import ElizaAgentService
+
 # --- Logging Configuration ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -46,6 +49,11 @@ def create_app():
     # Add services to the app context so they can be accessed in blueprints/routes
     app.mining_service = mining_service
     app.meshnet_service = meshnet_service
+
+# Initialize Eliza Agent Service
+eliza_agent = ElizaAgentService(mining_service=app.mining_service, meshnet_service=app.meshnet_service)
+app.eliza_agent = eliza_agent
+logger.info("✅ Eliza Agent Service integrated.")
     
     # --- Blueprint Registration ---
     app.register_blueprint(meshnet_bp, url_prefix='/api/meshnet')
@@ -53,16 +61,30 @@ def create_app():
 
     # --- Core API Routes ---
 
-    @app.route('/')
-    def home():
-        """Home page with XMRT-DAO-Ecosystem overview."""
-        return jsonify({
-            'name': 'XMRT-DAO-Ecosystem',
-            'version': '2.1.0', # The Launch Version!
-            'status': 'Online and Operational',
-            'timestamp': datetime.now().isoformat()
-        })
 
+@app.route('/')
+def chatbot_ui():
+    """Serve the main Eliza chatbot UI."""
+    return render_template('index.html')
+
+@app.route('/api/chat', methods=['POST'])
+def handle_chat():
+    """Handle chat messages sent to Eliza."""
+    data = request.get_json()
+    if not data or 'message' not in data:
+        return jsonify({'success': False, 'error': 'Invalid request format.'}), 400
+
+    user_message = data['message']
+
+    async def get_reply():
+        try:
+            reply = await current_app.eliza_agent.process_command(user_message)
+            return jsonify({'success': True, 'reply': reply})
+        except Exception as e:
+            logger.error(f"Error processing command in Eliza agent: {e}")
+            return jsonify({'success': False, 'error': 'An internal error occurred in the agent.'}), 500
+
+    return asyncio.run(get_reply())
     @app.route('/health')
     def health_check():
         """Comprehensive health check for all core services."""

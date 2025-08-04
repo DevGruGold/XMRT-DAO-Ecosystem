@@ -35,7 +35,7 @@ def create_app():
     })
 
     # Initialize services
-    mining_service = MiningService({
+mining_service = EnhancedSupportXMRService({ ... })
         'mining_wallet': app.config['MINING_WALLET'],
         'api_url': app.config['SUPPORTXMR_API']
     })

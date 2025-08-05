@@ -7,6 +7,7 @@ gunicorn
 # API and HTTP clients
 requests
 urllib3
+aiohttp
 
 # GitHub integration
 PyGithub
@@ -19,6 +20,8 @@ meshtastic
 pyserial
 ping3
 
+# System monitoring
+psutil
 
 # Data processing
 python-dotenv

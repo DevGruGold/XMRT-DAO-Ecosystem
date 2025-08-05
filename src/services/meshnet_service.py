@@ -348,6 +348,37 @@ class MESHNETService:
         self.is_running = False
         logger.info("🛑 MESHNET monitoring stopped")
 
+    async def get_mesh_network_health(self) -> Dict[str, Any]:
+        """Get mesh network health status for health checks"""
+        try:
+            status = self.get_mesh_network_status()
+            
+            # Determine health based on connectivity
+            connectivity_rate = status.get('mesh_connectivity_rate', 0)
+            if connectivity_rate >= 80:
+                health = 'healthy'
+            elif connectivity_rate >= 50:
+                health = 'degraded'
+            else:
+                health = 'unhealthy'
+            
+            return {
+                'network_health': health,
+                'connectivity_rate': connectivity_rate,
+                'total_nodes': status.get('total_nodes', 0),
+                'active_nodes': status.get('active_nodes', 0),
+                'mining_nodes': status.get('mining_nodes', 0),
+                'mesh_connected_miners': status.get('mesh_connected_miners', 0),
+                'last_check': datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error getting mesh network health: {e}")
+            return {
+                'network_health': 'unhealthy',
+                'error': str(e),
+                'last_check': datetime.now().isoformat()
+            }
+
 # Usage example
 async def main():
     config = {

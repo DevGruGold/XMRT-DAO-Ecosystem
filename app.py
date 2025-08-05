@@ -20,6 +20,10 @@ try:
     from src.services.meshnet_service import MESHNETService
     from src.api.meshnet_routes import meshnet_bp, init_meshnet_service
     from src.services.eliza_agent_service import ElizaAgentService
+    from src.services.health_service import HealthService
+    from src.services.speech_service import SpeechService
+    from src.services.memory_service import MemoryService
+    from src.services.autonomy_service import AutonomyService
 except ModuleNotFoundError:
     # This block helps with local development if the path isn't set.
     import sys
@@ -28,6 +32,10 @@ except ModuleNotFoundError:
     from services.meshnet_service import MESHNETService
     from api.meshnet_routes import meshnet_bp, init_meshnet_service
     from services.eliza_agent_service import ElizaAgentService
+    from services.health_service import HealthService
+    from services.speech_service import SpeechService
+    from services.memory_service import MemoryService
+    from services.autonomy_service import AutonomyService
 
 
 # --- Logging Configuration ---
@@ -53,11 +61,31 @@ def create_app():
         current_app.meshnet_service = init_meshnet_service(config={})
         logger.info("✅ MESHNETService initialized.")
         
+        # Initialize speech service
+        current_app.speech_service = SpeechService(config={})
+        logger.info("✅ Speech Service initialized.")
+        
+        # Initialize memory service
+        current_app.memory_service = MemoryService(config={})
+        logger.info("✅ Memory Service initialized.")
+        
+        # Initialize autonomy service with 250 credit budget
+        current_app.autonomy_service = AutonomyService(config={'credit_budget': 250})
+        logger.info("✅ Autonomy Service initialized with 250 credit budget.")
+        
         current_app.eliza_agent = ElizaAgentService(
             mining_service=current_app.mining_service, 
+            meshnet_service=current_app.meshnet_service,
+            speech_service=current_app.speech_service,
+            memory_service=current_app.memory_service
+        )
+        logger.info("✅ Eliza Agent Service integrated with enhanced capabilities.")
+        
+        current_app.health_service = HealthService(
+            mining_service=current_app.mining_service,
             meshnet_service=current_app.meshnet_service
         )
-        logger.info("✅ Eliza Agent Service integrated and online.")
+        logger.info("✅ Health Service initialized.")
 
     # --- Blueprint Registration ---
     app.register_blueprint(meshnet_bp, url_prefix='/api/meshnet')
@@ -89,30 +117,38 @@ def create_app():
     @app.route('/health')
     def health_check():
         """Comprehensive health check for all core services."""
-        async def do_health_check():
-            try:
-                # This check now uses the services from the application context
-                mining_health, meshnet_health = await asyncio.gather(
-                    current_app.mining_service.ping_mining_infrastructure(),
-                    current_app.meshnet_service.get_mesh_network_health()
-                )
-                
-                mining_ok = (mining_health.get('api_accessibility', {}).get('status') == 'accessible')
-                meshnet_ok = meshnet_health.get('network_health') == 'healthy'
-                overall_healthy = mining_ok and meshnet_ok
+        try:
+            # Use the dedicated health service for comprehensive checks
+            health_data = asyncio.run(current_app.health_service.get_simple_health())
+            
+            status_code = 200 if health_data.get('healthy', False) else 503
+            return jsonify(health_data), status_code
+            
+        except Exception as e:
+            logger.error(f"Health check failed: {e}")
+            return jsonify({
+                'healthy': False, 
+                'status': 'error',
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }), 500
 
-                return jsonify({
-                    'healthy': overall_healthy,
-                    'status': 'operational' if overall_healthy else 'degraded',
-                    'services': { 'mining_infra': mining_health, 'meshnet_infra': meshnet_health },
-                    'timestamp': datetime.now().isoformat()
-                }), 200 if overall_healthy else 503
-
-            except Exception as e:
-                logger.error(f"Health check failed catastrophically: {e}")
-                return jsonify({'healthy': False, 'status': f'health check failed: {str(e)}'}), 500
-        
-        return asyncio.run(do_health_check())
+    @app.route('/health/detailed')
+    def detailed_health_check():
+        """Detailed health check with comprehensive service analysis."""
+        try:
+            health_data = asyncio.run(current_app.health_service.get_comprehensive_health())
+            
+            status_code = 200 if health_data.get('overall_status') == 'healthy' else 503
+            return jsonify(health_data), status_code
+            
+        except Exception as e:
+            logger.error(f"Detailed health check failed: {e}")
+            return jsonify({
+                'overall_status': 'unhealthy',
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }), 500
 
     @app.route('/api/dashboard')
     def get_system_dashboard():
@@ -122,6 +158,66 @@ def create_app():
             return jsonify({'success': True, 'data': dashboard_data})
         except Exception as e:
             logger.error(f"Error fetching dashboard data: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/agent/status')
+    def get_agent_status():
+        """Get Eliza agent status with all capabilities."""
+        try:
+            status = current_app.eliza_agent.get_agent_status()
+            return jsonify({'success': True, 'data': status})
+        except Exception as e:
+            logger.error(f"Error fetching agent status: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/autonomy/status')
+    def get_autonomy_status():
+        """Get autonomy service status."""
+        try:
+            status = current_app.autonomy_service.get_autonomy_status()
+            return jsonify({'success': True, 'data': status})
+        except Exception as e:
+            logger.error(f"Error fetching autonomy status: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/autonomy/tasks')
+    def get_task_summary():
+        """Get summary of autonomous tasks."""
+        try:
+            tasks = current_app.autonomy_service.get_task_summary()
+            return jsonify({'success': True, 'data': tasks})
+        except Exception as e:
+            logger.error(f"Error fetching task summary: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/autonomy/execute', methods=['POST'])
+    def execute_autonomous_tasks():
+        """Execute pending autonomous tasks."""
+        try:
+            executed = asyncio.run(current_app.autonomy_service.execute_pending_tasks())
+            return jsonify({'success': True, 'executed_tasks': executed})
+        except Exception as e:
+            logger.error(f"Error executing autonomous tasks: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/memory/stats')
+    def get_memory_stats():
+        """Get memory service statistics."""
+        try:
+            stats = current_app.memory_service.get_memory_stats()
+            return jsonify({'success': True, 'data': stats})
+        except Exception as e:
+            logger.error(f"Error fetching memory stats: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/speech/status')
+    def get_speech_status():
+        """Get speech service status."""
+        try:
+            status = current_app.speech_service.get_voice_status()
+            return jsonify({'success': True, 'data': status})
+        except Exception as e:
+            logger.error(f"Error fetching speech status: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     # --- Error Handlers ---

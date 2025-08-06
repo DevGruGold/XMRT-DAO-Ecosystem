@@ -36,3 +36,7 @@ web3
 # Development and testing
 pytest
 pytest-asyncio
+
+
+openai
+

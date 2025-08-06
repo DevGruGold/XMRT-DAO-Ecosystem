@@ -5,76 +5,159 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eliza | XMRT-DAO Command</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Courier New', monospace;
             background-color: #0d1117;
             color: #c9d1d9;
             margin: 0;
+            padding: 10px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
         }
+        
         #main-content-wrapper {
-            width: 80%;
+            width: 100%;
             max-width: 800px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
+        
+        /* Chat Container */
         #chat-container {
             width: 100%;
-            height: 70vh;
+            height: 60vh;
+            min-height: 300px;
             border: 1px solid #30363d;
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             background-color: #161b22;
         }
-        #header { padding: 15px; border-bottom: 1px solid #30363d; text-align: center; }
-        #header h1 { margin: 0; font-size: 1.5em; color: #58a6ff; }
-        #header p { margin: 5px 0 0; color: #8b949e; }
-        #messages { flex-grow: 1; overflow-y: auto; padding: 20px; border-bottom: 1px solid #30363d; }
-        .message { margin-bottom: 15px; }
-        .user-message { text-align: right; }
-        .eliza-message .content { background-color: #21262d; display: inline-block; padding: 10px; border-radius: 10px; max-width: 80%; white-space: pre-wrap; text-align: left; }
-        .user-message .content { background-color: #58a6ff; color: #161b22; display: inline-block; padding: 10px; border-radius: 10px; max-width: 80%; }
-        #input-container { display: flex; padding: 10px; }
-        #message-input { flex-grow: 1; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; padding: 10px; font-family: inherit; }
-        #send-button { background-color: #238636; color: white; border: none; padding: 10px 15px; margin-left: 10px; border-radius: 6px; cursor: pointer; }
-        #send-button:hover { background-color: #2ea043; }
         
-        /* Mining widget styles */
+        #header {
+            padding: 12px 15px;
+            border-bottom: 1px solid #30363d;
+            text-align: center;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 1.3em;
+            color: #58a6ff;
+        }
+        
+        #header p {
+            margin: 5px 0 0;
+            color: #8b949e;
+            font-size: 0.9em;
+        }
+        
+        #messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+        }
+        
+        .user-message {
+            text-align: right;
+        }
+        
+        .eliza-message .content {
+            background-color: #21262d;
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 85%;
+            white-space: pre-wrap;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        
+        .user-message .content {
+            background-color: #58a6ff;
+            color: #161b22;
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 85%;
+            font-size: 0.9em;
+        }
+        
+        #input-container {
+            display: flex;
+            padding: 10px;
+            gap: 8px;
+        }
+        
+        #message-input {
+            flex-grow: 1;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 0.9em;
+        }
+        
+        #send-button {
+            background-color: #238636;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        
+        #send-button:hover {
+            background-color: #2ea043;
+        }
+        
+        /* Mining Widget */
         #mining-widget-container {
             width: 100%;
             border: 1px solid #30363d;
-            border-radius: 6px;
+            border-radius: 8px;
             background-color: #161b22;
-            padding: 20px;
-            box-sizing: border-box;
+            padding: 15px;
         }
         
         .widget-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 10px;
             margin-bottom: 20px;
         }
         
         .widget-title {
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: 600;
             color: #58a6ff;
+            line-height: 1.2;
         }
         
         .widget-subtitle {
             color: #8b949e;
-            font-size: 0.9em;
-            margin-top: 5px;
+            font-size: 0.85em;
+            margin-top: 4px;
+            line-height: 1.3;
         }
         
+        /* Sliders */
         .slider-container {
             margin-bottom: 20px;
         }
@@ -82,23 +165,29 @@
         .slider-label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
         }
         
         .slider-label-text {
             color: #c9d1d9;
             font-weight: 500;
+            font-size: 0.9em;
+            flex-shrink: 0;
         }
         
         .slider-value {
             color: #58a6ff;
             font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            text-align: right;
         }
         
         .slider {
             width: 100%;
-            height: 8px;
-            border-radius: 4px;
+            height: 6px;
+            border-radius: 3px;
             background: #30363d;
             outline: none;
             -webkit-appearance: none;
@@ -109,8 +198,8 @@
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             background: #58a6ff;
             cursor: pointer;
@@ -118,8 +207,8 @@
         }
         
         .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             background: #58a6ff;
             cursor: pointer;
@@ -130,16 +219,16 @@
             display: flex;
             justify-content: space-between;
             color: #8b949e;
-            font-size: 0.8em;
-            margin-top: 5px;
+            font-size: 0.75em;
+            margin-top: 4px;
         }
         
-        /* Hardware Enhancement Options */
+        /* Hardware Enhancement Section */
         .enhancement-section {
             background-color: #21262d;
             border: 1px solid #30363d;
             border-radius: 8px;
-            padding: 20px;
+            padding: 15px;
             margin-bottom: 20px;
         }
         
@@ -150,20 +239,22 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.95em;
         }
         
         .enhancement-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
         
         .enhancement-option {
             background-color: #161b22;
             border: 1px solid #30363d;
             border-radius: 6px;
-            padding: 15px;
+            padding: 12px;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         
         .enhancement-option:hover {
@@ -180,37 +271,42 @@
         .radio-group {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 10px;
         }
         
         .radio-input {
-            margin-top: 4px;
+            margin-top: 2px;
             accent-color: #58a6ff;
+            flex-shrink: 0;
         }
         
         .radio-content {
             flex: 1;
+            min-width: 0;
         }
         
         .radio-label {
             color: #c9d1d9;
             font-weight: 500;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             cursor: pointer;
+            font-size: 0.9em;
+            line-height: 1.2;
         }
         
         .radio-description {
             color: #8b949e;
-            font-size: 0.85em;
-            line-height: 1.4;
+            font-size: 0.8em;
+            line-height: 1.3;
             margin-bottom: 8px;
         }
         
         .radio-specs {
             display: flex;
             gap: 15px;
-            font-size: 0.8em;
+            font-size: 0.75em;
+            flex-wrap: wrap;
         }
         
         .spec-item {
@@ -221,8 +317,9 @@
         
         .spec-label {
             color: #6e7681;
-            font-size: 0.75em;
+            font-size: 0.7em;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .spec-value {
@@ -235,57 +332,62 @@
             color: #40d47e;
         }
         
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
             margin: 20px 0;
         }
         
         .stat-card {
             background-color: #21262d;
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
             text-align: center;
             border: 1px solid #30363d;
         }
         
         .stat-value {
-            font-size: 1.1em;
+            font-size: 0.95em;
             font-weight: 600;
             font-family: 'Courier New', monospace;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            line-height: 1.1;
         }
         
         .stat-label {
             color: #8b949e;
-            font-size: 0.8em;
+            font-size: 0.7em;
+            line-height: 1.2;
         }
         
+        /* Earnings Section */
         .earnings-section {
-            margin-top: 25px;
+            margin-top: 20px;
         }
         
         .earnings-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: #58a6ff;
             font-weight: 600;
+            font-size: 0.95em;
         }
         
         .earnings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
         
         .earnings-card {
             background: linear-gradient(135deg, #21262d, #161b22);
             border: 1px solid #30363d;
             border-radius: 8px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
         }
         
@@ -294,10 +396,11 @@
         .earnings-card.yearly { border-color: #a855f7; }
         
         .earnings-xmr {
-            font-size: 1.3em;
+            font-size: 1.1em;
             font-weight: bold;
             font-family: 'Courier New', monospace;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            line-height: 1.1;
         }
         
         .earnings-card.daily .earnings-xmr { color: #40d47e; }
@@ -307,36 +410,156 @@
         .earnings-usd {
             color: #8b949e;
             font-family: 'Courier New', monospace;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9em;
         }
         
         .earnings-period {
             color: #6e7681;
-            font-size: 0.85em;
+            font-size: 0.8em;
         }
         
+        /* Disclaimer */
         .disclaimer {
             background-color: #2d1b00;
             border: 1px solid #f1c40f;
             border-radius: 6px;
-            padding: 15px;
+            padding: 12px;
             margin-top: 20px;
         }
         
         .disclaimer-text {
             color: #f1c40f;
-            font-size: 0.85em;
+            font-size: 0.8em;
             line-height: 1.4;
+            margin: 0;
         }
         
         .icon {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             stroke: currentColor;
             fill: none;
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+        
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            #main-content-wrapper {
+                gap: 20px;
+            }
+            
+            #chat-container {
+                height: 70vh;
+            }
+            
+            #mining-widget-container {
+                padding: 20px;
+            }
+            
+            #header h1 {
+                font-size: 1.5em;
+            }
+            
+            #header p {
+                font-size: 1em;
+            }
+            
+            .widget-title {
+                font-size: 1.2em;
+            }
+            
+            .widget-subtitle {
+                font-size: 0.9em;
+            }
+            
+            .enhancement-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .enhancement-option {
+                padding: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 15px;
+            }
+            
+            .earnings-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            
+            .slider-label-text,
+            .enhancement-title,
+            .earnings-title {
+                font-size: 1em;
+            }
+            
+            .radio-label {
+                font-size: 0.95em;
+            }
+            
+            .radio-description {
+                font-size: 0.85em;
+            }
+            
+            .disclaimer-text {
+                font-size: 0.85em;
+            }
+        }
+        
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .enhancement-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .radio-specs {
+                gap: 20px;
+            }
+        }
+        
+        /* Large Desktop */
+        @media (min-width: 1200px) {
+            #main-content-wrapper {
+                max-width: 900px;
+            }
+        }
+        
+        /* Touch improvements for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .slider {
+                height: 8px;
+            }
+            
+            .slider::-webkit-slider-thumb {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .slider::-moz-range-thumb {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .enhancement-option {
+                padding: 15px;
+            }
+            
+            #send-button {
+                padding: 10px 15px;
+                min-width: 60px;
+            }
         }
     </style>
 </head>

@@ -241,3 +241,139 @@
 </html>
 
 
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const hashrateSlider = document.querySelector("span[aria-valuenow=\"600\"]");
+        const devicesSlider = document.querySelector("span[aria-valuenow=\"100\"]");
+        const hashrateValueSpan = hashrateSlider.closest(".space-y-2").querySelector(".text-blue-400");
+        const devicesValueSpan = devicesSlider.closest(".space-y-2").querySelector(".text-blue-400");
+
+        const totalHashrateSpan = document.querySelector(".text-purple-400");
+        const networkShareSpan = document.querySelector(".text-blue-400:nth-of-type(2)");
+        const xmrPriceSpan = document.querySelector(".text-green-400");
+        const networkHashrateSpan = document.querySelector(".text-yellow-400");
+
+        const dailyXMRSpan = document.querySelector(".text-green-400");
+        const dailyUSDDiv = document.querySelector(".text-green-300");
+        const monthlyXMRSpan = document.querySelector(".text-blue-400");
+        const monthlyUSDDiv = document.querySelector(".text-blue-300");
+        const yearlyXMRSpan = document.querySelector(".text-purple-400");
+        const yearlyUSDDiv = document.querySelector(".text-purple-300");
+
+        function updateCalculations() {
+            const avgHashrate = parseFloat(hashrateValueSpan.textContent);
+            const numDevices = parseFloat(devicesValueSpan.textContent);
+            const xmrPrice = parseFloat(xmrPriceSpan.textContent.replace("$", ""));
+            const networkHashrate = parseFloat(networkHashrateSpan.textContent) * 1000000000; // Convert GH/s to H/s
+
+            const totalHashrate = avgHashrate * numDevices;
+            const networkShare = (totalHashrate / networkHashrate) * 100;
+
+            // Placeholder for actual mining calculation logic
+            // These are simplified for demonstration based on the current static values
+            const dailyXMR = (totalHashrate / networkHashrate) * 6000; // Example: 6000 XMR mined per day by network
+            const monthlyXMR = dailyXMR * 30;
+            const yearlyXMR = dailyXMR * 365;
+
+            totalHashrateSpan.textContent = (totalHashrate / 1000).toFixed(1) + "K H/s";
+            networkShareSpan.textContent = networkShare.toFixed(4) + "%";
+
+            dailyXMRSpan.textContent = dailyXMR.toFixed(4) + " XMR";
+            dailyUSDDiv.textContent = "$" + (dailyXMR * xmrPrice).toFixed(2);
+            monthlyXMRSpan.textContent = monthlyXMR.toFixed(2) + " XMR";
+            monthlyUSDDiv.textContent = "$" + (monthlyXMR * xmrPrice).toFixed(2);
+            yearlyXMRSpan.textContent = yearlyXMR.toFixed(2) + " XMR";
+            yearlyUSDDiv.textContent = "$" + (yearlyXMR * xmrPrice).toFixed(2);
+        }
+
+        // Initial calculation
+        updateCalculations();
+
+        // Event listeners for sliders (assuming they are interactive inputs)
+        // This part needs to be adapted if the sliders are custom components without standard input events
+        // For now, we'll simulate changes by directly modifying the values for testing
+        hashrateSlider.addEventListener("input", function() {
+            const newValue = hashrateSlider.getAttribute("aria-valuenow");
+            hashrateValueSpan.textContent = newValue + " H/s";
+            updateCalculations();
+        });
+
+        devicesSlider.addEventListener("input", function() {
+            const newValue = devicesSlider.getAttribute("aria-valuenow");
+            devicesValueSpan.textContent = newValue;
+            updateCalculations();
+        });
+    });
+</script>
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const hashrateSlider = document.querySelector("span[aria-valuenow=\"600\"]");
+        const devicesSlider = document.querySelector("span[aria-valuenow=\"100\"]");
+        const hashrateValueSpan = hashrateSlider.closest(".space-y-2").querySelector(".text-blue-400");
+        const devicesValueSpan = devicesSlider.closest(".space-y-2").querySelector(".text-blue-400");
+
+        const totalHashrateSpan = document.querySelector(".text-purple-400");
+        const networkShareSpan = document.querySelector(".text-blue-400:nth-of-type(2)");
+        const xmrPriceSpan = document.querySelector(".text-green-400");
+        const networkHashrateSpan = document.querySelector(".text-yellow-400");
+
+        const dailyXMRSpan = document.querySelector(".text-green-400");
+        const dailyUSDDiv = document.querySelector(".text-green-300");
+        const monthlyXMRSpan = document.querySelector(".text-blue-400");
+        const monthlyUSDDiv = document.querySelector(".text-blue-300");
+        const yearlyXMRSpan = document.querySelector(".text-purple-400");
+        const yearlyUSDDiv = document.querySelector(".text-purple-300");
+
+        function updateCalculations() {
+            const avgHashrate = parseFloat(hashrateValueSpan.textContent);
+            const numDevices = parseFloat(devicesValueSpan.textContent);
+            const xmrPrice = parseFloat(xmrPriceSpan.textContent.replace("$", ""));
+            const networkHashrate = parseFloat(networkHashrateSpan.textContent) * 1000000000; // Convert GH/s to H/s
+
+            const totalHashrate = avgHashrate * numDevices;
+            const networkShare = (totalHashrate / networkHashrate) * 100;
+
+            // Placeholder for actual mining calculation logic
+            // These are simplified for demonstration based on the current static values
+            const dailyXMR = (totalHashrate / networkHashrate) * 6000; // Example: 6000 XMR mined per day by network
+            const monthlyXMR = dailyXMR * 30;
+            const yearlyXMR = dailyXMR * 365;
+
+            totalHashrateSpan.textContent = (totalHashrate / 1000).toFixed(1) + "K H/s";
+            networkShareSpan.textContent = networkShare.toFixed(4) + "%";
+
+            dailyXMRSpan.textContent = dailyXMR.toFixed(4) + " XMR";
+            dailyUSDDiv.textContent = "$" + (dailyXMR * xmrPrice).toFixed(2);
+            monthlyXMRSpan.textContent = monthlyXMR.toFixed(2) + " XMR";
+            monthlyUSDDiv.textContent = "$" + (monthlyXMR * xmrPrice).toFixed(2);
+            yearlyXMRSpan.textContent = yearlyXMR.toFixed(2) + " XMR";
+            yearlyUSDDiv.textContent = "$" + (yearlyXMR * xmrPrice).toFixed(2);
+        }
+
+        // Initial calculation
+        updateCalculations();
+
+        // Event listeners for sliders (assuming they are interactive inputs)
+        // This part needs to be adapted if the sliders are custom components without standard input events
+        // For now, we'll simulate changes by directly modifying the values for testing
+        hashrateSlider.addEventListener("input", function() {
+            const newValue = hashrateSlider.getAttribute("aria-valuenow");
+            hashrateValueSpan.textContent = newValue + " H/s";
+            updateCalculations();
+        });
+
+        devicesSlider.addEventListener("input", function() {
+            const newValue = devicesSlider.getAttribute("aria-valuenow");
+            devicesValueSpan.textContent = newValue;
+            updateCalculations();
+        });
+    });
+</script>
+
+

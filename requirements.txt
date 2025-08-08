@@ -9,6 +9,12 @@ requests
 urllib3
 aiohttp
 
+# === AI Integration Dependencies ===
+openai>=1.0.0
+anthropic
+dashscope
+tiktoken  # For token counting
+
 # GitHub integration
 PyGithub
 
@@ -36,7 +42,3 @@ web3
 # Development and testing
 pytest
 pytest-asyncio
-
-
-openai
-

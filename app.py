@@ -1,10 +1,10 @@
 """
 XMRT-DAO-Ecosystem Main Flask Application
-Version 2.2.4: Phoenix Protocol - Dispatch Core Repair (Feature Complete)
+Version 2.2.5: Phoenix Protocol - Dispatch Core Repair (Feature Complete)
 
-This version correctly integrates the Intelligent Dispatcher into the main chat
-endpoint while preserving 100% of the original application's features and routes.
-The asyncio conflict is resolved by calling services directly.
+This version provides the definitive fix for the 500 Internal Server Error by
+reverting Flask routes to be synchronous and using asyncio.run() to correctly
+call async services. ALL ORIGINAL FUNCTIONALITY IS PRESERVED.
 """
 
 import os
@@ -37,34 +37,30 @@ except ModuleNotFoundError:
     from services.memory_service import MemoryService
     from services.autonomy_service import AutonomyService
 
-# --- NEW: Intelligent Dispatcher (Corrected to call services directly) ---
+# --- Intelligent Dispatcher (Corrected to call services directly) ---
 class IntelligentDispatcher:
-    """
-    Simulates AI by dispatching queries to the appropriate internal service.
-    This version calls services directly to avoid asyncio conflicts.
-    """
+    """Dispatches queries to internal services to generate robust responses."""
     def __init__(self):
         self.request_log = []
 
     async def analyze_and_dispatch(self, query: str) -> dict:
-        """Analyzes query and dispatches to the correct internal handler."""
+        """Analyzes query and dispatches to the correct async internal handler."""
         query_lower = query.lower()
-        
-        # Keyword-based routing to internal services
+        # Keyword-based routing
         if 'dashboard' in query_lower:
             return await self.get_dashboard_data()
         elif 'mining' in query_lower or 'hashrate' in query_lower:
             return await self.get_mining_stats()
         elif 'meshnet' in query_lower or 'nodes' in query_lower:
-            return current_app.meshnet_service.get_mesh_network_status() # Not async
+            return current_app.meshnet_service.get_mesh_network_status()
         elif 'autonomy' in query_lower or 'task' in query_lower:
-            return current_app.autonomy_service.get_autonomy_status() # Not async
+            return current_app.autonomy_service.get_autonomy_status()
         elif 'memory' in query_lower:
-            return current_app.memory_service.get_memory_stats() # Not async
+            return current_app.memory_service.get_memory_stats()
         elif 'health' in query_lower:
             return await self.get_health_status()
         elif 'status' in query_lower or 'agent' in query_lower:
-             return current_app.eliza_agent.get_agent_status() # Not async
+             return current_app.eliza_agent.get_agent_status()
         else:
             return await self.get_default_response(query)
 
@@ -72,15 +68,12 @@ class IntelligentDispatcher:
     async def get_dashboard_data(self) -> dict:
         logger.info("Dispatcher: Calling mining_service.get_comprehensive_mining_dashboard...")
         return await current_app.mining_service.get_comprehensive_mining_dashboard()
-
     async def get_mining_stats(self) -> dict:
         logger.info("Dispatcher: Calling mining_service.get_current_stats...")
         return await current_app.mining_service.get_current_stats()
-        
     async def get_health_status(self) -> dict:
         logger.info("Dispatcher: Calling health_service.get_simple_health...")
         return await current_app.health_service.get_simple_health()
-        
     async def get_default_response(self, query: str) -> dict:
         logger.info("Dispatcher: No keyword match, using Eliza's default processor.")
         return await current_app.eliza_agent.process_command(query)
@@ -98,7 +91,7 @@ def create_app():
     # --- Service Initialization (All original services preserved) ---
     with app.app_context():
         current_app.intelligent_dispatcher = IntelligentDispatcher()
-        logger.info("✅ XMRT Intelligent Dispatcher (v2.2.4 - Core Repaired) initialized.")
+        logger.info("✅ XMRT Intelligent Dispatcher (v2.2.5 - WSGI Compatible) initialized.")
         current_app.mining_service = EnhancedSupportXMRService(config={})
         current_app.meshnet_service = init_meshnet_service(config={})
         current_app.speech_service = SpeechService(config={})
@@ -117,6 +110,7 @@ def create_app():
 
     # --- Blueprint Registration (Preserved) ---
     app.register_blueprint(meshnet_bp, url_prefix='/api/meshnet')
+    logger.info("✅ MESHNET API blueprint registered.")
 
     # --- Core API & UI Routes ---
 
@@ -127,9 +121,10 @@ def create_app():
 
     # ========================================================================
     # === CRITICAL FIX: /api/chat now uses the Intelligent Dispatcher ===
+    # === This is the ONLY route that has been functionally changed. ===
     # ========================================================================
     @app.route('/api/chat', methods=['POST'])
-    async def handle_chat():
+    def handle_chat():
         """Handle chat messages using the corrected Intelligent Dispatcher."""
         data = request.get_json()
         if not data or 'message' not in data:
@@ -138,9 +133,9 @@ def create_app():
         user_message = data['message']
         
         try:
-            intelligent_response = await current_app.intelligent_dispatcher.analyze_and_dispatch(user_message)
+            # Use asyncio.run() to execute the async dispatcher from the sync route
+            intelligent_response = asyncio.run(current_app.intelligent_dispatcher.analyze_and_dispatch(user_message))
             
-            # Format the dictionary response for clean, readable output
             if isinstance(intelligent_response, dict):
                 intelligent_response = json.dumps(intelligent_response, indent=2, default=str)
 
@@ -155,10 +150,10 @@ def create_app():
     # ========================================================================
 
     @app.route('/health')
-    async def health_check():
+    def health_check():
         """Comprehensive health check for all core services."""
         try:
-            health_data = await current_app.health_service.get_simple_health()
+            health_data = asyncio.run(current_app.health_service.get_simple_health())
             status_code = 200 if health_data.get('healthy', False) else 503
             return jsonify(health_data), status_code
         except Exception as e:
@@ -166,22 +161,24 @@ def create_app():
             return jsonify({'healthy': False, 'status': 'error', 'error': str(e)}), 500
 
     @app.route('/health/detailed')
-    async def detailed_health_check():
+    def detailed_health_check():
         """Detailed health check with comprehensive service analysis."""
         try:
-            health_data = await current_app.health_service.get_comprehensive_health()
+            health_data = asyncio.run(current_app.health_service.get_comprehensive_health())
             status_code = 200 if health_data.get('overall_status') == 'healthy' else 503
             return jsonify(health_data), status_code
         except Exception as e:
+            logger.error(f"Detailed health check failed: {e}")
             return jsonify({'overall_status': 'unhealthy', 'error': str(e)}), 500
 
     @app.route('/api/dashboard')
-    async def get_system_dashboard():
+    def get_system_dashboard():
         """Get the comprehensive mining and ecosystem dashboard."""
         try:
-            dashboard_data = await current_app.mining_service.get_comprehensive_mining_dashboard()
+            dashboard_data = asyncio.run(current_app.mining_service.get_comprehensive_mining_dashboard())
             return jsonify({'success': True, 'data': dashboard_data}), 200
         except Exception as e:
+            logger.error(f"Error fetching dashboard data: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     @app.route('/api/agent/status')
@@ -191,46 +188,57 @@ def create_app():
             status = current_app.eliza_agent.get_agent_status()
             return jsonify({'success': True, 'data': status}), 200
         except Exception as e:
+            logger.error(f"Error fetching agent status: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     @app.route('/api/autonomy/status')
     def get_autonomy_status():
+        """Get autonomy service status."""
         try:
             status = current_app.autonomy_service.get_autonomy_status()
             return jsonify({'success': True, 'data': status}), 200
         except Exception as e:
+            logger.error(f"Error fetching autonomy status: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     @app.route('/api/autonomy/tasks')
     def get_task_summary():
+        """Get summary of autonomous tasks."""
         try:
             tasks = current_app.autonomy_service.get_task_summary()
             return jsonify({'success': True, 'data': tasks}), 200
         except Exception as e:
+            logger.error(f"Error fetching task summary: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     @app.route('/api/autonomy/execute', methods=['POST'])
-    async def execute_autonomous_tasks():
+    def execute_autonomous_tasks():
+        """Execute pending autonomous tasks."""
         try:
-            executed = await current_app.autonomy_service.execute_pending_tasks()
+            executed = asyncio.run(current_app.autonomy_service.execute_pending_tasks())
             return jsonify({'success': True, 'executed_tasks': executed}), 200
         except Exception as e:
+            logger.error(f"Error executing autonomous tasks: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     @app.route('/api/memory/stats')
     def get_memory_stats():
+        """Get memory service statistics."""
         try:
             stats = current_app.memory_service.get_memory_stats()
             return jsonify({'success': True, 'data': stats}), 200
         except Exception as e:
+            logger.error(f"Error fetching memory stats: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     @app.route('/api/speech/status')
     def get_speech_status():
+        """Get speech service status."""
         try:
             status = current_app.speech_service.get_voice_status()
             return jsonify({'success': True, 'data': status}), 200
         except Exception as e:
+            logger.error(f"Error fetching speech status: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     # --- Error Handlers (Preserved) ---

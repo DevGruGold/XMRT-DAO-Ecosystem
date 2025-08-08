@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eliza | XMRT-DAO Command</title>
     <style>
-        /* --- All your existing CSS is preserved exactly as it was --- */
         * {
             box-sizing: border-box;
         }
@@ -84,23 +83,21 @@
             white-space: pre-wrap;
             text-align: left;
             font-size: 0.9em;
+            word-wrap: break-word;
         }
         
-        /* NEW STYLES FOR FORMATTED JSON RESPONSES */
-        .eliza-message .content pre {
-            background-color: #0d1117;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #30363d;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85em;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            margin-top: 5px;
-        }
-
-        .eliza-message .content strong {
+        /* === CHANGE #1: ADDED NEW CSS FOR FORMATTED JSON RESPONSES === */
+        .eliza-message .content .json-response-key {
             color: #58a6ff;
+            font-weight: bold;
+        }
+        .eliza-message .content .json-response-value {
+            color: #c9d1d9;
+        }
+        .eliza-message .content .json-response-nested {
+            padding-left: 15px;
+            border-left: 1px solid #30363d;
+            margin-top: 5px;
         }
         
         .user-message .content {
@@ -145,59 +142,440 @@
             background-color: #2ea043;
         }
         
-        /* --- All other existing CSS is preserved --- */
-        #mining-widget-container { width: 100%; border: 1px solid #30363d; border-radius: 8px; background-color: #161b22; padding: 15px; }
-        .widget-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; }
-        .widget-title { font-size: 1.1em; font-weight: 600; color: #58a6ff; line-height: 1.2; }
-        .widget-subtitle { color: #8b949e; font-size: 0.85em; margin-top: 4px; line-height: 1.3; }
-        .slider-container { margin-bottom: 20px; }
-        .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; }
-        .slider-label-text { color: #c9d1d9; font-weight: 500; font-size: 0.9em; flex-shrink: 0; }
-        .slider-value { color: #58a6ff; font-family: 'Courier New', monospace; font-size: 0.85em; text-align: right; }
-        .slider { width: 100%; height: 6px; border-radius: 3px; background: #30363d; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; }
-        .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #58a6ff; cursor: pointer; border: 2px solid #161b22; }
-        .slider::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #58a6ff; cursor: pointer; border: 2px solid #161b22; }
-        .slider-range { display: flex; justify-content: space-between; color: #8b949e; font-size: 0.75em; margin-top: 4px; }
-        .enhancement-section { background-color: #21262d; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
-        .enhancement-title { color: #58a6ff; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 0.95em; }
-        .enhancement-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-        .enhancement-option { background-color: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px; transition: all 0.3s ease; cursor: pointer; }
-        .enhancement-option:hover { border-color: #58a6ff; background-color: #1c2128; }
-        .enhancement-option.selected { border-color: #58a6ff; background-color: #1c2128; box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.3); }
-        .radio-group { display: flex; align-items: flex-start; gap: 10px; }
-        .radio-input { margin-top: 2px; accent-color: #58a6ff; flex-shrink: 0; }
-        .radio-content { flex: 1; min-width: 0; }
-        .radio-label { color: #c9d1d9; font-weight: 500; display: block; margin-bottom: 4px; cursor: pointer; font-size: 0.9em; line-height: 1.2; }
-        .radio-description { color: #8b949e; font-size: 0.8em; line-height: 1.3; margin-bottom: 8px; }
-        .radio-specs { display: flex; gap: 15px; font-size: 0.75em; flex-wrap: wrap; }
-        .spec-item { display: flex; flex-direction: column; gap: 2px; }
-        .spec-label { color: #6e7681; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.5px; }
-        .spec-value { color: #58a6ff; font-family: 'Courier New', monospace; font-weight: 600; }
-        .spec-value.boost { color: #40d47e; }
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 20px 0; }
-        .stat-card { background-color: #21262d; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #30363d; }
-        .stat-value { font-size: 0.95em; font-weight: 600; font-family: 'Courier New', monospace; margin-bottom: 4px; line-height: 1.1; }
-        .stat-label { color: #8b949e; font-size: 0.7em; line-height: 1.2; }
-        .earnings-section { margin-top: 20px; }
-        .earnings-title { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #58a6ff; font-weight: 600; font-size: 0.95em; }
-        .earnings-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-        .earnings-card { background: linear-gradient(135deg, #21262d, #161b22); border: 1px solid #30363d; border-radius: 8px; padding: 15px; text-align: center; }
+        /* Mining Widget */
+        #mining-widget-container {
+            width: 100%;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            background-color: #161b22;
+            padding: 15px;
+        }
+        
+        .widget-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .widget-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #58a6ff;
+            line-height: 1.2;
+        }
+        
+        .widget-subtitle {
+            color: #8b949e;
+            font-size: 0.85em;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+        
+        /* Sliders */
+        .slider-container {
+            margin-bottom: 20px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+        
+        .slider-label-text {
+            color: #c9d1d9;
+            font-weight: 500;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+        
+        .slider-value {
+            color: #58a6ff;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            text-align: right;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #30363d;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #58a6ff;
+            cursor: pointer;
+            border: 2px solid #161b22;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #58a6ff;
+            cursor: pointer;
+            border: 2px solid #161b22;
+        }
+        
+        .slider-range {
+            display: flex;
+            justify-content: space-between;
+            color: #8b949e;
+            font-size: 0.75em;
+            margin-top: 4px;
+        }
+        
+        /* Hardware Enhancement Section */
+        .enhancement-section {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .enhancement-title {
+            color: #58a6ff;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95em;
+        }
+        
+        .enhancement-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .enhancement-option {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .enhancement-option:hover {
+            border-color: #58a6ff;
+            background-color: #1c2128;
+        }
+        
+        .enhancement-option.selected {
+            border-color: #58a6ff;
+            background-color: #1c2128;
+            box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.3);
+        }
+        
+        .radio-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .radio-input {
+            margin-top: 2px;
+            accent-color: #58a6ff;
+            flex-shrink: 0;
+        }
+        
+        .radio-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .radio-label {
+            color: #c9d1d9;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            line-height: 1.2;
+        }
+        
+        .radio-description {
+            color: #8b949e;
+            font-size: 0.8em;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+        
+        .radio-specs {
+            display: flex;
+            gap: 15px;
+            font-size: 0.75em;
+            flex-wrap: wrap;
+        }
+        
+        .spec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .spec-label {
+            color: #6e7681;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .spec-value {
+            color: #58a6ff;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+        
+        .spec-value.boost {
+            color: #40d47e;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background-color: #21262d;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #30363d;
+        }
+        
+        .stat-value {
+            font-size: 0.95em;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+        
+        .stat-label {
+            color: #8b949e;
+            font-size: 0.7em;
+            line-height: 1.2;
+        }
+        
+        /* Earnings Section */
+        .earnings-section {
+            margin-top: 20px;
+        }
+        
+        .earnings-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: #58a6ff;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        
+        .earnings-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .earnings-card {
+            background: linear-gradient(135deg, #21262d, #161b22);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
         .earnings-card.daily { border-color: #238636; }
         .earnings-card.monthly { border-color: #58a6ff; }
         .earnings-card.yearly { border-color: #a855f7; }
-        .earnings-xmr { font-size: 1.1em; font-weight: bold; font-family: 'Courier New', monospace; margin-bottom: 4px; line-height: 1.1; }
+        
+        .earnings-xmr {
+            font-size: 1.1em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+        
         .earnings-card.daily .earnings-xmr { color: #40d47e; }
         .earnings-card.monthly .earnings-xmr { color: #58a6ff; }
         .earnings-card.yearly .earnings-xmr { color: #a855f7; }
-        .earnings-usd { color: #8b949e; font-family: 'Courier New', monospace; margin-bottom: 6px; font-size: 0.9em; }
-        .earnings-period { color: #6e7681; font-size: 0.8em; }
-        .disclaimer { background-color: #2d1b00; border: 1px solid #f1c40f; border-radius: 6px; padding: 12px; margin-top: 20px; }
-        .disclaimer-text { color: #f1c40f; font-size: 0.8em; line-height: 1.4; margin: 0; }
-        .icon { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
-        @media (min-width: 768px) { body { padding: 20px; } #main-content-wrapper { gap: 20px; } #chat-container { height: 70vh; } #mining-widget-container { padding: 20px; } #header h1 { font-size: 1.5em; } #header p { font-size: 1em; } .widget-title { font-size: 1.2em; } .widget-subtitle { font-size: 0.9em; } .enhancement-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; } .enhancement-option { padding: 15px; } .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; } .earnings-grid { grid-template-columns: repeat(3, 1fr); gap: 15px; } .slider-label-text, .enhancement-title, .earnings-title { font-size: 1em; } .radio-label { font-size: 0.95em; } .radio-description { font-size: 0.85em; } .disclaimer-text { font-size: 0.85em; } }
-        @media (min-width: 1024px) { .enhancement-grid { grid-template-columns: repeat(2, 1fr); } .radio-specs { gap: 20px; } }
-        @media (min-width: 1200px) { #main-content-wrapper { max-width: 900px; } }
-        @media (hover: none) and (pointer: coarse) { .slider { height: 8px; } .slider::-webkit-slider-thumb { width: 22px; height: 22px; } .slider::-moz-range-thumb { width: 22px; height: 22px; } .enhancement-option { padding: 15px; } #send-button { padding: 10px 15px; min-width: 60px; } }
+        
+        .earnings-usd {
+            color: #8b949e;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+        }
+        
+        .earnings-period {
+            color: #6e7681;
+            font-size: 0.8em;
+        }
+        
+        /* Disclaimer */
+        .disclaimer {
+            background-color: #2d1b00;
+            border: 1px solid #f1c40f;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 20px;
+        }
+        
+        .disclaimer-text {
+            color: #f1c40f;
+            font-size: 0.8em;
+            line-height: 1.4;
+            margin: 0;
+        }
+        
+        .icon {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+        
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            #main-content-wrapper {
+                gap: 20px;
+            }
+            
+            #chat-container {
+                height: 70vh;
+            }
+            
+            #mining-widget-container {
+                padding: 20px;
+            }
+            
+            #header h1 {
+                font-size: 1.5em;
+            }
+            
+            #header p {
+                font-size: 1em;
+            }
+            
+            .widget-title {
+                font-size: 1.2em;
+            }
+            
+            .widget-subtitle {
+                font-size: 0.9em;
+            }
+            
+            .enhancement-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .enhancement-option {
+                padding: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 15px;
+            }
+            
+            .earnings-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            
+            .slider-label-text,
+            .enhancement-title,
+            .earnings-title {
+                font-size: 1em;
+            }
+            
+            .radio-label {
+                font-size: 0.95em;
+            }
+            
+            .radio-description {
+                font-size: 0.85em;
+            }
+            
+            .disclaimer-text {
+                font-size: 0.85em;
+            }
+        }
+        
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .enhancement-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .radio-specs {
+                gap: 20px;
+            }
+        }
+        
+        /* Large Desktop */
+        @media (min-width: 1200px) {
+            #main-content-wrapper {
+                max-width: 900px;
+            }
+        }
+        
+        /* Touch improvements for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .slider {
+                height: 8px;
+            }
+            
+            .slider::-webkit-slider-thumb {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .slider::-moz-range-thumb {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .enhancement-option {
+                padding: 15px;
+            }
+            
+            #send-button {
+                padding: 10px 15px;
+                min-width: 60px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -209,7 +587,7 @@
             </div>
             <div id="messages">
                 <div class="message eliza-message">
-                    <div class="content">Greetings, Founder. I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?<br><br>Available commands: 'status', 'dashboard', 'health'.</div>
+                    <div class="content">Greetings, I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?<br><br>Available commands: 'status', 'dashboard', 'health'.</div>
                 </div>
             </div>
             <div id="input-container">
@@ -218,9 +596,193 @@
             </div>
         </div>
         
-        <!-- All your other HTML for the mining calculator is preserved exactly as it was -->
         <div id="mining-widget-container">
-            <!-- ... -->
+            <div class="widget-header">
+                <svg class="icon" style="color: #40d47e;">
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                    <polyline points="16 7 22 7 22 13"></polyline>
+                </svg>
+                <div>
+                    <div class="widget-title">MobileMonero Mining Calculator</div>
+                    <div class="widget-subtitle">Calculate potential earnings from mobile Monero mining</div>
+                </div>
+            </div>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span class="slider-label-text">Base Hashrate per Device</span>
+                    <span class="slider-value" id="hashrate-value">600 H/s</span>
+                </div>
+                <input type="range" min="200" max="1200" value="600" class="slider" id="hashrate-slider">
+                <div class="slider-range">
+                    <span>200 H/s</span>
+                    <span>1,200 H/s</span>
+                </div>
+            </div>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span class="slider-label-text">Number of Mining Devices</span>
+                    <span class="slider-value" id="devices-value">100</span>
+                </div>
+                <input type="range" min="1" max="1000000" value="100" class="slider" id="devices-slider">
+                <div class="slider-range">
+                    <span>1</span>
+                    <span>1M</span>
+                </div>
+            </div>
+            
+            <div class="enhancement-section">
+                <div class="enhancement-title">
+                    <svg class="icon" style="color: #f1c40f;">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m15.5-6.5L17 7l-3 3 3 3 3.5-3.5M6.5 6.5L3 3l3 3-3 3 3.5 3.5"></path>
+                    </svg>
+                    Hardware Enhancement Options
+                </div>
+                
+                <div class="enhancement-grid">
+                    <div class="enhancement-option" id="standard-option">
+                        <div class="radio-group">
+                            <input type="radio" name="enhancement" value="standard" id="standard-radio" class="radio-input" checked>
+                            <div class="radio-content">
+                                <label for="standard-radio" class="radio-label">Standard Mobile Hardware</label>
+                                <div class="radio-description">
+                                    Basic ARM processors with standard lithium-ion batteries. Typical performance for current mobile devices.
+                                </div>
+                                <div class="radio-specs">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Hashrate Mult.</span>
+                                        <span class="spec-value">1.0x</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Power Eff.</span>
+                                        <span class="spec-value">100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="enhancement-option" id="advanced-option">
+                        <div class="radio-group">
+                            <input type="radio" name="enhancement" value="advanced" id="advanced-radio" class="radio-input">
+                            <div class="radio-content">
+                                <label for="advanced-radio" class="radio-label">Advanced ARM Processors</label>
+                                <div class="radio-description">
+                                    Next-gen ARM chips with enhanced crypto acceleration and improved thermal management for sustained mining.
+                                </div>
+                                <div class="radio-specs">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Hashrate Mult.</span>
+                                        <span class="spec-value boost">1.8x</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Power Eff.</span>
+                                        <span class="spec-value boost">125%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="enhancement-option" id="battery-option">
+                        <div class="radio-group">
+                            <input type="radio" name="enhancement" value="battery" id="battery-radio" class="radio-input">
+                            <div class="radio-content">
+                                <label for="battery-radio" class="radio-label">Solid State Battery Tech</label>
+                                <div class="radio-description">
+                                    Revolutionary solid-state batteries enabling 24/7 mining with superior energy density and thermal stability.
+                                </div>
+                                <div class="radio-specs">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Hashrate Mult.</span>
+                                        <span class="spec-value boost">1.5x</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Uptime</span>
+                                        <span class="spec-value boost">24/7</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="enhancement-option" id="ultimate-option">
+                        <div class="radio-group">
+                            <input type="radio" name="enhancement" value="ultimate" id="ultimate-radio" class="radio-input">
+                            <div class="radio-content">
+                                <label for="ultimate-radio" class="radio-label">Ultimate: ARM + SSD Battery</label>
+                                <div class="radio-description">
+                                    Combined next-gen ARM processors with solid-state battery technology for maximum mining performance.
+                                </div>
+                                <div class="radio-specs">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Hashrate Mult.</span>
+                                        <span class="spec-value boost">2.7x</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Total Boost</span>
+                                        <span class="spec-value boost">270%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #a855f7;" id="total-hashrate">60.0K H/s</div>
+                    <div class="stat-label">Total Hashrate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #58a6ff;" id="network-share">0.0021%</div>
+                    <div class="stat-label">Network Share</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #40d47e;" id="xmr-price">$300</div>
+                    <div class="stat-label">XMR Price</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #f1c40f;" id="network-hashrate">2.8 GH/s</div>
+                    <div class="stat-label">Network Hashrate</div>
+                </div>
+            </div>
+            
+            <div class="earnings-section">
+                <div class="earnings-title">
+                    <svg class="icon" style="color: #f1c40f;">
+                        <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path>
+                    </svg>
+                    Projected Earnings
+                </div>
+                
+                <div class="earnings-grid">
+                    <div class="earnings-card daily">
+                        <div class="earnings-xmr" id="daily-xmr">0.0093 XMR</div>
+                        <div class="earnings-usd" id="daily-usd">$2.78</div>
+                        <div class="earnings-period">Daily</div>
+                    </div>
+                    <div class="earnings-card monthly">
+                        <div class="earnings-xmr" id="monthly-xmr">0.28 XMR</div>
+                        <div class="earnings-usd" id="monthly-usd">$83.31</div>
+                        <div class="earnings-period">Monthly</div>
+                    </div>
+                    <div class="earnings-card yearly">
+                        <div class="earnings-xmr" id="yearly-xmr">3.38 XMR</div>
+                        <div class="earnings-usd" id="yearly-usd">$1,014</div>
+                        <div class="earnings-period">Yearly</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="disclaimer">
+                <p class="disclaimer-text">
+                    <strong>Disclaimer:</strong> These calculations are estimates based on current network conditions and projected hardware improvements. Actual earnings may vary due to network difficulty changes, XMR price fluctuations, device performance variations, and technology adoption rates. Advanced processor and solid-state battery technologies represent future projections.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -256,13 +818,15 @@
                 for (const key in obj) {
                     if (obj.hasOwnProperty(key)) {
                         let value = obj[key];
+                        // Replace underscores with spaces and capitalize for display
+                        let displayKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                         let keyStyle = `style="padding-left: ${depth * 15}px;"`;
                         
                         if (typeof value === 'object' && value !== null) {
-                            html += `<div ${keyStyle}><strong>${key}:</strong></div>`;
+                            html += `<div ${keyStyle}><span class="json-response-key">${displayKey}:</span></div>`;
                             buildHtml(value, depth + 1);
                         } else {
-                            html += `<div ${keyStyle}><strong>${key}:</strong> ${value}</div>`;
+                            html += `<div ${keyStyle}><span class="json-response-key">${displayKey}:</span> <span class="json-response-value">${value}</span></div>`;
                         }
                     }
                 }
@@ -320,9 +884,137 @@
             }
         });
 
-        // --- All your existing JavaScript for the mining calculator is preserved exactly as it was ---
+        // --- All your existing JavaScript for the mining calculator is PRESERVED ---
         const hashrateSlider = document.getElementById("hashrate-slider");
-        // ... (rest of your original script)
+        const devicesSlider = document.getElementById("devices-slider");
+        const hashrateValue = document.getElementById("hashrate-value");
+        const devicesValue = document.getElementById("devices-value");
+        const enhancementRadios = document.querySelectorAll('input[name="enhancement"]');
+        const enhancementOptions = document.querySelectorAll('.enhancement-option');
+
+        // Display elements
+        const totalHashrateEl = document.getElementById("total-hashrate");
+        const networkShareEl = document.getElementById("network-share");
+        const xmrPriceEl = document.getElementById("xmr-price");
+        const networkHashrateEl = document.getElementById("network-hashrate");
+        const dailyXmrEl = document.getElementById("daily-xmr");
+        const dailyUsdEl = document.getElementById("daily-usd");
+        const monthlyXmrEl = document.getElementById("monthly-xmr");
+        const monthlyUsdEl = document.getElementById("monthly-usd");
+        const yearlyXmrEl = document.getElementById("yearly-xmr");
+        const yearlyUsdEl = document.getElementById("yearly-usd");
+
+        // Constants
+        const XMR_PRICE = 300;
+        const NETWORK_HASHRATE = 2.8e9; // 2.8 GH/s in H/s
+        const DAILY_XMR_REWARD = 6000; // Approximate daily XMR mined by entire network
+
+        // Enhancement multipliers
+        const ENHANCEMENT_MULTIPLIERS = {
+            standard: 1.0,
+            advanced: 1.8,
+            battery: 1.5,
+            ultimate: 2.7
+        };
+
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(1) + "G";
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + "M";
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + "K";
+            return num.toFixed(0);
+        }
+
+        function formatDeviceCount(num) {
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + "M";
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + "K";
+            return num.toLocaleString();
+        }
+
+        function getSelectedEnhancement() {
+            const selectedRadio = document.querySelector('input[name="enhancement"]:checked');
+            return selectedRadio ? selectedRadio.value : 'standard';
+        }
+
+        function updateEnhancementUI() {
+            const selectedValue = getSelectedEnhancement();
+            
+            enhancementOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            const selectedOption = document.getElementById(selectedValue + '-option');
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+        }
+
+        function updateCalculations() {
+            const baseHashrate = parseInt(hashrateSlider.value);
+            const numDevices = parseInt(devicesSlider.value);
+            const enhancement = getSelectedEnhancement();
+            const multiplier = ENHANCEMENT_MULTIPLIERS[enhancement];
+            
+            const effectiveHashrate = baseHashrate * multiplier;
+            
+            hashrateValue.textContent = `${baseHashrate} H/s`;
+            devicesValue.textContent = formatDeviceCount(numDevices);
+            
+            const totalHashrate = effectiveHashrate * numDevices;
+            const networkShare = (totalHashrate / NETWORK_HASHRATE) * 100;
+            
+            const dailyXMR = (totalHashrate / NETWORK_HASHRATE) * DAILY_XMR_REWARD;
+            const monthlyXMR = dailyXMR * 30;
+            const yearlyXMR = dailyXMR * 365;
+            
+            const dailyUSD = dailyXMR * XMR_PRICE;
+            const monthlyUSD = monthlyXMR * XMR_PRICE;
+            const yearlyUSD = yearlyXMR * XMR_PRICE;
+            
+            totalHashrateEl.textContent = formatNumber(totalHashrate) + " H/s";
+            networkShareEl.textContent = networkShare.toFixed(4) + "%";
+            
+            dailyXmrEl.textContent = dailyXMR.toFixed(4) + " XMR";
+            dailyUsdEl.textContent = "$" + dailyUSD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            monthlyXmrEl.textContent = monthlyXMR.toFixed(2) + " XMR";
+            monthlyUsdEl.textContent = "$" + monthlyUSD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            yearlyXmrEl.textContent = yearlyXMR.toFixed(0) + " XMR";
+            
+            if (yearlyUSD >= 1000000) {
+                yearlyUsdEl.textContent = "$" + (yearlyUSD/1000000).toFixed(1) + "M";
+            } else if (yearlyUSD >= 1000) {
+                yearlyUsdEl.textContent = "$" + (yearlyUSD/1000).toFixed(0) + "K";
+            } else {
+                yearlyUsdEl.textContent = "$" + yearlyUSD.toFixed(0);
+            }
+        }
+
+        hashrateSlider.addEventListener("input", updateCalculations);
+        devicesSlider.addEventListener("input", updateCalculations);
+
+        enhancementRadios.forEach(radio => {
+            radio.addEventListener("change", () => {
+                updateEnhancementUI();
+                updateCalculations();
+            });
+        });
+
+        enhancementOptions.forEach(option => {
+            option.addEventListener("click", (e) => {
+                if (e.target.type !== 'radio') {
+                    const radio = option.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        updateEnhancementUI();
+                        updateCalculations();
+                    }
+                }
+            });
+        });
+
+        updateEnhancementUI();
+        updateCalculations();
     </script>
 </body>
 </html>

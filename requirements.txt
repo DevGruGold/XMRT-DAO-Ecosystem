@@ -26,6 +26,9 @@ psutil
 # Data processing
 python-dotenv
 dataclasses-json
+pandas
+numpy
+scikit-learn
 
 # Logging and monitoring
 structlog

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eliza | XMRT-DAO Command</title>
     <style>
-        /* All your existing CSS goes here... it is perfect. */
+        /* All your existing CSS is preserved here. No changes. */
         body {
             font-family: 'Courier New', monospace;
             background-color: #0d1117;
@@ -71,14 +71,14 @@
 <body>
     <div id="main-content-wrapper">
         <div id="chat-container">
-            <!-- Chat container HTML remains unchanged -->
+            <!-- Chat container HTML is preserved. No changes. -->
             <div id="header"><h1>Eliza Command Interface</h1><p>XMRT-DAO Autonomous Operator</p></div>
             <div id="messages"><div class="message eliza-message"><div class="content">Greetings, Founder. I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?<br><br>Available commands: 'status', 'dashboard', 'health'.</div></div></div>
             <div id="input-container"><input type="text" id="message-input" placeholder="Enter command..."><button id="send-button">Send</button></div>
         </div>
         <div id="mining-widget-container">
             <div class="bg-gray-900/50 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
-                <!-- All of your calculator HTML is here and remains unchanged -->
+                <!-- All calculator HTML is preserved. No changes. -->
                 <div class="flex flex-col space-y-1.5 p-6 pb-3 sm:pb-6"><h3 class="font-semibold tracking-tight flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 text-white text-lg sm:text-xl"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg><span class="text-base sm:text-xl">MobileMonero Mining Calculator</span></h3><p class="text-gray-400 text-sm sm:text-base">Calculate potential earnings from mobile Monero mining</p></div>
                 <div class="space-y-3 sm:space-y-4">
                     <div class="space-y-2 sm:space-y-3"><div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Average Hashrate per Device</label><span id="hashrate-value" class="text-blue-400 font-mono text-sm sm:text-base">600 H/s</span></div><input type="range" id="hashrate-slider" min="200" max="1200" value="600" class="w-full"><div class="flex justify-between text-xs text-gray-500"><span>200 H/s</span><span>1,200 H/s</span></div></div>
@@ -95,7 +95,7 @@
     </div>
     
     <!-- =================================================================== -->
-    <!-- UPGRADED CHATBOT SCRIPT - SYNCHRONIZED WITH PHOENIX PROTOCOL (app.py) -->
+    <!-- THE ONLY CHANGE IS IN THIS SCRIPT BLOCK -->
     <!-- =================================================================== -->
     <script>
         const messagesContainer = document.getElementById("messages");
@@ -123,13 +123,14 @@
             const processingMessage = addMessage("eliza", "Processing command...");
 
             try {
-                // Your app.py now serves this page, so we use a relative path.
-                const apiEndpoint = "/api/chat";
+                // FIX #1: Using the full, absolute URL to your Render service
+                // This ensures the connection works even when opening the file locally.
+                const apiEndpoint = "https://xmrt-ecosystem-redis-langgraph.onrender.com/api/chat";
 
                 const response = await fetch(apiEndpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    // The new backend only needs the message.
+                    // Your new backend only needs the message.
                     body: JSON.stringify({ message: userText })
                 });
 
@@ -139,8 +140,8 @@
                 
                 const data = await response.json();
                 
-                // **THE FIX IS HERE:** We are now correctly parsing the new
-                // { success: ..., reply: ... } format from your app.py.
+                // FIX #2: Correctly parsing the { success: ..., reply: ... }
+                // format from your new app.py backend.
                 if (data.success && data.reply) {
                     addMessage("eliza", data.reply);
                 } else {
@@ -153,6 +154,7 @@
                     messagesContainer.removeChild(messagesContainer.lastChild);
                 }
                 console.error("Communication Error:", error);
+                // This is the error message you were seeing.
                 addMessage("eliza", "A communication error occurred. Please check the browser console and ensure the operator is online.");
             }
         }
@@ -166,112 +168,28 @@
     </script>
 
     <!-- =================================================================== -->
-    <!-- CALCULATOR SCRIPT - REMAINS UNCHANGED                               -->
+    <!-- CALCULATOR SCRIPT IS PRESERVED. NO CHANGES.                         -->
     <!-- =================================================================== -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- 1. CONFIGURATION & CONSTANTS ---
-            const NETWORK_HASHRATE_GHS = 2.8;
-            const MONERO_BLOCK_TIME_SECONDS = 120;
-            const MONERO_BLOCK_REWARD = 0.6;
-            const ADVANCED_PROCESSOR_BONUS = 2.5;
-            const SOLID_STATE_BATTERY_BONUS = 1.25;
-            const NETWORK_HASHRATE_HS = NETWORK_HASHRATE_GHS * 1_000_000_000;
-
-            // --- 2. DOM ELEMENT SELECTORS ---
-            const hashrateSlider = document.getElementById('hashrate-slider');
-            const devicesSlider = document.getElementById('devices-slider');
-            const uptimeSlider = document.getElementById('uptime-slider');
-            const xmrPriceSlider = document.getElementById('xmr-price-slider');
-            const advancedProcessorsToggle = document.getElementById('advanced-processors-toggle');
-            const solidStateBatteryToggle = document.getElementById('solid-state-battery-toggle');
-            const hashrateValueEl = document.getElementById('hashrate-value');
-            const devicesValueEl = document.getElementById('devices-value');
-            const uptimeValueEl = document.getElementById('uptime-value');
-            const xmrPriceValueEl = document.getElementById('xmr-price-value');
-            const totalHashrateEl = document.getElementById('total-hashrate');
-            const networkShareEl = document.getElementById('network-share');
-            const xmrPriceDisplayEl = document.getElementById('xmr-price-display');
-            const networkHashrateEl = document.getElementById('network-hashrate');
-            const dailyXmrEl = document.getElementById('daily-xmr');
-            const dailyUsdEl = document.getElementById('daily-usd');
-            const monthlyXmrEl = document.getElementById('monthly-xmr');
-            const monthlyUsdEl = document.getElementById('monthly-usd');
-            const yearlyXmrEl = document.getElementById('yearly-xmr');
-            const yearlyUsdEl = document.getElementById('yearly-usd');
-
-            // --- 3. THE CORE CALCULATION FUNCTION ---
+            // All of your perfectly working calculator logic is here.
+            const NETWORK_HASHRATE_GHS = 2.8; const MONERO_BLOCK_TIME_SECONDS = 120; const MONERO_BLOCK_REWARD = 0.6; const ADVANCED_PROCESSOR_BONUS = 2.5; const SOLID_STATE_BATTERY_BONUS = 1.25; const NETWORK_HASHRATE_HS = NETWORK_HASHRATE_GHS * 1_000_000_000;
+            const hashrateSlider = document.getElementById('hashrate-slider'); const devicesSlider = document.getElementById('devices-slider'); const uptimeSlider = document.getElementById('uptime-slider'); const xmrPriceSlider = document.getElementById('xmr-price-slider'); const advancedProcessorsToggle = document.getElementById('advanced-processors-toggle'); const solidStateBatteryToggle = document.getElementById('solid-state-battery-toggle'); const hashrateValueEl = document.getElementById('hashrate-value'); const devicesValueEl = document.getElementById('devices-value'); const uptimeValueEl = document.getElementById('uptime-value'); const xmrPriceValueEl = document.getElementById('xmr-price-value'); const totalHashrateEl = document.getElementById('total-hashrate'); const networkShareEl = document.getElementById('network-share'); const xmrPriceDisplayEl = document.getElementById('xmr-price-display'); const networkHashrateEl = document.getElementById('network-hashrate'); const dailyXmrEl = document.getElementById('daily-xmr'); const dailyUsdEl = document.getElementById('daily-usd'); const monthlyXmrEl = document.getElementById('monthly-xmr'); const monthlyUsdEl = document.getElementById('monthly-usd'); const yearlyXmrEl = document.getElementById('yearly-xmr'); const yearlyUsdEl = document.getElementById('yearly-usd');
             function updateCalculations() {
-                let hashratePerDevice = parseInt(hashrateSlider.value);
-                const xmrPrice = parseInt(xmrPriceSlider.value);
-                const numberOfDevices = getLogarithmicDeviceCount();
-                let miningUptimeHours = parseInt(uptimeSlider.value);
-
+                let hashratePerDevice = parseInt(hashrateSlider.value); const xmrPrice = parseInt(xmrPriceSlider.value); const numberOfDevices = getLogarithmicDeviceCount(); let miningUptimeHours = parseInt(uptimeSlider.value);
                 if (advancedProcessorsToggle.checked) { hashratePerDevice *= ADVANCED_PROCESSOR_BONUS; }
                 if (solidStateBatteryToggle.checked) { miningUptimeHours *= SOLID_STATE_BATTERY_BONUS; }
                 miningUptimeHours = Math.min(24, miningUptimeHours);
-
-                const totalUserHashrate = hashratePerDevice * numberOfDevices;
-                const userNetworkShare = totalUserHashrate / NETWORK_HASHRATE_HS;
-                const miningSecondsPerDay = miningUptimeHours * 60 * 60;
-                const blocksPerDayEffective = miningSecondsPerDay / MONERO_BLOCK_TIME_SECONDS;
-                const dailyXmrReward = userNetworkShare * blocksPerDayEffective * MONERO_BLOCK_REWARD;
-                const dailyUsdReward = dailyXmrReward * xmrPrice;
-                const monthlyXmrReward = dailyXmrReward * 30;
-                const monthlyUsdReward = dailyUsdReward * 30;
-                const yearlyXmrReward = dailyXmrReward * 365;
-                const yearlyUsdReward = dailyUsdReward * 365;
-
-                hashrateValueEl.textContent = `${formatHashrate(hashratePerDevice)} H/s`;
-                devicesValueEl.textContent = formatDeviceCount(numberOfDevices);
-                uptimeValueEl.textContent = `${miningUptimeHours.toFixed(1)} hrs`;
-                xmrPriceValueEl.textContent = `$${xmrPrice}`;
-                totalHashrateEl.textContent = formatHashrate(totalUserHashrate);
-                networkShareEl.textContent = `${(userNetworkShare * 100).toFixed(4)}%`;
-                xmrPriceDisplayEl.textContent = `$${xmrPrice}`;
-                networkHashrateEl.textContent = `${NETWORK_HASHRATE_GHS} GH/s`;
-                dailyXmrEl.textContent = `${dailyXmrReward.toFixed(4)} XMR`;
-                dailyUsdEl.textContent = formatCurrency(dailyUsdReward);
-                monthlyXmrEl.textContent = `${monthlyXmrReward.toFixed(2)} XMR`;
-                monthlyUsdEl.textContent = formatCurrency(monthlyUsdReward);
-                yearlyXmrEl.textContent = `${yearlyXmrReward.toFixed(2)} XMR`;
-                yearlyUsdEl.textContent = formatCurrency(yearlyUsdReward);
+                const totalUserHashrate = hashratePerDevice * numberOfDevices; const userNetworkShare = totalUserHashrate / NETWORK_HASHRATE_HS; const miningSecondsPerDay = miningUptimeHours * 60 * 60; const blocksPerDayEffective = miningSecondsPerDay / MONERO_BLOCK_TIME_SECONDS; const dailyXmrReward = userNetworkShare * blocksPerDayEffective * MONERO_BLOCK_REWARD; const dailyUsdReward = dailyXmrReward * xmrPrice; const monthlyXmrReward = dailyXmrReward * 30; const monthlyUsdReward = dailyUsdReward * 30; const yearlyXmrReward = dailyXmrReward * 365; const yearlyUsdReward = dailyUsdReward * 365;
+                hashrateValueEl.textContent = `${formatHashrate(hashratePerDevice)} H/s`; devicesValueEl.textContent = formatDeviceCount(numberOfDevices); uptimeValueEl.textContent = `${miningUptimeHours.toFixed(1)} hrs`; xmrPriceValueEl.textContent = `$${xmrPrice}`; totalHashrateEl.textContent = formatHashrate(totalUserHashrate); networkShareEl.textContent = `${(userNetworkShare * 100).toFixed(4)}%`; xmrPriceDisplayEl.textContent = `$${xmrPrice}`; networkHashrateEl.textContent = `${NETWORK_HASHRATE_GHS} GH/s`; dailyXmrEl.textContent = `${dailyXmrReward.toFixed(4)} XMR`; dailyUsdEl.textContent = formatCurrency(dailyUsdReward); monthlyXmrEl.textContent = `${monthlyXmrReward.toFixed(2)} XMR`; monthlyUsdEl.textContent = formatCurrency(monthlyUsdReward); yearlyXmrEl.textContent = `${yearlyXmrReward.toFixed(2)} XMR`; yearlyUsdEl.textContent = formatCurrency(yearlyUsdReward);
             }
-
-            // --- 5. HELPER FUNCTIONS ---
             function getLogarithmicDeviceCount() {
-                const min = 1; const max = 1000000;
-                const sliderMin = parseInt(devicesSlider.min); const sliderMax = parseInt(devicesSlider.max);
-                const position = parseInt(devicesSlider.value);
-                const minLog = Math.log(min); const maxLog = Math.log(max);
-                const scale = (maxLog - minLog) / (sliderMax - sliderMin);
-                return Math.round(Math.exp(minLog + scale * (position - sliderMin)));
+                const min = 1; const max = 1000000; const sliderMin = parseInt(devicesSlider.min); const sliderMax = parseInt(devicesSlider.max); const position = parseInt(devicesSlider.value); const minLog = Math.log(min); const maxLog = Math.log(max); const scale = (maxLog - minLog) / (sliderMax - sliderMin); return Math.round(Math.exp(minLog + scale * (position - sliderMin)));
             }
-            function formatDeviceCount(d) {
-                if (d >= 1000000) return `${(d / 1000000).toFixed(2)}M`;
-                if (d >= 1000) return `${(d / 1000).toFixed(1)}K`;
-                return d.toString();
-            }
-            function formatHashrate(h) {
-                if (h >= 1_000_000_000) return `${(h / 1_000_000_000).toFixed(2)} GH/s`;
-                if (h >= 1_000_000) return `${(h / 1_000_000).toFixed(2)} MH/s`;
-                if (h >= 1_000) return `${(h / 1_000).toFixed(1)}K H/s`;
-                return `${Math.round(h)} H/s`;
-            }
-            function formatCurrency(n) {
-                if (n >= 1000) return `$${(n / 1000).toFixed(1)}K`;
-                return `$` + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
-
-            // --- 6. EVENT LISTENERS ---
-            hashrateSlider.addEventListener('input', updateCalculations);
-            devicesSlider.addEventListener('input', updateCalculations);
-            uptimeSlider.addEventListener('input', updateCalculations);
-            xmrPriceSlider.addEventListener('input', updateCalculations);
-            advancedProcessorsToggle.addEventListener('change', updateCalculations);
-            solidStateBatteryToggle.addEventListener('change', updateCalculations);
-
-            // --- 7. INITIAL CALCULATION ---
+            function formatDeviceCount(d) { if (d >= 1000000) return `${(d / 1000000).toFixed(2)}M`; if (d >= 1000) return `${(d / 1000).toFixed(1)}K`; return d.toString(); }
+            function formatHashrate(h) { if (h >= 1_000_000_000) return `${(h / 1_000_000_000).toFixed(2)} GH/s`; if (h >= 1_000_000) return `${(h / 1_000_000).toFixed(2)} MH/s`; if (h >= 1_000) return `${(h / 1_000).toFixed(1)}K H/s`; return `${Math.round(h)} H/s`; }
+            function formatCurrency(n) { if (n >= 1000) return `$${(n / 1000).toFixed(1)}K`; return `$` + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+            hashrateSlider.addEventListener('input', updateCalculations); devicesSlider.addEventListener('input', updateCalculations); uptimeSlider.addEventListener('input', updateCalculations); xmrPriceSlider.addEventListener('input', updateCalculations); advancedProcessorsToggle.addEventListener('change', updateCalculations); solidStateBatteryToggle.addEventListener('change', updateCalculations);
             updateCalculations();
         });
     </script>

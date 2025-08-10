@@ -71,14 +71,12 @@
 <body>
     <div id="main-content-wrapper">
         <div id="chat-container">
-            <!-- Chat container HTML is preserved. No changes. -->
             <div id="header"><h1>Eliza Command Interface</h1><p>XMRT-DAO Autonomous Operator</p></div>
             <div id="messages"><div class="message eliza-message"><div class="content">Greetings, Founder. I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?<br><br>Available commands: 'status', 'dashboard', 'health'.</div></div></div>
             <div id="input-container"><input type="text" id="message-input" placeholder="Enter command..."><button id="send-button">Send</button></div>
         </div>
         <div id="mining-widget-container">
             <div class="bg-gray-900/50 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
-                <!-- All calculator HTML is preserved. No changes. -->
                 <div class="flex flex-col space-y-1.5 p-6 pb-3 sm:pb-6"><h3 class="font-semibold tracking-tight flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 text-white text-lg sm:text-xl"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg><span class="text-base sm:text-xl">MobileMonero Mining Calculator</span></h3><p class="text-gray-400 text-sm sm:text-base">Calculate potential earnings from mobile Monero mining</p></div>
                 <div class="space-y-3 sm:space-y-4">
                     <div class="space-y-2 sm:space-y-3"><div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Average Hashrate per Device</label><span id="hashrate-value" class="text-blue-400 font-mono text-sm sm:text-base">600 H/s</span></div><input type="range" id="hashrate-slider" min="200" max="1200" value="600" class="w-full"><div class="flex justify-between text-xs text-gray-500"><span>200 H/s</span><span>1,200 H/s</span></div></div>
@@ -95,7 +93,7 @@
     </div>
     
     <!-- =================================================================== -->
-    <!-- THE ONLY CHANGE IS IN THIS SCRIPT BLOCK -->
+    <!-- FIXED CHATBOT SCRIPT - HANDLES MULTIPLE RESPONSE FORMATS           -->
     <!-- =================================================================== -->
     <script>
         const messagesContainer = document.getElementById("messages");
@@ -114,6 +112,53 @@
             return messageDiv;
         }
 
+        function formatComplexResponse(data) {
+            // Handle different types of responses from your backend
+            if (typeof data === 'string') {
+                return data;
+            }
+            
+            if (data && typeof data === 'object') {
+                // If it's a dashboard response with mining data
+                if (data.dashboard_timestamp || data.mining_stats || data.pool_stats) {
+                    let formatted = "📊 **XMRT Dashboard Report**\n\n";
+                    
+                    if (data.dashboard_timestamp) {
+                        formatted += `🕒 **Timestamp:** ${new Date(data.dashboard_timestamp).toLocaleString()}\n\n`;
+                    }
+                    
+                    if (data.mining_stats) {
+                        formatted += "⛏️ **Mining Statistics:**\n";
+                        if (data.mining_stats.xmr_due) formatted += `• XMR Due: ${data.mining_stats.xmr_due}\n`;
+                        if (data.mining_stats.status) formatted += `• Status: ${data.mining_stats.status}\n`;
+                        formatted += "\n";
+                    }
+                    
+                    if (data.pool_stats) {
+                        formatted += "🏊 **Pool Statistics:**\n";
+                        if (data.pool_stats.hashrate) formatted += `• Pool Hashrate: ${data.pool_stats.hashrate}\n`;
+                        if (data.pool_stats.miners) formatted += `• Active Miners: ${data.pool_stats.miners}\n`;
+                        formatted += "\n";
+                    }
+                    
+                    if (data.system_health) {
+                        formatted += "🔧 **System Health:**\n";
+                        Object.entries(data.system_health).forEach(([key, value]) => {
+                            formatted += `• ${key}: ${value}\n`;
+                        });
+                        formatted += "\n";
+                    }
+                    
+                    return formatted;
+                }
+                
+                // For other structured responses, format as JSON
+                return "```json\n" + JSON.stringify(data, null, 2) + "\n```";
+            }
+            
+            return "Received response but couldn't format it properly.";
+        }
+
         async function sendMessage() {
             const userText = messageInput.value.trim();
             if (!userText) return;
@@ -123,14 +168,11 @@
             const processingMessage = addMessage("eliza", "Processing command...");
 
             try {
-                // FIX #1: Using the full, absolute URL to your Render service
-                // This ensures the connection works even when opening the file locally.
                 const apiEndpoint = "https://xmrt-ecosystem-redis-langgraph.onrender.com/api/chat";
 
                 const response = await fetch(apiEndpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    // Your new backend only needs the message.
                     body: JSON.stringify({ message: userText })
                 });
 
@@ -138,24 +180,52 @@
                    messagesContainer.removeChild(processingMessage);
                 }
                 
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 
-                // FIX #2: Correctly parsing the { success: ..., reply: ... }
-                // format from your new app.py backend.
+                // Log the response for debugging
+                console.log("Backend Response:", data);
+                
+                // ADAPTIVE RESPONSE HANDLING - handles multiple formats
+                let responseText = "";
+                
                 if (data.success && data.reply) {
-                    addMessage("eliza", data.reply);
+                    // Phoenix Protocol format: { success: true, reply: {...} }
+                    responseText = formatComplexResponse(data.reply);
+                } else if (data.success && data.data) {
+                    // Alternative Phoenix format: { success: true, data: {...} }
+                    responseText = formatComplexResponse(data.data);
+                } else if (data.reply) {
+                    // Direct reply format: { reply: {...} }
+                    responseText = formatComplexResponse(data.reply);
+                } else if (data.response) {
+                    // Original format: { response: "..." }
+                    responseText = data.response;
+                } else if (data.message) {
+                    // Alternative format: { message: "..." }
+                    responseText = data.message;
+                } else if (typeof data === 'string') {
+                    // Plain string response
+                    responseText = data;
+                } else if (data.success === false) {
+                    // Error response
+                    responseText = `❌ **Error:** ${data.error || data.message || 'Unknown error occurred'}`;
                 } else {
-                    // This handles cases where success is false or the format is unexpected.
-                    addMessage("eliza", `Error: ${data.error || 'An unknown error occurred.'}`);
+                    // Unknown format - show formatted JSON
+                    responseText = formatComplexResponse(data);
                 }
+                
+                addMessage("eliza", responseText);
 
             } catch (error) {
                 if (messagesContainer.lastChild && messagesContainer.lastChild.textContent.includes("Processing")) {
                     messagesContainer.removeChild(messagesContainer.lastChild);
                 }
                 console.error("Communication Error:", error);
-                // This is the error message you were seeing.
-                addMessage("eliza", "A communication error occurred. Please check the browser console and ensure the operator is online.");
+                addMessage("eliza", `🚨 **Communication Error:** ${error.message}\n\nPlease check your connection and try again.`);
             }
         }
 
@@ -172,7 +242,6 @@
     <!-- =================================================================== -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // All of your perfectly working calculator logic is here.
             const NETWORK_HASHRATE_GHS = 2.8; const MONERO_BLOCK_TIME_SECONDS = 120; const MONERO_BLOCK_REWARD = 0.6; const ADVANCED_PROCESSOR_BONUS = 2.5; const SOLID_STATE_BATTERY_BONUS = 1.25; const NETWORK_HASHRATE_HS = NETWORK_HASHRATE_GHS * 1_000_000_000;
             const hashrateSlider = document.getElementById('hashrate-slider'); const devicesSlider = document.getElementById('devices-slider'); const uptimeSlider = document.getElementById('uptime-slider'); const xmrPriceSlider = document.getElementById('xmr-price-slider'); const advancedProcessorsToggle = document.getElementById('advanced-processors-toggle'); const solidStateBatteryToggle = document.getElementById('solid-state-battery-toggle'); const hashrateValueEl = document.getElementById('hashrate-value'); const devicesValueEl = document.getElementById('devices-value'); const uptimeValueEl = document.getElementById('uptime-value'); const xmrPriceValueEl = document.getElementById('xmr-price-value'); const totalHashrateEl = document.getElementById('total-hashrate'); const networkShareEl = document.getElementById('network-share'); const xmrPriceDisplayEl = document.getElementById('xmr-price-display'); const networkHashrateEl = document.getElementById('network-hashrate'); const dailyXmrEl = document.getElementById('daily-xmr'); const dailyUsdEl = document.getElementById('daily-usd'); const monthlyXmrEl = document.getElementById('monthly-xmr'); const monthlyUsdEl = document.getElementById('monthly-usd'); const yearlyXmrEl = document.getElementById('yearly-xmr'); const yearlyUsdEl = document.getElementById('yearly-usd');
             function updateCalculations() {

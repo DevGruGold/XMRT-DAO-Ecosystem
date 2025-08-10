@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eliza | XMRT-DAO Command</title>
     <style>
-        /* All your existing CSS goes here... */
+        /* All your existing CSS goes here... it is perfect. */
         body {
             font-family: 'Courier New', monospace;
             background-color: #0d1117;
@@ -78,62 +78,95 @@
         </div>
         <div id="mining-widget-container">
             <div class="bg-gray-900/50 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
-                <!-- Header -->
+                <!-- All of your calculator HTML is here and remains unchanged -->
                 <div class="flex flex-col space-y-1.5 p-6 pb-3 sm:pb-6"><h3 class="font-semibold tracking-tight flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 text-white text-lg sm:text-xl"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg><span class="text-base sm:text-xl">MobileMonero Mining Calculator</span></h3><p class="text-gray-400 text-sm sm:text-base">Calculate potential earnings from mobile Monero mining</p></div>
-                <!-- Sliders -->
                 <div class="space-y-3 sm:space-y-4">
-                    <div class="space-y-2 sm:space-y-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Average Hashrate per Device</label><span id="hashrate-value" class="text-blue-400 font-mono text-sm sm:text-base">600 H/s</span></div>
-                        <input type="range" id="hashrate-slider" min="200" max="1200" value="600" class="w-full">
-                        <div class="flex justify-between text-xs text-gray-500"><span>200 H/s</span><span>1,200 H/s</span></div>
-                    </div>
-                    <div class="space-y-2 sm:space-y-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Number of Mining Devices</label><span id="devices-value" class="text-blue-400 font-mono text-sm sm:text-base">100</span></div>
-                        <!-- NOTE: max is 1000 for smooth logarithmic scaling -->
-                        <input type="range" id="devices-slider" min="0" max="1000" value="333" class="w-full">
-                        <div class="flex justify-between text-xs text-gray-500"><span>1</span><span>1M</span></div>
-                    </div>
-                    <div class="space-y-2 sm:space-y-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Mining Uptime per Day</label><span id="uptime-value" class="text-blue-400 font-mono text-sm sm:text-base">24 hrs</span></div>
-                        <input type="range" id="uptime-slider" min="1" max="24" value="24" class="w-full">
-                        <div class="flex justify-between text-xs text-gray-500"><span>1 hr</span><span>24 hrs</span></div>
-                    </div>
-                    <!-- NEW XMR PRICE SLIDER -->
-                    <div class="space-y-2 sm:space-y-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Monero (XMR) Price</label><span id="xmr-price-value" class="text-blue-400 font-mono text-sm sm:text-base">$165</span></div>
-                        <input type="range" id="xmr-price-slider" min="50" max="1000" value="165" class="w-full">
-                        <div class="flex justify-between text-xs text-gray-500"><span>$50</span><span>$1,000</span></div>
-                    </div>
+                    <div class="space-y-2 sm:space-y-3"><div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Average Hashrate per Device</label><span id="hashrate-value" class="text-blue-400 font-mono text-sm sm:text-base">600 H/s</span></div><input type="range" id="hashrate-slider" min="200" max="1200" value="600" class="w-full"><div class="flex justify-between text-xs text-gray-500"><span>200 H/s</span><span>1,200 H/s</span></div></div>
+                    <div class="space-y-2 sm:space-y-3"><div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Number of Mining Devices</label><span id="devices-value" class="text-blue-400 font-mono text-sm sm:text-base">100</span></div><input type="range" id="devices-slider" min="0" max="1000" value="333" class="w-full"><div class="flex justify-between text-xs text-gray-500"><span>1</span><span>1M</span></div></div>
+                    <div class="space-y-2 sm:space-y-3"><div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Mining Uptime per Day</label><span id="uptime-value" class="text-blue-400 font-mono text-sm sm:text-base">24 hrs</span></div><input type="range" id="uptime-slider" min="1" max="24" value="24" class="w-full"><div class="flex justify-between text-xs text-gray-500"><span>1 hr</span><span>24 hrs</span></div></div>
+                    <div class="space-y-2 sm:space-y-3"><div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0"><label class="font-medium text-gray-300 text-sm sm:text-base">Monero (XMR) Price</label><span id="xmr-price-value" class="text-blue-400 font-mono text-sm sm:text-base">$165</span></div><input type="range" id="xmr-price-slider" min="50" max="1000" value="165" class="w-full"><div class="flex justify-between text-xs text-gray-500"><span>$50</span><span>$1,000</span></div></div>
                 </div>
-                <!-- Hardware Upgrades Section -->
-                <div class="upgrade-section">
-                    <h4 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">Hardware Upgrades</h4>
-                    <div class="toggle-container">
-                        <label for="advanced-processors-toggle" class="toggle-label text-gray-300 text-sm sm:text-base">Advanced Processors (2.5x Hashrate)</label>
-                        <label class="toggle-switch"><input type="checkbox" id="advanced-processors-toggle"><span class="toggle-slider"></span></label>
-                    </div>
-                    <div class="toggle-container">
-                        <label for="solid-state-battery-toggle" class="toggle-label text-gray-300 text-sm sm:text-base">Solid State Batteries (+25% Uptime)</label>
-                        <label class="toggle-switch"><input type="checkbox" id="solid-state-battery-toggle"><span class="toggle-slider"></span></label>
-                    </div>
-                </div>
-                <!-- Metrics Grid -->
+                <div class="upgrade-section"><h4 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">Hardware Upgrades</h4><div class="toggle-container"><label for="advanced-processors-toggle" class="toggle-label text-gray-300 text-sm sm:text-base">Advanced Processors (2.5x Hashrate)</label><label class="toggle-switch"><input type="checkbox" id="advanced-processors-toggle"><span class="toggle-slider"></span></label></div><div class="toggle-container"><label for="solid-state-battery-toggle" class="toggle-label text-gray-300 text-sm sm:text-base">Solid State Batteries (+25% Uptime)</label><label class="toggle-switch"><input type="checkbox" id="solid-state-battery-toggle"><span class="toggle-slider"></span></label></div></div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"><div class="bg-gray-900/50 p-2 sm:p-3 rounded-lg text-center"><div id="total-hashrate" class="text-purple-400 font-mono text-sm sm:text-lg">60.0K H/s</div><div class="text-xs text-gray-400">Total Hashrate</div></div><div class="bg-gray-900/50 p-2 sm:p-3 rounded-lg text-center"><div id="network-share" class="text-blue-400 font-mono text-sm sm:text-lg">0.0021%</div><div class="text-xs text-gray-400">Network Share</div></div><div class="bg-gray-900/50 p-2 sm:p-3 rounded-lg text-center"><div id="xmr-price-display" class="text-green-400 font-mono text-sm sm:text-lg">$165</div><div class="text-xs text-gray-400">XMR Price</div></div><div class="bg-gray-900/50 p-2 sm:p-3 rounded-lg text-center"><div id="network-hashrate" class="text-yellow-400 font-mono text-sm sm:text-lg">2.8 GH/s</div><div class="text-xs text-gray-400">Network Hashrate</div></div></div>
-                <!-- Projected Earnings -->
                 <div class="space-y-3 sm:space-y-4"><h4 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap h-4 w-4 sm:h-5 sm:w-5 text-yellow-400"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>Projected Earnings</h4><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"><div class="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-green-900/20 to-green-800/20 border-green-700/50"><div class="p-3 sm:p-4 text-center"><div id="daily-xmr" class="text-lg sm:text-2xl font-bold text-green-400">0.0093 XMR</div><div id="daily-usd" class="text-green-300 font-mono text-sm sm:text-base">$1.53</div><div class="text-xs sm:text-sm text-gray-400">Daily</div></div></div><div class="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-blue-900/20 to-blue-800/20 border-blue-700/50"><div class="p-3 sm:p-4 text-center"><div id="monthly-xmr" class="text-lg sm:text-2xl font-bold text-blue-400">0.28 XMR</div><div id="monthly-usd" class="text-blue-300 font-mono text-sm sm:text-base">$45.98</div><div class="text-xs sm:text-sm text-gray-400">Monthly</div></div></div><div class="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-purple-900/20 to-purple-800/20 border-purple-700/50 sm:col-span-2 lg:col-span-1"><div class="p-3 sm:p-4 text-center"><div id="yearly-xmr" class="text-lg sm:text-2xl font-bold text-purple-400">3.38 XMR</div><div id="yearly-usd" class="text-purple-300 font-mono text-sm sm:text-base">$559.21</div><div class="text-xs sm:text-sm text-gray-400">Yearly</div></div></div></div></div>
-                <!-- Disclaimer -->
                 <div class="bg-yellow-900/20 border border-yellow-700/50 rounded-lg p-3 sm:p-4"><p class="text-yellow-400 text-xs sm:text-sm"><strong>Disclaimer:</strong> These calculations are estimates based on current network conditions. Actual earnings may vary due to network difficulty changes, XMR price fluctuations, and device performance variations.</p></div>
             </div>
         </div>
     </div>
     
-    <!-- Chatbot Script (Unchanged) -->
+    <!-- =================================================================== -->
+    <!-- UPGRADED CHATBOT SCRIPT - SYNCHRONIZED WITH PHOENIX PROTOCOL (app.py) -->
+    <!-- =================================================================== -->
     <script>
-        const messagesContainer = document.getElementById("messages"); const messageInput = document.getElementById("message-input"); const sendButton = document.getElementById("send-button"); function addMessage(sender, text) { const messageDiv = document.createElement("div"); messageDiv.classList.add("message", sender === "user" ? "user-message" : "eliza-message"); const contentDiv = document.createElement("div"); contentDiv.classList.add("content"); contentDiv.innerHTML = text.replace(/\n/g, '<br>'); messageDiv.appendChild(contentDiv); messagesContainer.appendChild(messageDiv); messagesContainer.scrollTop = messagesContainer.scrollHeight; return messageDiv; } async function sendMessage() { const userText = messageInput.value.trim(); if (!userText) return; addMessage("user", userText); messageInput.value = ""; const processingMessage = addMessage("eliza", "Processing command..."); try { const response = await fetch("https://xmrtnet-eliza.onrender.com/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: userText, character: 'xmrt_dao_governor' }) }); if (messagesContainer.contains(processingMessage)) { messagesContainer.removeChild(processingMessage); } if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); } const data = await response.json(); addMessage("eliza", data.response || "No response field found."); } catch (error) { if (messagesContainer.lastChild && messagesContainer.lastChild.textContent.includes("Processing")) { messagesContainer.removeChild(messagesContainer.lastChild); } console.error("Fetch Error:", error); addMessage("eliza", "A communication error occurred. Please check the server logs and console."); } } sendButton.addEventListener("click", sendMessage); messageInput.addEventListener("keypress", (e) => { if (e.key === "Enter") { sendMessage(); } });
+        const messagesContainer = document.getElementById("messages");
+        const messageInput = document.getElementById("message-input");
+        const sendButton = document.getElementById("send-button");
+
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", sender === "user" ? "user-message" : "eliza-message");
+            const contentDiv = document.createElement("div");
+            contentDiv.classList.add("content");
+            contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+            messageDiv.appendChild(contentDiv);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return messageDiv;
+        }
+
+        async function sendMessage() {
+            const userText = messageInput.value.trim();
+            if (!userText) return;
+
+            addMessage("user", userText);
+            messageInput.value = "";
+            const processingMessage = addMessage("eliza", "Processing command...");
+
+            try {
+                // Your app.py now serves this page, so we use a relative path.
+                const apiEndpoint = "/api/chat";
+
+                const response = await fetch(apiEndpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    // The new backend only needs the message.
+                    body: JSON.stringify({ message: userText })
+                });
+
+                if (messagesContainer.contains(processingMessage)) {
+                   messagesContainer.removeChild(processingMessage);
+                }
+                
+                const data = await response.json();
+                
+                // **THE FIX IS HERE:** We are now correctly parsing the new
+                // { success: ..., reply: ... } format from your app.py.
+                if (data.success && data.reply) {
+                    addMessage("eliza", data.reply);
+                } else {
+                    // This handles cases where success is false or the format is unexpected.
+                    addMessage("eliza", `Error: ${data.error || 'An unknown error occurred.'}`);
+                }
+
+            } catch (error) {
+                if (messagesContainer.lastChild && messagesContainer.lastChild.textContent.includes("Processing")) {
+                    messagesContainer.removeChild(messagesContainer.lastChild);
+                }
+                console.error("Communication Error:", error);
+                addMessage("eliza", "A communication error occurred. Please check the browser console and ensure the operator is online.");
+            }
+        }
+
+        sendButton.addEventListener("click", sendMessage);
+        messageInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
     </script>
 
     <!-- =================================================================== -->
-    <!-- FINAL SCRIPT TO POWER THE STRATEGIC FORECASTING CALCULATOR          -->
+    <!-- CALCULATOR SCRIPT - REMAINS UNCHANGED                               -->
     <!-- =================================================================== -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -149,20 +182,17 @@
             const hashrateSlider = document.getElementById('hashrate-slider');
             const devicesSlider = document.getElementById('devices-slider');
             const uptimeSlider = document.getElementById('uptime-slider');
-            const xmrPriceSlider = document.getElementById('xmr-price-slider'); // New
+            const xmrPriceSlider = document.getElementById('xmr-price-slider');
             const advancedProcessorsToggle = document.getElementById('advanced-processors-toggle');
             const solidStateBatteryToggle = document.getElementById('solid-state-battery-toggle');
-
             const hashrateValueEl = document.getElementById('hashrate-value');
             const devicesValueEl = document.getElementById('devices-value');
             const uptimeValueEl = document.getElementById('uptime-value');
-            const xmrPriceValueEl = document.getElementById('xmr-price-value'); // New
-            
+            const xmrPriceValueEl = document.getElementById('xmr-price-value');
             const totalHashrateEl = document.getElementById('total-hashrate');
             const networkShareEl = document.getElementById('network-share');
-            const xmrPriceDisplayEl = document.getElementById('xmr-price-display'); // Changed
+            const xmrPriceDisplayEl = document.getElementById('xmr-price-display');
             const networkHashrateEl = document.getElementById('network-hashrate');
-            
             const dailyXmrEl = document.getElementById('daily-xmr');
             const dailyUsdEl = document.getElementById('daily-usd');
             const monthlyXmrEl = document.getElementById('monthly-xmr');
@@ -172,73 +202,51 @@
 
             // --- 3. THE CORE CALCULATION FUNCTION ---
             function updateCalculations() {
-                // Get base values from inputs
                 let hashratePerDevice = parseInt(hashrateSlider.value);
-                const xmrPrice = parseInt(xmrPriceSlider.value); // New
-                const numberOfDevices = getLogarithmicDeviceCount(); // New logarithmic scale
+                const xmrPrice = parseInt(xmrPriceSlider.value);
+                const numberOfDevices = getLogarithmicDeviceCount();
                 let miningUptimeHours = parseInt(uptimeSlider.value);
 
-                // Apply technology bonuses
-                if (advancedProcessorsToggle.checked) {
-                    hashratePerDevice *= ADVANCED_PROCESSOR_BONUS;
-                }
-                if (solidStateBatteryToggle.checked) {
-                    miningUptimeHours *= SOLID_STATE_BATTERY_BONUS;
-                }
+                if (advancedProcessorsToggle.checked) { hashratePerDevice *= ADVANCED_PROCESSOR_BONUS; }
+                if (solidStateBatteryToggle.checked) { miningUptimeHours *= SOLID_STATE_BATTERY_BONUS; }
                 miningUptimeHours = Math.min(24, miningUptimeHours);
 
-                // Calculate intermediate values
                 const totalUserHashrate = hashratePerDevice * numberOfDevices;
                 const userNetworkShare = totalUserHashrate / NETWORK_HASHRATE_HS;
-
-                // Calculate earnings based on effective uptime
                 const miningSecondsPerDay = miningUptimeHours * 60 * 60;
                 const blocksPerDayEffective = miningSecondsPerDay / MONERO_BLOCK_TIME_SECONDS;
                 const dailyXmrReward = userNetworkShare * blocksPerDayEffective * MONERO_BLOCK_REWARD;
                 const dailyUsdReward = dailyXmrReward * xmrPrice;
-                
                 const monthlyXmrReward = dailyXmrReward * 30;
                 const monthlyUsdReward = dailyUsdReward * 30;
-
                 const yearlyXmrReward = dailyXmrReward * 365;
                 const yearlyUsdReward = dailyUsdReward * 365;
 
-                // --- 4. UPDATE THE UI (DOM MANIPULATION) ---
                 hashrateValueEl.textContent = `${formatHashrate(hashratePerDevice)} H/s`;
                 devicesValueEl.textContent = formatDeviceCount(numberOfDevices);
                 uptimeValueEl.textContent = `${miningUptimeHours.toFixed(1)} hrs`;
                 xmrPriceValueEl.textContent = `$${xmrPrice}`;
-
                 totalHashrateEl.textContent = formatHashrate(totalUserHashrate);
                 networkShareEl.textContent = `${(userNetworkShare * 100).toFixed(4)}%`;
                 xmrPriceDisplayEl.textContent = `$${xmrPrice}`;
                 networkHashrateEl.textContent = `${NETWORK_HASHRATE_GHS} GH/s`;
-
                 dailyXmrEl.textContent = `${dailyXmrReward.toFixed(4)} XMR`;
                 dailyUsdEl.textContent = formatCurrency(dailyUsdReward);
-                
                 monthlyXmrEl.textContent = `${monthlyXmrReward.toFixed(2)} XMR`;
                 monthlyUsdEl.textContent = formatCurrency(monthlyUsdReward);
-
                 yearlyXmrEl.textContent = `${yearlyXmrReward.toFixed(2)} XMR`;
                 yearlyUsdEl.textContent = formatCurrency(yearlyUsdReward);
             }
 
             // --- 5. HELPER FUNCTIONS ---
             function getLogarithmicDeviceCount() {
-                const min = 1;
-                const max = 1000000;
-                const sliderMin = parseInt(devicesSlider.min);
-                const sliderMax = parseInt(devicesSlider.max);
+                const min = 1; const max = 1000000;
+                const sliderMin = parseInt(devicesSlider.min); const sliderMax = parseInt(devicesSlider.max);
                 const position = parseInt(devicesSlider.value);
-                
-                // Calculate the logarithmic value
-                const minLog = Math.log(min);
-                const maxLog = Math.log(max);
+                const minLog = Math.log(min); const maxLog = Math.log(max);
                 const scale = (maxLog - minLog) / (sliderMax - sliderMin);
                 return Math.round(Math.exp(minLog + scale * (position - sliderMin)));
             }
-
             function formatDeviceCount(d) {
                 if (d >= 1000000) return `${(d / 1000000).toFixed(2)}M`;
                 if (d >= 1000) return `${(d / 1000).toFixed(1)}K`;

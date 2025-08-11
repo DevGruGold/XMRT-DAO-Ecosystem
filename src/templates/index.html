@@ -373,6 +373,9 @@
     </div>
   </div>
 
+  <!-- ✅ Load dashboard logic from static JS -->
+  <script src="/static/js/dashboard.js"></script>
+
   <script>
     // -------------------------
     // API wiring (Flask Gateway)
@@ -507,9 +510,9 @@
         this.elements.dailyXmr.textContent = `${dailyXmr.toFixed(4)} XMR`;
         this.elements.dailyUsd.textContent = `$${dailyUsd.toFixed(2)}`;
         this.elements.monthlyXmr.textContent = `${monthlyXmr.toFixed(2)} XMR`;
-        this.elements.monthlyUsd.textContent = `$${monthlyUsd.toFixed(2)}`;
+        this.elements.monthlyUsd.textContent = `${monthlyUsd.toFixed(2)}`;
         this.elements.yearlyXmr.textContent = `${yearlyXmr.toFixed(2)} XMR`;
-        this.elements.yearlyUsd.textContent = `$${yearlyUsd.toFixed(2)}`;
+        this.elements.yearlyUsd.textContent = `${yearlyUsd.toFixed(2)} XMR`;
       }
       setNetwork(hashrate, price) {
         if (Number.isFinite(hashrate)) this.networkHashrate = hashrate;
@@ -661,3 +664,4 @@
   </script>
 </body>
 </html>
+

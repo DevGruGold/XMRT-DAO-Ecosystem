@@ -203,6 +203,79 @@ class MemoryService:
             logger.error(f"Failed to retrieve memories: {e}")
             return []
     
+    async def store_data(self, key: str, data: Any) -> bool:
+        """
+        Store arbitrary data with a key (Redis-like interface)
+        
+        Args:
+            key: Storage key
+            data: Data to store
+            
+        Returns:
+            Success status
+        """
+        try:
+            # Store in a separate data structure for key-value storage
+            if not hasattr(self, 'key_value_store'):
+                self.key_value_store = {}
+            
+            self.key_value_store[key] = data
+            self._save_memories()  # Save to persistent storage
+            
+            logger.debug(f"Stored data with key: {key}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to store data for key {key}: {e}")
+            return False
+    
+    async def get_data(self, key: str) -> Any:
+        """
+        Retrieve data by key (Redis-like interface)
+        
+        Args:
+            key: Storage key
+            
+        Returns:
+            Stored data or None
+        """
+        try:
+            if not hasattr(self, 'key_value_store'):
+                self.key_value_store = {}
+            
+            return self.key_value_store.get(key)
+            
+        except Exception as e:
+            logger.error(f"Failed to get data for key {key}: {e}")
+            return None
+    
+    async def get_keys_pattern(self, pattern: str) -> List[str]:
+        """
+        Get keys matching a pattern (Redis-like interface)
+        
+        Args:
+            pattern: Key pattern (supports * wildcard)
+            
+        Returns:
+            List of matching keys
+        """
+        try:
+            if not hasattr(self, 'key_value_store'):
+                self.key_value_store = {}
+            
+            import fnmatch
+            matching_keys = []
+            
+            for key in self.key_value_store.keys():
+                if fnmatch.fnmatch(key, pattern):
+                    matching_keys.append(key)
+            
+            return matching_keys
+            
+        except Exception as e:
+            logger.error(f"Failed to get keys for pattern {pattern}: {e}")
+            return []
+    
     async def update_conversation_context(self, user_input: str, eliza_response: str,
                                         user_id: str = None, session_id: str = None):
         """

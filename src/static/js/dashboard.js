@@ -43,10 +43,19 @@ class ChatManager {
         this.sendButton = document.getElementById('send-button');
         this.messagesContainer = document.getElementById('messages');
         
+        // Floating chatbot elements
+        this.floatingMessageInput = document.getElementById('floating-message-input');
+        this.floatingSendButton = document.getElementById('floating-send-button');
+        this.floatingMessagesContainer = document.getElementById('floating-messages');
+        this.chatbotToggle = document.getElementById('chatbot-toggle');
+        this.chatbotFloating = document.getElementById('chatbot-floating');
+        
         this.initializeEventListeners();
+        this.initializeFloatingChatbot();
     }
     
     initializeEventListeners() {
+        // Original chatbot (mobile/tablet)
         if (this.sendButton) {
             this.sendButton.addEventListener('click', () => this.sendMessage());
         }
@@ -58,6 +67,61 @@ class ChatManager {
                 }
             });
         }
+        
+        // Floating chatbot (desktop)
+        if (this.floatingSendButton) {
+            this.floatingSendButton.addEventListener('click', () => this.sendFloatingMessage());
+        }
+        
+        if (this.floatingMessageInput) {
+            this.floatingMessageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.sendFloatingMessage();
+                }
+            });
+        }
+    }
+    
+    initializeFloatingChatbot() {
+        if (this.chatbotToggle && this.chatbotFloating) {
+            this.chatbotToggle.addEventListener('click', () => {
+                this.toggleFloatingChatbot();
+            });
+            
+            // Close floating chatbot when clicking outside
+            document.addEventListener('click', (e) => {
+                if (this.chatbotFloating.classList.contains('active') && 
+                    !this.chatbotFloating.contains(e.target) && 
+                    !this.chatbotToggle.contains(e.target)) {
+                    this.hideFloatingChatbot();
+                }
+            });
+        }
+    }
+    
+    toggleFloatingChatbot() {
+        if (this.chatbotFloating.classList.contains('active')) {
+            this.hideFloatingChatbot();
+        } else {
+            this.showFloatingChatbot();
+        }
+    }
+    
+    showFloatingChatbot() {
+        this.chatbotFloating.classList.add('active');
+        this.chatbotToggle.style.display = 'none';
+        
+        // Focus on input
+        if (this.floatingMessageInput) {
+            setTimeout(() => {
+                this.floatingMessageInput.focus();
+            }, 300);
+        }
+    }
+    
+    hideFloatingChatbot() {
+        this.chatbotFloating.classList.remove('active');
+        this.chatbotToggle.style.display = 'flex';
     }
     
     sendMessage() {
@@ -67,20 +131,39 @@ class ChatManager {
         if (!message) return;
 
         // Add user message
-        this.addMessage(message, 'user');
+        this.addMessage(message, 'user', this.messagesContainer);
         
         // Clear input
         this.messageInput.value = '';
         
         // Show typing indicator
-        this.showTypingIndicator();
+        this.showTypingIndicator(this.messagesContainer);
 
         // Send to backend API
-        this.sendToAPI(message);
+        this.sendToAPI(message, this.messagesContainer);
     }
     
-    addMessage(content, type = 'eliza') {
-        if (!this.messagesContainer) return;
+    sendFloatingMessage() {
+        if (!this.floatingMessageInput || !this.floatingMessagesContainer) return;
+        
+        const message = this.floatingMessageInput.value.trim();
+        if (!message) return;
+
+        // Add user message
+        this.addMessage(message, 'user', this.floatingMessagesContainer);
+        
+        // Clear input
+        this.floatingMessageInput.value = '';
+        
+        // Show typing indicator
+        this.showTypingIndicator(this.floatingMessagesContainer);
+
+        // Send to backend API
+        this.sendToAPI(message, this.floatingMessagesContainer);
+    }
+    
+    addMessage(content, type = 'eliza', container = null) {
+        if (!container) return;
         
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}-message`;
@@ -90,30 +173,30 @@ class ChatManager {
         contentDiv.textContent = content;
         
         messageDiv.appendChild(contentDiv);
-        this.messagesContainer.appendChild(messageDiv);
+        container.appendChild(messageDiv);
         
-        this.scrollToBottom();
+        this.scrollToBottom(container);
     }
     
-    showTypingIndicator() {
+    showTypingIndicator(container) {
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message eliza-message typing-indicator';
         typingDiv.innerHTML = '<div class="message-content">Eliza is typing...</div>';
         
-        this.messagesContainer.appendChild(typingDiv);
-        this.scrollToBottom();
+        container.appendChild(typingDiv);
+        this.scrollToBottom(container);
         
         return typingDiv;
     }
     
-    removeTypingIndicator() {
-        const typingIndicator = this.messagesContainer.querySelector('.typing-indicator');
+    removeTypingIndicator(container) {
+        const typingIndicator = container.querySelector('.typing-indicator');
         if (typingIndicator) {
             typingIndicator.remove();
         }
     }
     
-    sendToAPI(message) {
+    sendToAPI(message, container) {
         fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -123,20 +206,20 @@ class ChatManager {
         })
         .then(response => response.json())
         .then(data => {
-            this.removeTypingIndicator();
+            this.removeTypingIndicator(container);
             const response = data.success ? (typeof data.reply === 'object' ? JSON.stringify(data.reply, null, 2) : data.reply) : 'Error processing command.';
-            this.addMessage(response, 'eliza');
+            this.addMessage(response, 'eliza', container);
         })
         .catch(error => {
             console.error('Error:', error);
-            this.removeTypingIndicator();
-            this.addMessage('Connection error. Please try again.', 'eliza');
+            this.removeTypingIndicator(container);
+            this.addMessage('Connection error. Please try again.', 'eliza', container);
         });
     }
     
-    scrollToBottom() {
-        if (this.messagesContainer) {
-            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    scrollToBottom(container) {
+        if (container) {
+            container.scrollTop = container.scrollHeight;
         }
     }
 }

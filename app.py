@@ -220,7 +220,67 @@ def create_app():
             logger.error(f"Error fetching speech status: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
-    # --- Error Handlers ---
+
+    # --- Additional API Routes for Frontend Compatibility ---
+    
+    @app.route('/api/v1/autonomous/status')
+    def get_v1_autonomous_status():
+        """Get autonomy service status (v1 API compatibility)."""
+        try:
+            status = current_app.autonomy_service.get_autonomy_status()
+            return jsonify({'success': True, 'data': status})
+        except Exception as e:
+            logger.error(f"Error fetching v1 autonomy status: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/v1/metrics/performance')
+    def get_v1_performance_metrics():
+        """Get performance metrics (v1 API compatibility)."""
+        try:
+            # Get comprehensive mining dashboard data as performance metrics
+            dashboard_data = asyncio.run(current_app.mining_service.get_comprehensive_mining_dashboard())
+            
+            # Extract performance-related metrics
+            performance_metrics = {
+                'hashrate': dashboard_data.get('mining_stats', {}).get('total_hashrate', '0 H/s'),
+                'network_hashrate': dashboard_data.get('mining_stats', {}).get('network_hashrate', '0 H/s'),
+                'difficulty': dashboard_data.get('mining_stats', {}).get('network_difficulty', 0),
+                'uptime': dashboard_data.get('system_health', {}).get('uptime', '0 seconds'),
+                'response_time': dashboard_data.get('system_health', {}).get('avg_response_time', '0ms'),
+                'active_miners': dashboard_data.get('mining_stats', {}).get('active_miners', 0),
+                'xmr_price': dashboard_data.get('market_data', {}).get('xmr_price', 0)
+            }
+            
+            return jsonify({'success': True, 'data': performance_metrics})
+        except Exception as e:
+            logger.error(f"Error fetching v1 performance metrics: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/v1/decisions/history')
+    def get_v1_decisions_history():
+        """Get decision history (v1 API compatibility)."""
+        try:
+            # Get memory stats which includes decision-like data
+            memory_stats = current_app.memory_service.get_memory_stats()
+            
+            # Get task summary from autonomy service
+            tasks = current_app.autonomy_service.get_task_summary()
+            
+            # Combine into decision history format
+            decisions_history = {
+                'recent_decisions': tasks.get('completed_tasks', []),
+                'pending_decisions': tasks.get('pending_tasks', []),
+                'memory_entries': memory_stats.get('recent_entries', []),
+                'total_decisions': len(tasks.get('completed_tasks', [])) + len(tasks.get('pending_tasks', []))
+            }
+            
+            return jsonify({'success': True, 'data': decisions_history})
+        except Exception as e:
+            logger.error(f"Error fetching v1 decisions history: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+
+        # --- Error Handlers ---
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({'error': 'Endpoint not found'}), 404

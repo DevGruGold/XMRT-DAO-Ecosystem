@@ -124,7 +124,7 @@ class ChatManager {
         .then(response => response.json())
         .then(data => {
             this.removeTypingIndicator();
-            const response = data.success ? data.reply : 'Error processing command.';
+            const response = data.success ? (typeof data.reply === 'object' ? JSON.stringify(data.reply, null, 2) : data.reply) : 'Error processing command.';
             this.addMessage(response, 'eliza');
         })
         .catch(error => {

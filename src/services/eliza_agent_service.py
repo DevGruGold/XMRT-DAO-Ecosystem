@@ -251,11 +251,9 @@ class ElizaAgentService:
             if similar_memories:
                 return f"I don't recognize that specific command, but I found some related information from our past interactions. Try being more specific, or use one of these commands: 'status', 'dashboard', 'health', 'nodes', 'capabilities'."
         
-        return {
-            "response": "Command not recognized. I am Eliza, your autonomous operator for the XMRT-DAO Ecosystem.",
-            "available_commands": ["status", "dashboard", "health", "nodes", "capabilities", "remember [text]", "voice status"],
-            "suggestion": "Try asking about system status, mining dashboard, or network health."
-        }
+        available_commands = ["status", "dashboard", "health", "nodes", "capabilities", "remember [text]", "voice status"]
+        suggestion = "Try asking about system status, mining dashboard, or network health."
+        return f"Command not recognized. I am Eliza, your autonomous operator for the XMRT-DAO Ecosystem. Available commands: {", ".join(available_commands)}. Suggestion: {suggestion}"
 
     def get_agent_status(self) -> Dict[str, Any]:
         """Get current agent status"""

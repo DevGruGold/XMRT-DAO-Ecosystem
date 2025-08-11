@@ -1,1474 +1,663 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XMRT-DAO Ecosystem Dashboard | Eliza Command Center</title>
-    <style>
-        :root {
-            --primary-color: #00d4ff;
-            --secondary-color: #ff6b35;
-            --success-color: #00ff88;
-            --warning-color: #ffaa00;
-            --danger-color: #ff4757;
-            --purple-color: #8b5cf6;
-            --dark-bg: #0a0e1a;
-            --darker-bg: #060912;
-            --card-bg: #1a1f35;
-            --border-color: #2d3748;
-            --text-primary: #ffffff;
-            --text-secondary: #a0aec0;
-            --text-muted: #718096;
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --shadow-primary: 0 10px 25px rgba(0, 212, 255, 0.15);
-            --shadow-secondary: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Header Styles */
-        .header {
-            background: var(--darker-bg);
-            border-bottom: 2px solid var(--border-color);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo h1 {
-            background: var(--gradient-primary);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--success-color);
-            font-weight: 500;
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            background: var(--success-color);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Hero Section with Calculator */
-        .hero-section {
-            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
-            padding: 4rem 0;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .hero-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            text-align: center;
-        }
-
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: var(--gradient-primary);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Main Dashboard Container */
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 2rem;
-        }
-
-        /* Dashboard Metrics Section */
-        .dashboard-metrics {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .dashboard-section {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 2rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-secondary);
-            transition: all 0.3s ease;
-        }
-
-        .dashboard-section:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-primary);
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .section-icon {
-            width: 24px;
-            height: 24px;
-            color: var(--primary-color);
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        /* System Status */
-        .system-status {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .status-item {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-online {
-            background: rgba(0, 255, 136, 0.1);
-            color: var(--success-color);
-            border: 1px solid var(--success-color);
-        }
-
-        .status-online::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--success-color);
-            border-radius: 50%;
-        }
-
-        /* Metrics Grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .metric-card {
-            background: var(--darker-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .metric-card:hover {
-            transform: scale(1.02);
-            border-color: var(--primary-color);
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-primary { color: var(--primary-color); }
-        .metric-success { color: var(--success-color); }
-        .metric-warning { color: var(--warning-color); }
-        .metric-purple { color: var(--purple-color); }
-        .metric-orange { color: var(--secondary-color); }
-
-        .metric-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-trend {
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .trend-up { color: var(--success-color); }
-        .trend-down { color: var(--danger-color); }
-        .trend-stable { color: var(--text-muted); }
-
-        /* Calculator Section - Enhanced for Hero */
-        .calculator-section {
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--darker-bg) 100%);
-            border: 2px solid var(--primary-color);
-            box-shadow: var(--shadow-primary);
-            max-width: 1000px;
-            margin: 0 auto 3rem;
-        }
-
-        .calculator-content {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .calculator-header {
-            text-align: center;
-            padding: 1rem;
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 8px;
-            border: 1px solid var(--primary-color);
-        }
-
-        .calculator-description {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin: 0;
-        }
-
-        .calculator-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .control-group {
-            background: var(--darker-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .control-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .control-label {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .control-value {
-            font-weight: 700;
-            color: var(--primary-color);
-            font-size: 1.1rem;
-        }
-
-        /* Enhanced Slider Styles */
-        .slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: var(--border-color);
-            outline: none;
-            margin: 1rem 0;
-            cursor: pointer;
-            -webkit-appearance: none;
-        }
-
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
-        }
-
-        .slider::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-        }
-
-        .slider-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Toggle Switches */
-        .upgrade-section {
-            background: var(--darker-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .upgrade-title {
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .toggle-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .toggle-label {
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--border-color);
-            transition: 0.4s;
-            border-radius: 34px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .toggle-slider {
-            background-color: var(--primary-color);
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(26px);
-        }
-
-        /* Calculator Stats */
-        .calculator-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-
-        .stat-card {
-            background: var(--darker-bg);
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-        }
-
-        .stat-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-purple { color: var(--purple-color); }
-        .stat-blue { color: var(--primary-color); }
-        .stat-green { color: var(--success-color); }
-        .stat-yellow { color: var(--warning-color); }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Earnings Section */
-        .earnings-section {
-            background: var(--darker-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .earnings-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-primary);
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
-        }
-
-        .earnings-icon {
-            width: 20px;
-            height: 20px;
-            color: var(--warning-color);
-        }
-
-        .earnings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-
-        .earnings-card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .earnings-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-primary);
-        }
-
-        .earnings-daily { border-left: 4px solid var(--success-color); }
-        .earnings-monthly { border-left: 4px solid var(--warning-color); }
-        .earnings-yearly { border-left: 4px solid var(--purple-color); }
-
-        .earnings-xmr {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .earnings-usd {
-            font-size: 1rem;
-            color: var(--success-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .earnings-period {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Disclaimer */
-        .disclaimer {
-            background: rgba(255, 107, 53, 0.1);
-            border: 1px solid var(--secondary-color);
-            border-radius: 8px;
-            padding: 1rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* Network Visualization */
-        .network-viz {
-            position: relative;
-            height: 200px;
-            background: var(--darker-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-top: 1rem;
-            overflow: hidden;
-        }
-
-        .network-node {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            animation: networkPulse 3s infinite;
-        }
-
-        @keyframes networkPulse {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7);
-                transform: scale(1);
-            }
-            50% { 
-                box-shadow: 0 0 0 10px rgba(0, 212, 255, 0);
-                transform: scale(1.2);
-            }
-        }
-
-        /* Chart Container */
-        .chart-container {
-            height: 200px;
-            background: var(--darker-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            margin-top: 1rem;
-        }
-
-        /* Chatbot Styles */
-        .chatbot-section {
-            position: sticky;
-            top: 100px;
-            height: fit-content;
-        }
-
-        .chatbot-container {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: var(--shadow-secondary);
-        }
-
-        .chatbot-header {
-            background: var(--darker-bg);
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .chatbot-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .chatbot-title h2 {
-            font-size: 1.1rem;
-            color: var(--text-primary);
-        }
-
-        .chatbot-icon {
-            width: 20px;
-            height: 20px;
-            color: var(--primary-color);
-        }
-
-        .chatbot-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .chatbot-messages {
-            height: 400px;
-            overflow-y: auto;
-            padding: 1rem;
-            background: var(--darker-bg);
-        }
-
-        .message {
-            margin-bottom: 1rem;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message-content {
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            line-height: 1.5;
-        }
-
-        .eliza-message .message-content {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid var(--primary-color);
-            color: var(--text-primary);
-        }
-
-        .user-message .message-content {
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid var(--purple-color);
-            color: var(--text-primary);
-            margin-left: 2rem;
-        }
-
-        .chatbot-input {
-            display: flex;
-            padding: 1rem;
-            background: var(--card-bg);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 0.75rem;
-            background: var(--darker-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-        }
-
-        .chat-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
-        }
-
-        .send-button {
-            margin-left: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: var(--primary-color);
-            color: var(--dark-bg);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .send-button:hover {
-            background: #00b8e6;
-            transform: translateY(-1px);
-        }
-
-        .send-button svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* Floating Chatbot */
-        .chatbot-toggle {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            background: var(--primary-color);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-primary);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .chatbot-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        .chatbot-toggle svg {
-            width: 24px;
-            height: 24px;
-            color: var(--dark-bg);
-        }
-
-        .chatbot-floating {
-            position: fixed;
-            bottom: 100px;
-            right: 2rem;
-            width: 400px;
-            height: 500px;
-            display: none;
-            z-index: 999;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-
-            .chatbot-section {
-                position: relative;
-                top: 0;
-            }
-
-            .chatbot-toggle {
-                display: flex;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                padding: 0 1rem;
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .logo h1 {
-                font-size: 1.4rem;
-            }
-
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .dashboard-container {
-                padding: 1rem;
-            }
-
-            .calculator-controls {
-                grid-template-columns: 1fr;
-            }
-
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .earnings-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .calculator-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .chatbot-floating {
-                width: calc(100vw - 2rem);
-                right: 1rem;
-                left: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 1.8rem;
-            }
-
-            .calculator-stats {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XMRT-DAO Ecosystem Dashboard | Eliza Command Center</title>
+
+  <!-- External stylesheet (no embedded CSS). Adjust filename if needed -->
+  <link rel="stylesheet" href="/src/static/css/main.css" />
+
+  <!-- Basic favicon safety -->
+  <link rel="icon" href="/src/static/favicon.ico" />
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <h1>XMRT-DAO Ecosystem Dashboard</h1>
-            </div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span>All Systems Operational</span>
-            </div>
-        </div>
-    </header>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <h1>XMRT-DAO Ecosystem Dashboard</h1>
+      </div>
+      <div class="status-indicator">
+        <div class="status-dot" aria-hidden="true"></div>
+        <span id="global-status-text">Checking systems…</span>
+      </div>
+    </div>
+  </header>
 
-    <!-- Hero Section with Featured Calculator -->
-    <section class="hero-section">
-        <div class="hero-content">
-            <h1 class="hero-title">MobileMonero Mining Calculator</h1>
-            <p class="hero-subtitle">Calculate potential earnings from mobile Monero mining with advanced hardware upgrades and real-time network data</p>
-            
-            <!-- Featured Calculator -->
-            <div class="dashboard-section calculator-section">
-                <div class="section-header">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="22 7 13.5 15.5 8.5 10.5 2 17M16 7 22 7 22 13"/>
-                    </svg>
-                    <h2 class="section-title">Advanced Mining Calculator</h2>
-                </div>
-                
-                <div class="calculator-content">
-                    <div class="calculator-header">
-                        <p class="calculator-description">Optimize your mobile mining strategy with real-time calculations</p>
-                    </div>
-                    
-                    <div class="calculator-controls">
-                        <div class="control-group">
-                            <div class="control-header">
-                                <label class="control-label">Average Hashrate per Device</label>
-                                <span id="hashrate-value" class="control-value">600 H/s</span>
-                            </div>
-                            <input type="range" id="hashrate-slider" min="200" max="1200" value="600" class="slider">
-                            <div class="slider-labels">
-                                <span>200 H/s</span>
-                                <span>1,200 H/s</span>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <div class="control-header">
-                                <label class="control-label">Number of Mining Devices</label>
-                                <span id="devices-value" class="control-value">100</span>
-                            </div>
-                            <input type="range" id="devices-slider" min="1" max="1000000" value="100" class="slider">
-                            <div class="slider-labels">
-                                <span>1</span>
-                                <span>1M</span>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <div class="control-header">
-                                <label class="control-label">Mining Uptime per Day</label>
-                                <span id="uptime-value" class="control-value">24 hrs</span>
-                            </div>
-                            <input type="range" id="uptime-slider" min="1" max="24" value="24" class="slider">
-                            <div class="slider-labels">
-                                <span>1 hr</span>
-                                <span>24 hrs</span>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <div class="control-header">
-                                <label class="control-label">Monero (XMR) Price</label>
-                                <span id="xmr-price-value" class="control-value">$265</span>
-                            </div>
-                            <input type="range" id="xmr-price-slider" min="50" max="1000" value="265" class="slider">
-                            <div class="slider-labels">
-                                <span>$50</span>
-                                <span>$1,000</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="upgrade-section">
-                        <h4 class="upgrade-title">Hardware Upgrades</h4>
-                        <div class="toggle-container">
-                            <label for="advanced-processors-toggle" class="toggle-label">Advanced Processors (2.5x Hashrate)</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="advanced-processors-toggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="toggle-container">
-                            <label for="solid-state-battery-toggle" class="toggle-label">Solid State Batteries (+25% Uptime)</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="solid-state-battery-toggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="calculator-stats">
-                        <div class="stat-card">
-                            <div id="total-hashrate" class="stat-value stat-purple">60.0K H/s</div>
-                            <div class="stat-label">Total Hashrate</div>
-                        </div>
-                        <div class="stat-card">
-                            <div id="network-share" class="stat-value stat-blue">0.0021%</div>
-                            <div class="stat-label">Network Share</div>
-                        </div>
-                        <div class="stat-card">
-                            <div id="xmr-price-display" class="stat-value stat-green">$265</div>
-                            <div class="stat-label">XMR Price</div>
-                        </div>
-                        <div class="stat-card">
-                            <div id="network-hashrate" class="stat-value stat-yellow">2.8 GH/s</div>
-                            <div class="stat-label">Network Hashrate</div>
-                        </div>
-                    </div>
-                    
-                    <div class="earnings-section">
-                        <h4 class="earnings-title">
-                            <svg class="earnings-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                            Projected Earnings
-                        </h4>
-                        <div class="earnings-grid">
-                            <div class="earnings-card earnings-daily">
-                                <div id="daily-xmr" class="earnings-xmr">0.0093 XMR</div>
-                                <div id="daily-usd" class="earnings-usd">$2.47</div>
-                                <div class="earnings-period">Daily</div>
-                            </div>
-                            <div class="earnings-card earnings-monthly">
-                                <div id="monthly-xmr" class="earnings-xmr">0.28 XMR</div>
-                                <div id="monthly-usd" class="earnings-usd">$74.20</div>
-                                <div class="earnings-period">Monthly</div>
-                            </div>
-                            <div class="earnings-card earnings-yearly">
-                                <div id="yearly-xmr" class="earnings-xmr">3.38 XMR</div>
-                                <div id="yearly-usd" class="earnings-usd">$896.70</div>
-                                <div class="earnings-period">Yearly</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="disclaimer">
-                        <p>
-                            <strong>Disclaimer:</strong> These calculations are estimates based on current network conditions. 
-                            Actual earnings may vary due to network difficulty changes, XMR price fluctuations, and device performance variations.
-                        </p>
-                    </div>
-                </div>
-            </div>
+  <!-- Hero Section with Featured Calculator -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">MobileMonero Mining Calculator</h1>
+      <p class="hero-subtitle">
+        Calculate potential earnings from mobile Monero mining with advanced hardware upgrades and real-time network data
+      </p>
+
+      <!-- Featured Calculator -->
+      <div class="dashboard-section calculator-section">
+        <div class="section-header">
+          <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 7 13.5 15.5 8.5 10.5 2 17M16 7 22 7 22 13"/>
+          </svg>
+          <h2 class="section-title">Advanced Mining Calculator</h2>
         </div>
+
+        <div class="calculator-content">
+          <div class="calculator-header">
+            <p class="calculator-description">Optimize your mobile mining strategy with real-time calculations</p>
+          </div>
+
+          <div class="calculator-controls">
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label" for="hashrate-slider">Average Hashrate per Device</label>
+                <span id="hashrate-value" class="control-value">600 H/s</span>
+              </div>
+              <input type="range" id="hashrate-slider" min="200" max="1200" value="600" class="slider" />
+              <div class="slider-labels">
+                <span>200 H/s</span><span>1,200 H/s</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label" for="devices-slider">Number of Mining Devices</label>
+                <span id="devices-value" class="control-value">100</span>
+              </div>
+              <!-- keep 1..1000 then log-scale to 1..1,000,000 -->
+              <input type="range" id="devices-slider" min="1" max="1000" value="100" class="slider" />
+              <div class="slider-labels"><span>1</span><span>1M</span></div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label" for="uptime-slider">Mining Uptime per Day</label>
+                <span id="uptime-value" class="control-value">24 hrs</span>
+              </div>
+              <input type="range" id="uptime-slider" min="1" max="24" value="24" class="slider" />
+              <div class="slider-labels"><span>1 hr</span><span>24 hrs</span></div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label" for="xmr-price-slider">Monero (XMR) Price</label>
+                <span id="xmr-price-value" class="control-value">$265</span>
+              </div>
+              <input type="range" id="xmr-price-slider" min="50" max="1000" value="265" class="slider" />
+              <div class="slider-labels"><span>$50</span><span>$1,000</span></div>
+            </div>
+          </div>
+
+          <div class="upgrade-section">
+            <h4 class="upgrade-title">Hardware Upgrades</h4>
+            <div class="toggle-container">
+              <label for="advanced-processors-toggle" class="toggle-label">Advanced Processors (2.5x Hashrate)</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="advanced-processors-toggle" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="toggle-container">
+              <label for="solid-state-battery-toggle" class="toggle-label">Solid State Batteries (+25% Uptime)</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="solid-state-battery-toggle" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="calculator-stats">
+            <div class="stat-card">
+              <div id="total-hashrate" class="stat-value stat-purple">—</div>
+              <div class="stat-label">Total Hashrate</div>
+            </div>
+            <div class="stat-card">
+              <div id="network-share" class="stat-value stat-blue">—</div>
+              <div class="stat-label">Network Share</div>
+            </div>
+            <div class="stat-card">
+              <div id="xmr-price-display" class="stat-value stat-green">—</div>
+              <div class="stat-label">XMR Price</div>
+            </div>
+            <div class="stat-card">
+              <div id="network-hashrate" class="stat-value stat-yellow">—</div>
+              <div class="stat-label">Network Hashrate</div>
+            </div>
+          </div>
+
+          <div class="earnings-section">
+            <h4 class="earnings-title">
+              <svg class="earnings-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              Projected Earnings
+            </h4>
+            <div class="earnings-grid">
+              <div class="earnings-card earnings-daily">
+                <div id="daily-xmr" class="earnings-xmr">—</div>
+                <div id="daily-usd" class="earnings-usd">—</div>
+                <div class="earnings-period">Daily</div>
+              </div>
+              <div class="earnings-card earnings-monthly">
+                <div id="monthly-xmr" class="earnings-xmr">—</div>
+                <div id="monthly-usd" class="earnings-usd">—</div>
+                <div class="earnings-period">Monthly</div>
+              </div>
+              <div class="earnings-card earnings-yearly">
+                <div id="yearly-xmr" class="earnings-xmr">—</div>
+                <div id="yearly-usd" class="earnings-usd">—</div>
+                <div class="earnings-period">Yearly</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="disclaimer">
+            <p><strong>Disclaimer:</strong> Estimates based on current network conditions. Actual earnings vary with difficulty, price, and device performance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Dashboard Container -->
+  <div class="dashboard-container">
+    <!-- Dashboard Metrics Section -->
+    <section class="dashboard-metrics">
+      <!-- System Overview -->
+      <div class="dashboard-section">
+        <div class="section-header">
+          <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          <h2 class="section-title">System Overview</h2>
+        </div>
+
+        <div class="system-status">
+          <div class="status-item status-online"><span>Eliza Agent</span></div>
+          <div class="status-item status-online"><span>Mining Service</span></div>
+          <div class="status-item status-online"><span>MESHNET</span></div>
+          <div class="status-item status-online"><span>Health Monitor</span></div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value metric-primary" id="uptime">—</div>
+            <div class="metric-label">System Uptime</div>
+            <div class="metric-trend trend-up" id="uptime-trend">→</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value metric-success" id="response-time">—</div>
+            <div class="metric-label">Avg Response Time</div>
+            <div class="metric-trend trend-stable" id="rt-trend">→</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mining Metrics -->
+      <div class="dashboard-section">
+        <div class="section-header">
+          <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <h2 class="section-title">Mining Operations</h2>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value metric-warning" id="network-hashrate-display">—</div>
+            <div class="metric-label">Network Hashrate</div>
+            <div class="metric-trend trend-up" id="nh-trend">→</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value metric-purple" id="active-miners">—</div>
+            <div class="metric-label">Active Miners</div>
+            <div class="metric-trend trend-up" id="am-trend">→</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value metric-success" id="xmr-price">$—</div>
+            <div class="metric-label">XMR Price</div>
+            <div class="metric-trend trend-up" id="xmr-trend">→</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value metric-orange" id="difficulty">—</div>
+            <div class="metric-label">Network Difficulty</div>
+            <div class="metric-trend trend-stable" id="diff-trend">→</div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <span>Hashrate Performance Chart (Live Data)</span>
+        </div>
+      </div>
+
+      <!-- MESHNET Status -->
+      <div class="dashboard-section">
+        <div class="section-header">
+          <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+          </svg>
+          <h2 class="section-title">MESHNET Status</h2>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value metric-primary" id="mesh-nodes">—</div>
+            <div class="metric-label">Active Nodes</div>
+            <div class="metric-trend trend-up" id="mn-trend">→</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value metric-success" id="mesh-coverage">—</div>
+            <div class="metric-label">Network Coverage</div>
+            <div class="metric-trend trend-up" id="mc-trend">→</div>
+          </div>
+        </div>
+
+        <div class="network-viz" id="mesh-viz"></div>
+      </div>
+
+      <!-- ElizaOS Agent Status -->
+      <div class="dashboard-section">
+        <div class="section-header">
+          <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 01-2 2z"/>
+          </svg>
+          <h2 class="section-title">ElizaOS Agent</h2>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value metric-success" id="agent-tasks">—</div>
+            <div class="metric-label">Tasks Completed</div>
+            <div class="metric-trend trend-up" id="at-trend">→</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value metric-primary" id="agent-memory">—</div>
+            <div class="metric-label">Memory Usage</div>
+            <div class="metric-trend trend-stable" id="amem-trend">→</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value metric-warning" id="agent-credits">—</div>
+            <div class="metric-label">Credits Remaining</div>
+            <div class="metric-trend trend-down" id="ac-trend">→</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value metric-purple" id="agent-autonomy">—</div>
+            <div class="metric-label">Autonomy Status</div>
+            <div class="metric-trend trend-stable" id="aa-trend">→</div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- Main Dashboard Container -->
-    <div class="dashboard-container">
-        <!-- Dashboard Metrics Section -->
-        <section class="dashboard-metrics">
-            <!-- System Overview -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                    <h2 class="section-title">System Overview</h2>
-                </div>
-                
-                <div class="system-status">
-                    <div class="status-item status-online">
-                        <span>Eliza Agent</span>
-                    </div>
-                    <div class="status-item status-online">
-                        <span>Mining Service</span>
-                    </div>
-                    <div class="status-item status-online">
-                        <span>MESHNET</span>
-                    </div>
-                    <div class="status-item status-online">
-                        <span>Health Monitor</span>
-                    </div>
-                </div>
-
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-value metric-primary" id="uptime">99.8%</div>
-                        <div class="metric-label">System Uptime</div>
-                        <div class="metric-trend trend-up">↗ +0.2%</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value metric-success" id="response-time">45ms</div>
-                        <div class="metric-label">Avg Response Time</div>
-                        <div class="metric-trend trend-stable">→ Stable</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mining Metrics -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    <h2 class="section-title">Mining Operations</h2>
-                </div>
-                
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-value metric-warning" id="total-hashrate-display">2.8 GH/s</div>
-                        <div class="metric-label">Network Hashrate</div>
-                        <div class="metric-trend trend-up">↗ +5.2%</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value metric-purple" id="active-miners">10</div>
-                        <div class="metric-label">Active Miners</div>
-                        <div class="metric-trend trend-up">↗ +12</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value metric-success" id="xmr-price">$265.42</div>
-                        <div class="metric-label">XMR Price</div>
-                        <div class="metric-trend trend-up">↗ +2.1%</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value metric-orange" id="difficulty">445.2B</div>
-                        <div class="metric-label">Network Difficulty</div>
-                        <div class="metric-trend trend-stable">→ Stable</div>
-                    </div>
-                </div>
-
-                <div class="chart-container">
-                    <span>Hashrate Performance Chart (Live Data)</span>
-                </div>
-            </div>
-
-            <!-- MESHNET Status -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
-                    </svg>
-                    <h2 class="section-title">MESHNET Status</h2>
-                </div>
-                
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-value metric-primary" id="mesh-nodes">42</div>
-                        <div class="metric-label">Active Nodes</div>
-                        <div class="metric-trend trend-up">↗ +3</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value metric-success" id="mesh-coverage">87%</div>
-                        <div class="metric-label">Network Coverage</div>
-                        <div class="metric-trend trend-up">↗ +5%</div>
-                    </div>
-                </div>
-
-                <div class="network-viz">
-                    <div class="network-node" style="top: 20%; left: 15%;"></div>
-                    <div class="network-node" style="top: 40%; left: 35%;"></div>
-                    <div class="network-node" style="top: 60%; left: 55%;"></div>
-                    <div class="network-node" style="top: 30%; left: 75%;"></div>
-                    <div class="network-node" style="top: 70%; left: 25%;"></div>
-                    <div class="network-node" style="top: 50%; left: 85%;"></div>
-                </div>
-            </div>
-
-            <!-- ElizaOS Agent Status -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                    <h2 class="section-title">ElizaOS Agent</h2>
-                </div>
-                
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-value metric-success" id="agent-tasks">156</div>
-                        <div class="metric-label">Tasks Completed</div>
-                        <div class="metric-trend trend-up">↗ +8 today</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value metric-primary" id="agent-memory">2.4GB</div>
-                        <div class="metric-label">Memory Usage</div>
-                        <div class="metric-trend trend-stable">→ Normal</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value metric-warning" id="agent-credits">187</div>
-                        <div class="metric-label">Credits Remaining</div>
-                        <div class="metric-trend trend-down">↘ -63 today</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value metric-purple" id="agent-autonomy">Active</div>
-                        <div class="metric-label">Autonomy Status</div>
-                        <div class="metric-trend trend-stable">→ Operational</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Chatbot Section - Separated and Prominent -->
-        <aside class="chatbot-section">
-            <div class="chatbot-container">
-                <div class="chatbot-header">
-                    <div class="chatbot-title">
-                        <svg class="chatbot-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                        </svg>
-                        <h2>Eliza Command Interface</h2>
-                    </div>
-                    <div class="chatbot-status">
-                        <div class="status-dot"></div>
-                        <span>XMRT-DAO Autonomous Operator</span>
-                    </div>
-                </div>
-                
-                <div class="chatbot-messages" id="messages">
-                    <div class="message eliza-message">
-                        <div class="message-content">
-                            Greetings. I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?
-
-Available commands: 'status', 'dashboard', 'health'.
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="chatbot-input">
-                    <input type="text" class="chat-input" id="message-input" placeholder="Enter command or ask a question...">
-                    <button class="send-button" id="send-button">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                        </svg>
-                        Send
-                    </button>
-                </div>
-            </div>
-        </aside>
-    </div>
-
-    <!-- Floating Chatbot Toggle (Desktop Only) -->
-    <button class="chatbot-toggle" id="chatbot-toggle">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-        </svg>
-    </button>
-
-    <!-- Floating Chatbot (Desktop Only) -->
-    <div class="chatbot-floating" id="chatbot-floating">
-        <div class="chatbot-container">
-            <div class="chatbot-header">
-                <div class="chatbot-title">
-                    <svg class="chatbot-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                    </svg>
-                    <h2>Eliza Command Interface</h2>
-                </div>
-                <div class="chatbot-status">
-                    <div class="status-dot"></div>
-                    <span>XMRT-DAO Autonomous Operator</span>
-                </div>
-            </div>
-            
-            <div class="chatbot-messages" id="floating-messages">
-                <div class="message eliza-message">
-                    <div class="message-content">
-                        Greetings. I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?
-
-Available commands: 'status', 'dashboard', 'health'.
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chatbot-input">
-                <input type="text" class="chat-input" id="floating-message-input" placeholder="Enter command or ask a question...">
-                <button class="send-button" id="floating-send-button">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                    </svg>
-                    Send
-                </button>
-            </div>
+    <!-- Chatbot Section -->
+    <aside class="chatbot-section">
+      <div class="chatbot-container">
+        <div class="chatbot-header">
+          <div class="chatbot-title">
+            <svg class="chatbot-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <h2>Eliza Command Interface</h2>
+          </div>
+          <div class="chatbot-status">
+            <div class="status-dot" aria-hidden="true"></div>
+            <span>XMRT-DAO Autonomous Operator</span>
+          </div>
         </div>
+
+        <div class="chatbot-messages" id="messages">
+          <div class="message eliza-message">
+            <div class="message-content">
+              Greetings. I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?
+              <br /><br />
+              Available commands: 'status', 'dashboard', 'health'.
+            </div>
+          </div>
+        </div>
+
+        <div class="chatbot-input">
+          <input type="text" class="chat-input" id="message-input" placeholder="Enter command or ask a question..." />
+          <button class="send-button" id="send-button">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            Send
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Floating Chatbot Toggle (Desktop Only) -->
+  <button class="chatbot-toggle" id="chatbot-toggle" aria-label="Toggle chat">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+    </svg>
+  </button>
+
+  <!-- Floating Chatbot (Desktop Only) -->
+  <div class="chatbot-floating" id="chatbot-floating" aria-live="polite">
+    <div class="chatbot-container">
+      <div class="chatbot-header">
+        <div class="chatbot-title">
+          <svg class="chatbot-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <h2>Eliza Command Interface</h2>
+        </div>
+        <div class="chatbot-status">
+          <div class="status-dot" aria-hidden="true"></div>
+          <span>XMRT-DAO Autonomous Operator</span>
+        </div>
+      </div>
+
+      <div class="chatbot-messages" id="floating-messages">
+        <div class="message eliza-message">
+          <div class="message-content">
+            Greetings. I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?
+            <br /><br />
+            Available commands: 'status', 'dashboard', 'health'.
+          </div>
+        </div>
+      </div>
+
+      <div class="chatbot-input">
+        <input type="text" class="chat-input" id="floating-message-input" placeholder="Enter command or ask a question..." />
+        <button class="send-button" id="floating-send-button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+          Send
+        </button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Enhanced Calculator Logic with Proper Scaling
-        class MiningCalculator {
-            constructor() {
-                this.networkHashrate = 2.8e9; // 2.8 GH/s in H/s
-                this.blockReward = 0.6; // XMR per block
-                this.blockTime = 120; // seconds
-                this.initializeElements();
-                this.bindEvents();
-                this.calculate();
-            }
+  <script>
+    // -------------------------
+    // API wiring (Flask Gateway)
+    // -------------------------
+    const API_BASE = (location.port === "8000")
+      ? "" // when serving index via the Flask app itself
+      : (window.__XMRT_API_BASE__ || ""); // same-origin by default; override by setting window.__XMRT_API_BASE__
 
-            initializeElements() {
-                this.elements = {
-                    hashrateSlider: document.getElementById('hashrate-slider'),
-                    devicesSlider: document.getElementById('devices-slider'),
-                    uptimeSlider: document.getElementById('uptime-slider'),
-                    xmrPriceSlider: document.getElementById('xmr-price-slider'),
-                    hashrateValue: document.getElementById('hashrate-value'),
-                    devicesValue: document.getElementById('devices-value'),
-                    uptimeValue: document.getElementById('uptime-value'),
-                    xmrPriceValue: document.getElementById('xmr-price-value'),
-                    advancedProcessors: document.getElementById('advanced-processors-toggle'),
-                    solidStateBattery: document.getElementById('solid-state-battery-toggle'),
-                    totalHashrate: document.getElementById('total-hashrate'),
-                    networkShare: document.getElementById('network-share'),
-                    xmrPriceDisplay: document.getElementById('xmr-price-display'),
-                    networkHashrateDisplay: document.getElementById('network-hashrate'),
-                    dailyXmr: document.getElementById('daily-xmr'),
-                    dailyUsd: document.getElementById('daily-usd'),
-                    monthlyXmr: document.getElementById('monthly-xmr'),
-                    monthlyUsd: document.getElementById('monthly-usd'),
-                    yearlyXmr: document.getElementById('yearly-xmr'),
-                    yearlyUsd: document.getElementById('yearly-usd')
-                };
-            }
+    const endpoints = {
+      status:       `${API_BASE}/api/v1/autonomous/status`,
+      metrics:      `${API_BASE}/api/v1/metrics/performance`,
+      decisions:    `${API_BASE}/api/v1/decisions/history`,
+      emergency:    `${API_BASE}/api/v1/emergency/pause`,
+      // Optional (if you add these on the gateway):
+      // price:     `${API_BASE}/api/v1/market/xmr`,
+      // mining:    `${API_BASE}/api/v1/mining/summary`,
+      // meshnet:   `${API_BASE}/api/v1/meshnet/status`,
+    };
 
-            bindEvents() {
-                // Slider events with proper scaling
-                this.elements.hashrateSlider.addEventListener('input', (e) => {
-                    this.elements.hashrateValue.textContent = `${e.target.value} H/s`;
-                    this.calculate();
-                });
+    async function fetchJSON(url, fallback = null, opt = {}) {
+      try {
+        const res = await fetch(url, { credentials: "include", ...opt });
+        if (!res.ok) throw new Error(res.status + " " + res.statusText);
+        return await res.json();
+      } catch (e) {
+        console.warn("API fallback:", url, e);
+        return fallback;
+      }
+    }
 
-                this.elements.devicesSlider.addEventListener('input', (e) => {
-                    const value = this.scaleDevices(parseInt(e.target.value));
-                    this.elements.devicesValue.textContent = this.formatDevices(value);
-                    this.calculate();
-                });
-
-                this.elements.uptimeSlider.addEventListener('input', (e) => {
-                    this.elements.uptimeValue.textContent = `${e.target.value} hrs`;
-                    this.calculate();
-                });
-
-                this.elements.xmrPriceSlider.addEventListener('input', (e) => {
-                    this.elements.xmrPriceValue.textContent = `$${e.target.value}`;
-                    this.calculate();
-                });
-
-                // Toggle events
-                this.elements.advancedProcessors.addEventListener('change', () => this.calculate());
-                this.elements.solidStateBattery.addEventListener('change', () => this.calculate());
-            }
-
-            scaleDevices(sliderValue) {
-                // Logarithmic scaling from 1 to 1,000,000
-                const min = 1;
-                const max = 1000000;
-                const minLog = Math.log(min);
-                const maxLog = Math.log(max);
-                const scale = (maxLog - minLog) / 999; // 999 because slider goes 1-1000
-                return Math.round(Math.exp(minLog + scale * (sliderValue - 1)));
-            }
-
-            formatDevices(value) {
-                if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
-                return value.toString();
-            }
-
-            formatHashrate(hashrate) {
-                if (hashrate >= 1e9) return `${(hashrate / 1e9).toFixed(1)} GH/s`;
-                if (hashrate >= 1e6) return `${(hashrate / 1e6).toFixed(1)} MH/s`;
-                if (hashrate >= 1e3) return `${(hashrate / 1e3).toFixed(1)} KH/s`;
-                return `${hashrate.toFixed(0)} H/s`;
-            }
-
-            calculate() {
-                // Get current values
-                const baseHashrate = parseInt(this.elements.hashrateSlider.value);
-                const devices = this.scaleDevices(parseInt(this.elements.devicesSlider.value));
-                const uptime = parseInt(this.elements.uptimeSlider.value);
-                const xmrPrice = parseInt(this.elements.xmrPriceSlider.value);
-                const advancedProcessors = this.elements.advancedProcessors.checked;
-                const solidStateBattery = this.elements.solidStateBattery.checked;
-
-                // Apply upgrades
-                let effectiveHashrate = baseHashrate;
-                let effectiveUptime = uptime;
-
-                if (advancedProcessors) {
-                    effectiveHashrate *= 2.5;
-                }
-
-                if (solidStateBattery) {
-                    effectiveUptime = Math.min(24, uptime * 1.25);
-                }
-
-                // Calculate total hashrate
-                const totalHashrate = effectiveHashrate * devices * (effectiveUptime / 24);
-
-                // Calculate network share
-                const networkShare = (totalHashrate / this.networkHashrate) * 100;
-
-                // Calculate earnings
-                const blocksPerDay = (24 * 3600) / this.blockTime;
-                const dailyReward = this.blockReward * blocksPerDay;
-                const dailyXmr = dailyReward * (networkShare / 100);
-                const dailyUsd = dailyXmr * xmrPrice;
-
-                const monthlyXmr = dailyXmr * 30;
-                const monthlyUsd = dailyUsd * 30;
-                const yearlyXmr = dailyXmr * 365;
-                const yearlyUsd = dailyUsd * 365;
-
-                // Update display
-                this.elements.totalHashrate.textContent = this.formatHashrate(totalHashrate);
-                this.elements.networkShare.textContent = `${networkShare.toFixed(4)}%`;
-                this.elements.xmrPriceDisplay.textContent = `$${xmrPrice}`;
-                this.elements.networkHashrateDisplay.textContent = this.formatHashrate(this.networkHashrate);
-
-                this.elements.dailyXmr.textContent = `${dailyXmr.toFixed(4)} XMR`;
-                this.elements.dailyUsd.textContent = `$${dailyUsd.toFixed(2)}`;
-                this.elements.monthlyXmr.textContent = `${monthlyXmr.toFixed(2)} XMR`;
-                this.elements.monthlyUsd.textContent = `$${monthlyUsd.toFixed(2)}`;
-                this.elements.yearlyXmr.textContent = `${yearlyXmr.toFixed(2)} XMR`;
-                this.elements.yearlyUsd.textContent = `$${yearlyUsd.toFixed(2)}`;
-            }
-        }
-
-        // Chatbot Logic
-        class ElizaChatbot {
-            constructor() {
-                this.messages = document.getElementById('messages');
-                this.floatingMessages = document.getElementById('floating-messages');
-                this.messageInput = document.getElementById('message-input');
-                this.floatingMessageInput = document.getElementById('floating-message-input');
-                this.sendButton = document.getElementById('send-button');
-                this.floatingSendButton = document.getElementById('floating-send-button');
-                this.chatbotToggle = document.getElementById('chatbot-toggle');
-                this.chatbotFloating = document.getElementById('chatbot-floating');
-                
-                this.bindEvents();
-            }
-
-            bindEvents() {
-                this.sendButton.addEventListener('click', () => this.sendMessage());
-                this.floatingSendButton.addEventListener('click', () => this.sendMessage(true));
-                
-                this.messageInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.sendMessage();
-                });
-                
-                this.floatingMessageInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.sendMessage(true);
-                });
-
-                this.chatbotToggle.addEventListener('click', () => {
-                    const isVisible = this.chatbotFloating.style.display === 'block';
-                    this.chatbotFloating.style.display = isVisible ? 'none' : 'block';
-                });
-            }
-
-            sendMessage(isFloating = false) {
-                const input = isFloating ? this.floatingMessageInput : this.messageInput;
-                const messagesContainer = isFloating ? this.floatingMessages : this.messages;
-                const message = input.value.trim();
-
-                if (!message) return;
-
-                // Add user message
-                this.addMessage(messagesContainer, message, 'user');
-                input.value = '';
-
-                // Process command and add response
-                setTimeout(() => {
-                    const response = this.processCommand(message);
-                    this.addMessage(messagesContainer, response, 'eliza');
-                }, 500);
-            }
-
-            addMessage(container, content, type) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type}-message`;
-                messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
-                container.appendChild(messageDiv);
-                container.scrollTop = container.scrollHeight;
-            }
-
-            processCommand(message) {
-                const cmd = message.toLowerCase().trim();
-                
-                if (cmd === 'status') {
-                    return `System Status Report:
-• Eliza Agent: ONLINE
-• Mining Service: OPERATIONAL
-• MESHNET: 42 active nodes
-• Health Monitor: ALL SYSTEMS GREEN
-• Uptime: 99.8%`;
-                }
-                
-                if (cmd === 'dashboard') {
-                    return `Dashboard Overview:
-• Network Hashrate: 2.8 GH/s
-• Active Miners: 10
-• XMR Price: $265.42
-• Network Difficulty: 445.2B
-• System Response Time: 45ms`;
-                }
-                
-                if (cmd === 'health') {
-                    return `Health Check Results:
-• CPU Usage: 23%
-• Memory Usage: 2.4GB
-• Network Latency: 45ms
-• Storage: 78% available
-• All services operational`;
-                }
-                
-                if (cmd.includes('hello') || cmd.includes('hi')) {
-                    return `Greetings. I am Eliza, your autonomous system operator. All XMRT-DAO ecosystem components are functioning optimally. How may I assist you today?`;
-                }
-                
-                if (cmd.includes('help')) {
-                    return `Available Commands:
-• 'status' - System status report
-• 'dashboard' - Mining metrics overview
-• 'health' - Detailed health check
-• 'hello' - Basic greeting
-• 'help' - This command list
-
-I can also answer questions about the XMRT-DAO ecosystem and mining operations.`;
-                }
-                
-                return `Command processed: "${message}". I am continuously monitoring all systems. The XMRT-DAO ecosystem remains fully operational. Is there anything specific you need assistance with?`;
-            }
-        }
-
-        // Initialize everything when DOM loads
-        document.addEventListener('DOMContentLoaded', () => {
-            new MiningCalculator();
-            new ElizaChatbot();
-            
-            // Add some dynamic effects
-            setInterval(() => {
-                const dots = document.querySelectorAll('.status-dot');
-                dots.forEach(dot => {
-                    dot.style.opacity = dot.style.opacity === '0.5' ? '1' : '0.5';
-                });
-            }, 2000);
+    // -------------------------
+    // Mining Calculator (client)
+    // -------------------------
+    class MiningCalculator {
+      constructor() {
+        this.networkHashrate = 2.8e9;     // default 2.8 GH/s
+        this.blockReward = 0.6;           // XMR per block
+        this.blockTime = 120;             // seconds
+        this.initializeElements();
+        this.bindEvents();
+        this.calculate();
+      }
+      initializeElements() {
+        this.elements = {
+          hashrateSlider: document.getElementById('hashrate-slider'),
+          devicesSlider: document.getElementById('devices-slider'),
+          uptimeSlider: document.getElementById('uptime-slider'),
+          xmrPriceSlider: document.getElementById('xmr-price-slider'),
+          hashrateValue: document.getElementById('hashrate-value'),
+          devicesValue: document.getElementById('devices-value'),
+          uptimeValue: document.getElementById('uptime-value'),
+          xmrPriceValue: document.getElementById('xmr-price-value'),
+          advancedProcessors: document.getElementById('advanced-processors-toggle'),
+          solidStateBattery: document.getElementById('solid-state-battery-toggle'),
+          totalHashrate: document.getElementById('total-hashrate'),
+          networkShare: document.getElementById('network-share'),
+          xmrPriceDisplay: document.getElementById('xmr-price-display'),
+          networkHashrateDisplay: document.getElementById('network-hashrate'),
+          dailyXmr: document.getElementById('daily-xmr'),
+          dailyUsd: document.getElementById('daily-usd'),
+          monthlyXmr: document.getElementById('monthly-xmr'),
+          monthlyUsd: document.getElementById('monthly-usd'),
+          yearlyXmr: document.getElementById('yearly-xmr'),
+          yearlyUsd: document.getElementById('yearly-usd')
+        };
+      }
+      bindEvents() {
+        this.elements.hashrateSlider.addEventListener('input', e => {
+          this.elements.hashrateValue.textContent = `${e.target.value} H/s`;
+          this.calculate();
         });
-    </script>
+        this.elements.devicesSlider.addEventListener('input', e => {
+          const value = this.scaleDevices(parseInt(e.target.value, 10));
+          this.elements.devicesValue.textContent = this.formatDevices(value);
+          this.calculate();
+        });
+        this.elements.uptimeSlider.addEventListener('input', e => {
+          this.elements.uptimeValue.textContent = `${e.target.value} hrs`;
+          this.calculate();
+        });
+        this.elements.xmrPriceSlider.addEventListener('input', e => {
+          this.elements.xmrPriceValue.textContent = `$${e.target.value}`;
+          this.calculate();
+        });
+        this.elements.advancedProcessors.addEventListener('change', () => this.calculate());
+        this.elements.solidStateBattery.addEventListener('change', () => this.calculate());
+      }
+      scaleDevices(sliderValue) {
+        const min = 1, max = 1_000_000;
+        const minLog = Math.log(min), maxLog = Math.log(max);
+        const scale = (maxLog - minLog) / 999; // slider 1..1000
+        return Math.round(Math.exp(minLog + scale * (sliderValue - 1)));
+      }
+      formatDevices(value) {
+        if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+        if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`;
+        return String(value);
+      }
+      formatHashrate(h) {
+        if (h >= 1e9) return `${(h / 1e9).toFixed(1)} GH/s`;
+        if (h >= 1e6) return `${(h / 1e6).toFixed(1)} MH/s`;
+        if (h >= 1e3) return `${(h / 1e3).toFixed(1)} KH/s`;
+        return `${h.toFixed(0)} H/s`;
+      }
+      calculate() {
+        const baseHashrate = parseInt(this.elements.hashrateSlider.value, 10);
+        const devices = this.scaleDevices(parseInt(this.elements.devicesSlider.value, 10));
+        const uptime = parseInt(this.elements.uptimeSlider.value, 10);
+        const xmrPrice = parseInt(this.elements.xmrPriceSlider.value, 10);
+        const adv = this.elements.advancedProcessors.checked;
+        const ssb = this.elements.solidStateBattery.checked;
+
+        let effectiveHashrate = adv ? baseHashrate * 2.5 : baseHashrate;
+        let effectiveUptime = Math.min(24, ssb ? uptime * 1.25 : uptime);
+
+        const totalHashrate = effectiveHashrate * devices * (effectiveUptime / 24);
+        const networkShare = (totalHashrate / this.networkHashrate) * 100;
+
+        const blocksPerDay = (24 * 3600) / this.blockTime;
+        const dailyReward = this.blockReward * blocksPerDay;
+        const dailyXmr = dailyReward * (networkShare / 100);
+        const dailyUsd = dailyXmr * xmrPrice;
+
+        const monthlyXmr = dailyXmr * 30, monthlyUsd = dailyUsd * 30;
+        const yearlyXmr = dailyXmr * 365, yearlyUsd = dailyUsd * 365;
+
+        this.elements.totalHashrate.textContent = this.formatHashrate(totalHashrate);
+        this.elements.networkShare.textContent = `${networkShare.toFixed(4)}%`;
+        this.elements.xmrPriceDisplay.textContent = `$${xmrPrice}`;
+        this.elements.networkHashrateDisplay.textContent = this.formatHashrate(this.networkHashrate);
+
+        this.elements.dailyXmr.textContent = `${dailyXmr.toFixed(4)} XMR`;
+        this.elements.dailyUsd.textContent = `$${dailyUsd.toFixed(2)}`;
+        this.elements.monthlyXmr.textContent = `${monthlyXmr.toFixed(2)} XMR`;
+        this.elements.monthlyUsd.textContent = `$${monthlyUsd.toFixed(2)}`;
+        this.elements.yearlyXmr.textContent = `${yearlyXmr.toFixed(2)} XMR`;
+        this.elements.yearlyUsd.textContent = `$${yearlyUsd.toFixed(2)}`;
+      }
+      setNetwork(hashrate, price) {
+        if (Number.isFinite(hashrate)) this.networkHashrate = hashrate;
+        if (Number.isFinite(price)) {
+          this.elements.xmrPriceSlider.value = Math.max(50, Math.min(1000, Math.round(price)));
+          this.elements.xmrPriceValue.textContent = `$${this.elements.xmrPriceSlider.value}`;
+        }
+        this.calculate();
+      }
+    }
+
+    // -------------------------
+    // Chatbot (local echo + hooks)
+    // -------------------------
+    class ElizaChatbot {
+      constructor() {
+        this.messages = document.getElementById('messages');
+        this.floatingMessages = document.getElementById('floating-messages');
+        this.messageInput = document.getElementById('message-input');
+        this.floatingMessageInput = document.getElementById('floating-message-input');
+        this.sendButton = document.getElementById('send-button');
+        this.floatingSendButton = document.getElementById('floating-send-button');
+        this.chatbotToggle = document.getElementById('chatbot-toggle');
+        this.chatbotFloating = document.getElementById('chatbot-floating');
+        this.bindEvents();
+      }
+      bindEvents() {
+        this.sendButton.addEventListener('click', () => this.sendMessage());
+        this.floatingSendButton?.addEventListener('click', () => this.sendMessage(true));
+        this.messageInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.sendMessage(); });
+        this.floatingMessageInput?.addEventListener('keypress', e => { if (e.key === 'Enter') this.sendMessage(true); });
+        this.chatbotToggle.addEventListener('click', () => {
+          const isVisible = this.chatbotFloating.style.display === 'block';
+          this.chatbotFloating.style.display = isVisible ? 'none' : 'block';
+        });
+      }
+      addMessage(container, content, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}-message`;
+        messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+        container.appendChild(messageDiv);
+        container.scrollTop = container.scrollHeight;
+      }
+      async sendMessage(isFloating = false) {
+        const input = isFloating ? this.floatingMessageInput : this.messageInput;
+        const messagesContainer = isFloating ? this.floatingMessages : this.messages;
+        const message = input.value.trim();
+        if (!message) return;
+        this.addMessage(messagesContainer, message, 'user');
+        input.value = '';
+
+        // Simple local commands; you can route to your backend later
+        let response = this.processCommand(message);
+        this.addMessage(messagesContainer, response, 'eliza');
+      }
+      processCommand(msg) {
+        const cmd = msg.toLowerCase().trim();
+        if (cmd === 'status')   return window.__xmrtStatusCache || 'Gathering status…';
+        if (cmd === 'dashboard') return window.__xmrtMetricsCache || 'Gathering metrics…';
+        if (cmd === 'health')   return window.__xmrtHealthCache || 'Running health checks…';
+        if (cmd.includes('help')) {
+          return `Commands:
+• status — System status report
+• dashboard — Metrics overview
+• health — Health check
+(Eliza can be wired to POST here for real actions.)`;
+        }
+        return `Command received: "${msg}". Monitoring continues.`;
+      }
+    }
+
+    // -------------------------
+    // Live data bootstrap
+    // -------------------------
+    const calc = new MiningCalculator();
+    const bot  = new ElizaChatbot();
+
+    async function hydrateFromAPI() {
+      // Status
+      const status = await fetchJSON(endpoints.status, null);
+      if (status) {
+        document.getElementById('global-status-text').textContent = status?.overall || 'All Systems Operational';
+        window.__xmrtStatusCache =
+          `System Status:
+• Eliza: ${status.eliza?.state ?? 'UNKNOWN'}
+• Mining: ${status.mining?.state ?? 'UNKNOWN'}
+• MESHNET: ${status.meshnet?.nodes ?? '?'} nodes
+• Health: ${status.health ?? 'OK'}
+• Uptime: ${status.uptime ?? '—'}`;
+        // Example agent fields if provided
+        if (status.agent) {
+          setText('agent-autonomy', status.agent.autonomy ?? '—');
+          setText('agent-credits',  status.agent.credits ?? '—');
+          setText('agent-memory',   status.agent.memory_usage ?? '—');
+          setText('agent-tasks',    status.agent.tasks_completed ?? '—');
+        }
+      } else {
+        document.getElementById('global-status-text').textContent = 'Status service unavailable';
+      }
+
+      // Metrics
+      const metrics = await fetchJSON(endpoints.metrics, null);
+      if (metrics) {
+        setText('uptime',           metrics.uptime_percent ? `${metrics.uptime_percent.toFixed(2)}%` : '—');
+        setText('response-time',    metrics.avg_response_ms ? `${Math.round(metrics.avg_response_ms)}ms` : '—');
+        setText('network-hashrate-display', formatMaybeHashrate(metrics.network_hashrate_hs));
+        setText('active-miners',    metrics.active_miners ?? '—');
+        setText('xmr-price',        metrics.xmr_price_usd ? `$${Number(metrics.xmr_price_usd).toFixed(2)}` : '$—');
+        setText('difficulty',       metrics.network_difficulty ?? '—');
+
+        // Push network hashrate/price into calculator defaults
+        calc.setNetwork(Number(metrics.network_hashrate_hs), Number(metrics.xmr_price_usd));
+
+        window.__xmrtMetricsCache =
+`Dashboard:
+• Network Hashrate: ${formatMaybeHashrate(metrics.network_hashrate_hs)}
+• Active Miners: ${metrics.active_miners ?? '—'}
+• XMR Price: ${metrics.xmr_price_usd ? `$${Number(metrics.xmr_price_usd).toFixed(2)}` : '$—'}
+• Difficulty: ${metrics.network_difficulty ?? '—'}
+• Response Time: ${metrics.avg_response_ms ? `${Math.round(metrics.avg_response_ms)}ms` : '—'}`;
+      }
+
+      // Optional: decisions history -> can feed the chat or a future table
+      const decisions = await fetchJSON(endpoints.decisions, null);
+      if (decisions && Array.isArray(decisions)) {
+        window.__xmrtHealthCache = `Recent Decisions:\n` +
+          decisions.slice(0, 5).map(d => `• ${d.id ?? 'n/a'} — ${d.status ?? 'unknown'}`).join('\n');
+      }
+    }
+
+    function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = String(v); }
+    function formatMaybeHashrate(h) {
+      if (!Number.isFinite(h)) return '—';
+      if (h >= 1e9) return (h/1e9).toFixed(1) + ' GH/s';
+      if (h >= 1e6) return (h/1e6).toFixed(1) + ' MH/s';
+      if (h >= 1e3) return (h/1e3).toFixed(1) + ' KH/s';
+      return Math.round(h) + ' H/s';
+    }
+
+    // Pulse dots + initial hydrate + refresh loop
+    setInterval(() => {
+      document.querySelectorAll('.status-dot').forEach(dot => {
+        dot.style.opacity = dot.style.opacity === '0.5' ? '1' : '0.5';
+      });
+    }, 2000);
+
+    document.addEventListener('DOMContentLoaded', hydrateFromAPI);
+    setInterval(hydrateFromAPI, 15_000); // refresh every 15s
+  </script>
 </body>
 </html>

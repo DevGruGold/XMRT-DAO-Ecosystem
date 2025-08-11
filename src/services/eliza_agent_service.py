@@ -253,7 +253,8 @@ class ElizaAgentService:
         
         available_commands = ["status", "dashboard", "health", "nodes", "capabilities", "remember [text]", "voice status"]
         suggestion = "Try asking about system status, mining dashboard, or network health."
-        return f"Command not recognized. I am Eliza, your autonomous operator for the XMRT-DAO Ecosystem. Available commands: {", ".join(available_commands)}. Suggestion: {suggestion}"
+        commands_str = ", ".join(available_commands)
+        return f"Command not recognized. I am Eliza, your autonomous operator for the XMRT-DAO Ecosystem. Available commands: {commands_str}. Suggestion: {suggestion}"
 
     def get_agent_status(self) -> Dict[str, Any]:
         """Get current agent status"""

@@ -64,8 +64,8 @@
                 <label class="control-label" for="devices-slider">Number of Mining Devices</label>
                 <span id="devices-value" class="control-value">100</span>
               </div>
-              <!-- keep 1..1000 then log-scale to 1..1,000,000 -->
-              <input type="range" id="devices-slider" min="1" max="1000" value="100" class="slider" />
+              <!-- keep 1..1000 then log-scale to 1..1,000,000; if max > 1000, use linear 1..1,000,000 -->
+              <input type="range" id="devices-slider" min="1" max="1000000" value="100" class="slider" />
               <div class="slider-labels"><span>1</span><span>1M</span></div>
             </div>
 
@@ -416,6 +416,14 @@
         this.blockTime = 120;             // seconds
         this.initializeElements();
         this.bindEvents();
+
+        // sync initial UI text for sliders (including scaled devices)
+        this.elements.hashrateValue.textContent = `${this.elements.hashrateSlider.value} H/s`;
+        this.elements.uptimeValue.textContent = `${this.elements.uptimeSlider.value} hrs`;
+        this.elements.xmrPriceValue.textContent = `$${this.elements.xmrPriceSlider.value}`;
+        const initDevices = this.scaleDevices(parseInt(this.elements.devicesSlider.value, 10));
+        this.elements.devicesValue.textContent = this.formatDevices(initDevices);
+
         this.calculate();
       }
       initializeElements() {
@@ -464,6 +472,11 @@
         this.elements.solidStateBattery.addEventListener('change', () => this.calculate());
       }
       scaleDevices(sliderValue) {
+        // If the input range itself goes up to 1,000,000, treat it linearly so the native tooltip matches the value.
+        const sliderMax = parseInt(this.elements.devicesSlider.max, 10) || 1000;
+        if (sliderMax > 1000) return sliderValue;
+
+        // Otherwise, keep your original intent: 1..1000 slider maps log-scale to 1..1,000,000 devices.
         const min = 1, max = 1_000_000;
         const minLog = Math.log(min), maxLog = Math.log(max);
         const scale = (maxLog - minLog) / 999; // slider 1..1000
@@ -510,9 +523,9 @@
         this.elements.dailyXmr.textContent = `${dailyXmr.toFixed(4)} XMR`;
         this.elements.dailyUsd.textContent = `$${dailyUsd.toFixed(2)}`;
         this.elements.monthlyXmr.textContent = `${monthlyXmr.toFixed(2)} XMR`;
-        this.elements.monthlyUsd.textContent = `${monthlyUsd.toFixed(2)}`;
+        this.elements.monthlyUsd.textContent = `$${monthlyUsd.toFixed(2)}`;
         this.elements.yearlyXmr.textContent = `${yearlyXmr.toFixed(2)} XMR`;
-        this.elements.yearlyUsd.textContent = `${yearlyUsd.toFixed(2)} XMR`;
+        this.elements.yearlyUsd.textContent = `$${yearlyUsd.toFixed(2)}`; // (label is USD)
       }
       setNetwork(hashrate, price) {
         if (Number.isFinite(hashrate)) this.networkHashrate = hashrate;
@@ -664,4 +677,3 @@
   </script>
 </body>
 </html>
-

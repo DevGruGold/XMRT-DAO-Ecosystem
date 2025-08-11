@@ -44,8 +44,8 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     """Create and configure the Flask application."""
-    # We point to the templates folder inside 'src'
-    app = Flask(__name__, template_folder='src/templates')
+    # We point to the templates folder inside 'src' and static folder for CSS/JS
+    app = Flask(__name__, template_folder='src/templates', static_folder='src/static')
     CORS(app)
 
     # --- Configuration ---

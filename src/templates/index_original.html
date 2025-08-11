@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XMRT-DAO Ecosystem Dashboard | Eliza Command Center</title>
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%);
+            color: #c9d1d9;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #30363d;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            color: #58a6ff;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(35, 134, 54, 0.2);
+            border: 1px solid #238636;
+            border-radius: 20px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #2ea043;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Dashboard sections */
+        .dashboard-section {
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-section:hover {
+            border-color: #58a6ff;
+            box-shadow: 0 8px 32px rgba(88, 166, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #f0f6fc;
+        }
+
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            color: #58a6ff;
+        }
+
+        /* Live metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: rgba(13, 17, 23, 0.6);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: #58a6ff;
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-trend {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .trend-up { color: #2ea043; }
+        .trend-down { color: #f85149; }
+        .trend-stable { color: #f0f6fc; }
+
+        /* Color variants for metrics */
+        .metric-primary { color: #58a6ff; }
+        .metric-success { color: #2ea043; }
+        .metric-warning { color: #f0c674; }
+        .metric-danger { color: #f85149; }
+        .metric-purple { color: #bc8cff; }
+        .metric-orange { color: #ff9500; }
+
+        /* Chat container - full width */
+        .chat-section {
+            grid-column: 1 / -1;
+            height: 400px;
+        }
+
+        .chat-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid #30363d;
+            text-align: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+        }
+
+        .eliza-message .content {
+            background: rgba(33, 38, 45, 0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            max-width: 80%;
+            white-space: pre-wrap;
+            border-left: 3px solid #58a6ff;
+        }
+
+        .user-message {
+            text-align: right;
+        }
+
+        .user-message .content {
+            background: rgba(88, 166, 255, 0.2);
+            color: #f0f6fc;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            max-width: 80%;
+            display: inline-block;
+            border-right: 3px solid #58a6ff;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 1rem;
+            gap: 1rem;
+            border-top: 1px solid #30363d;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(13, 17, 23, 0.8);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #c9d1d9;
+            padding: 0.75rem 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #238636, #2ea043);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            background: linear-gradient(135deg, #2ea043, #238636);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
+        }
+
+        /* Mining calculator - full width */
+        .calculator-section {
+            grid-column: 1 / -1;
+        }
+
+        /* System status indicators */
+        .system-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(13, 17, 23, 0.6);
+            border-radius: 8px;
+            border: 1px solid #30363d;
+        }
+
+        .status-online { border-left: 3px solid #2ea043; }
+        .status-warning { border-left: 3px solid #f0c674; }
+        .status-error { border-left: 3px solid #f85149; }
+
+        /* Network topology visualization */
+        .network-viz {
+            height: 200px;
+            background: rgba(13, 17, 23, 0.6);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .network-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #58a6ff;
+            border-radius: 50%;
+            animation: networkPulse 3s infinite;
+        }
+
+        @keyframes networkPulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.7);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 0 10px rgba(88, 166, 255, 0);
+                transform: scale(1.1);
+            }
+        }
+
+        /* Performance charts placeholder */
+        .chart-container {
+            height: 150px;
+            background: rgba(13, 17, 23, 0.6);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        /* Responsive design - Mobile First Approach */
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .logo h1 {
+                font-size: 1.25rem;
+            }
+            
+            .status-indicator {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            
+            .main-container {
+                padding: 1rem 0.75rem;
+                gap: 1rem;
+            }
+            
+            .dashboard-section {
+                padding: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .metric-card {
+                padding: 0.75rem;
+            }
+            
+            .metric-value {
+                font-size: 1.25rem;
+            }
+            
+            .metric-label {
+                font-size: 0.75rem;
+            }
+            
+            .chat-section {
+                height: 350px;
+            }
+            
+            .chat-input-container {
+                padding: 0.75rem;
+                gap: 0.75rem;
+            }
+            
+            .chat-input {
+                padding: 0.625rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            
+            .send-button {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .system-status {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .status-item {
+                padding: 0.625rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1.5rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.875rem;
+            }
+            
+            .system-status {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .chat-section {
+                height: 375px;
+            }
+            
+            .network-viz {
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1.5rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .send-button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .chat-input {
+                min-height: 44px;
+            }
+            
+            .metric-card {
+                min-height: 80px;
+            }
+            
+            .status-item {
+                min-height: 44px;
+            }
+        }
+
+        /* Improved scrolling for mobile */
+        .chat-messages {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Better text sizing for mobile */
+        @media (max-width: 480px) {
+            .eliza-message .content,
+            .user-message .content {
+                font-size: 0.875rem;
+                line-height: 1.4;
+            }
+        }
+
+        /* Mining calculator styles (preserved from original) */
+        .bg-gray-900\/50 { background-color: rgba(17, 24, 39, 0.5); }
+        .rounded-lg { border-radius: 0.5rem; }
+        .p-4 { padding: 1rem; }
+        .sm\:p-6 { padding: 1.5rem; }
+        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+        .sm\:space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.375rem; }
+        .pb-3 { padding-bottom: 0.75rem; }
+        .sm\:pb-6 { padding-bottom: 1.5rem; }
+        .font-semibold { font-weight: 600; }
+        .tracking-tight { letter-spacing: -0.025em; }
+        .sm\:flex-row { flex-direction: row; }
+        .items-start { align-items: flex-start; }
+        .sm\:items-center { align-items: center; }
+        .gap-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.5rem; }
+        .sm\:gap-3 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.75rem; }
+        .text-white { color: #fff; }
+        .text-lg { font-size: 1.125rem; }
+        .sm\:text-xl { font-size: 1.25rem; }
+        .lucide { display: inline-block; width: 1em; height: 1em; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .h-5 { height: 1.25rem; }
+        .w-5 { width: 1.25rem; }
+        .sm\:h-6 { height: 1.5rem; }
+        .sm\:w-6 { width: 1.5rem; }
+        .text-green-400 { color: #4ade80; }
+        .flex-shrink-0 { flex-shrink: 0; }
+        .text-base { font-size: 1rem; }
+        .text-gray-400 { color: #9ca3af; }
+        .text-sm { font-size: 0.875rem; }
+        .sm\:text-base { font-size: 1rem; }
+        .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+        .sm\:space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.25rem; }
+        .sm\:gap-0 > :not([hidden]) ~ :not([hidden]) { margin-left: 0; }
+        .font-medium { font-weight: 500; }
+        .peer-disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
+        .peer-disabled\:opacity-70:disabled { opacity: 0.7; }
+        .text-gray-300 { color: #d1d5db; }
+        .text-blue-400 { color: #60a5fa; }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        .relative { position: relative; }
+        .touch-none { touch-action: none; }
+        .select-none { user-select: none; }
+        .items-center { align-items: center; }
+        .w-full { width: 100%; }
+        .h-2 { height: 0.5rem; }
+        .grow { flex-grow: 1; }
+        .overflow-hidden { overflow: hidden; }
+        .rounded-full { border-radius: 9999px; }
+        .bg-secondary { background-color: #6b7280; }
+        .absolute { position: absolute; }
+        .h-full { height: 100%; }
+        .bg-primary { background-color: #3b82f6; }
+        .block { display: block; }
+        .border-2 { border-width: 2px; }
+        .border-primary { border-color: #3b82f6; }
+        .bg-background { background-color: #161b22; }
+        .ring-offset-background { --tw-ring-offset-color: #161b22; }
+        .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .focus-visible\:outline-none:focus-visible { outline: 2px solid transparent; outline-offset: 2px; }
+        .focus-visible\:ring-2:focus-visible { --tw-ring-offset-width: 2px; --tw-ring-color: #3b82f6; }
+        .focus-visible\:ring-ring:focus-visible { --tw-ring-color: #3b82f6; }
+        .focus-visible\:ring-offset-2:focus-visible { --tw-ring-offset-width: 2px; }
+        .disabled\:pointer-events-none:disabled { pointer-events: none; }
+        .disabled\:opacity-50:disabled { opacity: 0.5; }
+        .text-xs { font-size: 0.75rem; }
+        .text-gray-500 { color: #6b7280; }
+        .grid { display: grid; }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .gap-3 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.75rem; }
+        .sm\:gap-4 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem; }
+        .p-2 { padding: 0.5rem; }
+        .sm\:p-3 { padding: 0.75rem; }
+        .text-center { text-align: center; }
+        .text-purple-400 { color: #c084fc; }
+        .sm\:text-lg { font-size: 1.125rem; }
+        .text-yellow-400 { color: #facc15; }
+        .sm\:text-2xl { font-size: 1.5rem; }
+        .text-green-300 { color: #86efac; }
+        .text-blue-300 { color: #93c5fd; }
+        .text-purple-300 { color: #d8b4fe; }
+        .bg-card { background-color: #161b22; }
+        .text-card-foreground { color: #c9d1d9; }
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
+        .from-green-900\/20 { --tw-gradient-from: rgba(20, 83, 45, 0.2); --tw-gradient-to: rgba(20, 83, 45, 0); }
+        .to-green-800\/20 { --tw-gradient-to: rgba(22, 101, 52, 0.2); }
+        .border-green-700\/50 { border-color: rgba(21, 128, 61, 0.5); }
+        .from-blue-900\/20 { --tw-gradient-from: rgba(29, 78, 216, 0.2); --tw-gradient-to: rgba(29, 78, 216, 0); }
+        .to-blue-800\/20 { --tw-gradient-to: rgba(30, 64, 175, 0.2); }
+        .border-blue-700\/50 { border-color: rgba(59, 130, 246, 0.5); }
+        .from-purple-900\/20 { --tw-gradient-from: rgba(109, 40, 217, 0.2); --tw-gradient-to: rgba(109, 40, 217, 0); }
+        .to-purple-800\/20 { --tw-gradient-to: rgba(126, 34, 206, 0.2); }
+        .border-purple-700\/50 { border-color: rgba(168, 85, 247, 0.5); }
+        .sm\:col-span-2 { grid-column: span 2 / span 2; }
+        .lg\:col-span-1 { grid-column: span 1 / span 1; }
+        .bg-yellow-900\/20 { background-color: rgba(113, 63, 18, 0.2); }
+        .border-yellow-700\/50 { border-color: rgba(202, 138, 4, 0.5); }
+
+        /* Styles for upgrade toggles */
+        .upgrade-section { border-top: 1px solid #30363d; padding-top: 1rem; margin-top: 1rem; }
+        .toggle-container { display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem; }
+        .toggle-label { user-select: none; }
+        .toggle-switch { width: 40px; height: 22px; position: relative; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #30363d; transition: .4s; border-radius: 22px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: #2ea043; }
+        input:checked + .toggle-slider:before { transform: translateX(18px); }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>XMRT-DAO Ecosystem Dashboard</h1>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>All Systems Operational</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <div class="main-container">
+        <!-- System Overview -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <h2 class="section-title">System Overview</h2>
+            </div>
+            
+            <div class="system-status">
+                <div class="status-item status-online">
+                    <span>Eliza Agent</span>
+                </div>
+                <div class="status-item status-online">
+                    <span>Mining Service</span>
+                </div>
+                <div class="status-item status-online">
+                    <span>MESHNET</span>
+                </div>
+                <div class="status-item status-online">
+                    <span>Health Monitor</span>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value metric-primary" id="uptime">99.8%</div>
+                    <div class="metric-label">System Uptime</div>
+                    <div class="metric-trend trend-up">↗ +0.2%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value metric-success" id="response-time">45ms</div>
+                    <div class="metric-label">Avg Response Time</div>
+                    <div class="metric-trend trend-stable">→ Stable</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mining Metrics -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                <h2 class="section-title">Mining Operations</h2>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value metric-warning" id="total-hashrate">2.8 GH/s</div>
+                    <div class="metric-label">Network Hashrate</div>
+                    <div class="metric-trend trend-up">↗ +5.2%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value metric-purple" id="active-miners">1,247</div>
+                    <div class="metric-label">Active Miners</div>
+                    <div class="metric-trend trend-up">↗ +12</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value metric-success" id="xmr-price">$165.42</div>
+                    <div class="metric-label">XMR Price</div>
+                    <div class="metric-trend trend-up">↗ +2.1%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value metric-orange" id="difficulty">445.2B</div>
+                    <div class="metric-label">Network Difficulty</div>
+                    <div class="metric-trend trend-stable">→ Stable</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <span>Hashrate Performance Chart (Live Data)</span>
+            </div>
+        </div>
+
+        <!-- MESHNET Status -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+                </svg>
+                <h2 class="section-title">MESHNET Status</h2>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value metric-primary" id="mesh-nodes">42</div>
+                    <div class="metric-label">Active Nodes</div>
+                    <div class="metric-trend trend-up">↗ +3</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value metric-success" id="mesh-coverage">87%</div>
+                    <div class="metric-label">Network Coverage</div>
+                    <div class="metric-trend trend-up">↗ +5%</div>
+                </div>
+            </div>
+
+            <div class="network-viz">
+                <div class="network-node" style="top: 20%; left: 15%;"></div>
+                <div class="network-node" style="top: 40%; left: 35%;"></div>
+                <div class="network-node" style="top: 60%; left: 55%;"></div>
+                <div class="network-node" style="top: 30%; left: 75%;"></div>
+                <div class="network-node" style="top: 70%; left: 25%;"></div>
+                <div class="network-node" style="top: 50%; left: 85%;"></div>
+            </div>
+        </div>
+
+        <!-- ElizaOS Agent Status -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                <h2 class="section-title">ElizaOS Agent</h2>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value metric-success" id="agent-tasks">156</div>
+                    <div class="metric-label">Tasks Completed</div>
+                    <div class="metric-trend trend-up">↗ +8 today</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value metric-primary" id="agent-memory">2.4GB</div>
+                    <div class="metric-label">Memory Usage</div>
+                    <div class="metric-trend trend-stable">→ Normal</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value metric-warning" id="agent-credits">187</div>
+                    <div class="metric-label">Credits Remaining</div>
+                    <div class="metric-trend trend-down">↘ -63 today</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value metric-purple" id="agent-autonomy">Active</div>
+                    <div class="metric-label">Autonomy Status</div>
+                    <div class="metric-trend trend-stable">→ Operational</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eliza Command Interface -->
+        <div class="dashboard-section chat-section">
+            <div class="section-header">
+                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <h2 class="section-title">Eliza Command Interface</h2>
+            </div>
+            
+            <div class="chat-container">
+                <div class="chat-header">
+                    <p style="color: #8b949e;">XMRT-DAO Autonomous Operator</p>
+                </div>
+                <div class="chat-messages" id="messages">
+                    <div class="message eliza-message">
+                        <div class="content">${typeof reply === 'object' ? JSON.stringify(reply, null, 2) : reply}</div>nder. I am Eliza, the autonomous operator for the XMRT-DAO Ecosystem. My systems are online and fully operational. How may I assist you?
+
+Available commands: 'status', 'dashboard', 'health'.</div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="message-input" placeholder="Enter command...">
+                    <button class="send-button" id="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mining Calculator -->
+        <div class="dashboard-section calculator-section">
+            <div class="section-header">
+                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="22 7 13.5 15.5 8.5 10.5 2 17M16 7 22 7 22 13"/>
+                </svg>
+                <h2 class="section-title">MobileMonero Mining Calculator</h2>
+            </div>
+            
+            <div class="bg-gray-900/50 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div class="flex flex-col space-y-1.5 p-6 pb-3 sm:pb-6">
+                    <p class="text-gray-400 text-sm sm:text-base">Calculate potential earnings from mobile Monero mining</p>
+                </div>
+                <div class="space-y-3 sm:space-y-4">
+                    <div class="space-y-2 sm:space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
+                            <label class="font-medium text-gray-300 text-sm sm:text-base">Average Hashrate per Device</label>
+                            <span id="hashrate-value" class="text-blue-400 font-mono text-sm sm:text-base">600 H/s</span>
+                        </div>
+                        <input type="range" id="hashrate-slider" min="200" max="1200" value="600" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>200 H/s</span>
+                            <span>1,200 H/s</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 sm:space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
+                            <label class="font-medium text-gray-300 text-sm sm:text-base">Number of Mining Devices</label>
+                            <span id="devices-value" class="text-blue-400 font-mono text-sm sm:text-base">100</span>
+                        </div>
+                        <input type="range" id="devices-slider" min="0" max="1000" value="333" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>1</span>
+                            <span>1M</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 sm:space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
+                            <label class="font-medium text-gray-300 text-sm sm:text-base">Mining Uptime per Day</label>
+                            <span id="uptime-value" class="text-blue-400 font-mono text-sm sm:text-base">24 hrs</span>
+                        </div>
+                        <input type="range" id="uptime-slider" min="1" max="24" value="24" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>1 hr</span>
+                            <span>24 hrs</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 sm:space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
+                            <label class="font-medium text-gray-300 text-sm sm:text-base">Monero (XMR) Price</label>
+                            <span id="xmr-price-value" class="text-blue-400 font-mono text-sm sm:text-base">$165</span>
+                        </div>
+                        <input type="range" id="xmr-price-slider" min="50" max="1000" value="165" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>$50</span>
+                            <span>$1,000</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="upgrade-section">
+                    <h4 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">Hardware Upgrades</h4>
+                    <div class="toggle-container">
+                        <label for="advanced-processors-toggle" class="toggle-label text-gray-300 text-sm sm:text-base">Advanced Processors (2.5x Hashrate)</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="advanced-processors-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-container">
+                        <label for="solid-state-battery-toggle" class="toggle-label text-gray-300 text-sm sm:text-base">Solid State Batteries (+25% Uptime)</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="solid-state-battery-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-gray-900/50 p-2 sm:p-3 rounded-lg text-center">
+                        <div id="total-hashrate" class="text-purple-400 font-mono text-sm sm:text-lg">60.0K H/s</div>
+                        <div class="text-xs text-gray-400">Total Hashrate</div>
+                    </div>
+                    <div class="bg-gray-900/50 p-2 sm:p-3 rounded-lg text-center">
+                        <div id="network-share" class="text-blue-400 font-mono text-sm sm:text-lg">0.0021%</div>
+                        <div class="text-xs text-gray-400">Network Share</div>
+                    </div>
+                    <div class="bg-gray-900/50 p-2 sm:p-3 rounded-lg text-center">
+                        <div id="xmr-price-display" class="text-green-400 font-mono text-sm sm:text-lg">$165</div>
+                        <div class="text-xs text-gray-400">XMR Price</div>
+                    </div>
+                    <div class="bg-gray-900/50 p-2 sm:p-3 rounded-lg text-center">
+                        <div id="network-hashrate" class="text-yellow-400 font-mono text-sm sm:text-lg">2.8 GH/s</div>
+                        <div class="text-xs text-gray-400">Network Hashrate</div>
+                    </div>
+                </div>
+                <div class="space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap h-4 w-4 sm:h-5 sm:w-5 text-yellow-400">
+                            <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path>
+                        </svg>
+                        Projected Earnings
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                        <div class="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-green-900/20 to-green-800/20 border-green-700/50">
+                            <div class="p-3 sm:p-4 text-center">
+                                <div id="daily-xmr" class="text-lg sm:text-2xl font-bold text-green-400">0.0093 XMR</div>
+                                <div id="daily-usd" class="text-green-300 font-mono text-sm sm:text-base">$1.53</div>
+                                <div class="text-xs sm:text-sm text-gray-400">Daily</div>
+                            </div>
+                        </div>
+                        <div class="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-blue-900/20 to-blue-800/20 border-blue-700/50">
+                            <div class="p-3 sm:p-4 text-center">
+                                <div id="monthly-xmr" class="text-lg sm:text-2xl font-bold text-blue-400">0.28 XMR</div>
+                                <div id="monthly-usd" class="text-blue-300 font-mono text-sm sm:text-base">$45.98</div>
+                                <div class="text-xs sm:text-sm text-gray-400">Monthly</div>
+                            </div>
+                        </div>
+                        <div class="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-purple-900/20 to-purple-800/20 border-purple-700/50 sm:col-span-2 lg:col-span-1">
+                            <div class="p-3 sm:p-4 text-center">
+                                <div id="yearly-xmr" class="text-lg sm:text-2xl font-bold text-purple-400">3.38 XMR</div>
+                                <div id="yearly-usd" class="text-purple-300 font-mono text-sm sm:text-base">$559.21</div>
+                                <div class="text-xs sm:text-sm text-gray-400">Yearly</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-yellow-900/20 border border-yellow-700/50 rounded-lg p-3 sm:p-4">
+                    <p class="text-yellow-400 text-xs sm:text-sm">
+                        <strong>Disclaimer:</strong> These calculations are estimates based on current network conditions. Actual earnings may vary due to network difficulty changes, XMR price fluctuations, and device performance variations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Live metrics update simulation
+        function updateMetrics() {
+            // Simulate real-time data updates
+            const metrics = {
+                uptime: Math.random() * 0.5 + 99.5,
+                responseTime: Math.random() * 20 + 35,
+                hashrate: Math.random() * 0.5 + 2.5,
+                miners: Math.floor(Math.random() * 100 + 1200),
+                xmrPrice: Math.random() * 10 + 160,
+                difficulty: Math.random() * 50 + 420,
+                meshNodes: Math.floor(Math.random() * 10 + 35),
+                meshCoverage: Math.random() * 10 + 80,
+                agentTasks: Math.floor(Math.random() * 20 + 140),
+                agentMemory: Math.random() * 0.5 + 2.0,
+                agentCredits: Math.floor(Math.random() * 50 + 150)
+            };
+
+            // Update DOM elements
+            document.getElementById('uptime').textContent = metrics.uptime.toFixed(1) + '%';
+            document.getElementById('response-time').textContent = Math.floor(metrics.responseTime) + 'ms';
+            document.getElementById('total-hashrate').textContent = metrics.hashrate.toFixed(1) + ' GH/s';
+            document.getElementById('active-miners').textContent = metrics.miners.toLocaleString();
+            document.getElementById('xmr-price').textContent = '$' + metrics.xmrPrice.toFixed(2);
+            document.getElementById('difficulty').textContent = metrics.difficulty.toFixed(1) + 'B';
+            document.getElementById('mesh-nodes').textContent = metrics.meshNodes;
+            document.getElementById('mesh-coverage').textContent = Math.floor(metrics.meshCoverage) + '%';
+            document.getElementById('agent-tasks').textContent = metrics.agentTasks;
+            document.getElementById('agent-memory').textContent = metrics.agentMemory.toFixed(1) + 'GB';
+            document.getElementById('agent-credits').textContent = metrics.agentCredits;
+        }
+
+        // Chat functionality
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const messagesContainer = document.getElementById('messages');
+            
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.innerHTML = `<div class="content">${message}</div>`;
+            messagesContainer.appendChild(userMessage);
+
+            // Clear input
+            input.value = '';
+
+            // Send to backend API
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const elizaMessage = document.createElement('div');
+                elizaMessage.className = 'message eliza-message';
+                const response = data.success ? data.reply : 'Error processing command.';
+                elizaMessage.innerHTML = `<div class="content">${response}</div>`;
+                messagesContainer.appendChild(elizaMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const elizaMessage = document.createElement('div');
+                elizaMessage.className = 'message eliza-message';
+                elizaMessage.innerHTML = `<div class="content">Connection error. Please try again.</div>`;
+                messagesContainer.appendChild(elizaMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Mining calculator functionality (preserved from original)
+        function updateCalculations() {
+            const hashrate = parseInt(document.getElementById('hashrate-slider').value);
+            const devices = parseInt(document.getElementById('devices-slider').value);
+            const uptime = parseInt(document.getElementById('uptime-slider').value);
+            const xmrPrice = parseInt(document.getElementById('xmr-price-slider').value);
+            
+            const advancedProcessors = document.getElementById('advanced-processors-toggle').checked;
+            const solidStateBattery = document.getElementById('solid-state-battery-toggle').checked;
+            
+            let effectiveHashrate = hashrate;
+            let effectiveUptime = uptime;
+            
+            if (advancedProcessors) {
+                effectiveHashrate *= 2.5;
+            }
+            
+            if (solidStateBattery) {
+                effectiveUptime *= 1.25;
+                if (effectiveUptime > 24) effectiveUptime = 24;
+            }
+            
+            const totalHashrate = effectiveHashrate * devices;
+            const networkHashrate = 2800000000; // 2.8 GH/s in H/s
+            const networkShare = (totalHashrate / networkHashrate) * 100;
+            
+            const dailyXMR = (totalHashrate / networkHashrate) * 720 * (effectiveUptime / 24);
+            const monthlyXMR = dailyXMR * 30;
+            const yearlyXMR = dailyXMR * 365;
+            
+            const dailyUSD = dailyXMR * xmrPrice;
+            const monthlyUSD = monthlyXMR * xmrPrice;
+            const yearlyUSD = yearlyXMR * xmrPrice;
+            
+            // Update displays
+            document.getElementById('hashrate-value').textContent = hashrate + ' H/s';
+            document.getElementById('devices-value').textContent = devices.toLocaleString();
+            document.getElementById('uptime-value').textContent = uptime + ' hrs';
+            document.getElementById('xmr-price-value').textContent = '$' + xmrPrice;
+            
+            document.getElementById('total-hashrate').textContent = (totalHashrate / 1000).toFixed(1) + 'K H/s';
+            document.getElementById('network-share').textContent = networkShare.toFixed(4) + '%';
+            document.getElementById('xmr-price-display').textContent = '$' + xmrPrice;
+            document.getElementById('network-hashrate').textContent = '2.8 GH/s';
+            
+            document.getElementById('daily-xmr').textContent = dailyXMR.toFixed(4) + ' XMR';
+            document.getElementById('daily-usd').textContent = '$' + dailyUSD.toFixed(2);
+            document.getElementById('monthly-xmr').textContent = monthlyXMR.toFixed(2) + ' XMR';
+            document.getElementById('monthly-usd').textContent = '$' + monthlyUSD.toFixed(2);
+            document.getElementById('yearly-xmr').textContent = yearlyXMR.toFixed(2) + ' XMR';
+            document.getElementById('yearly-usd').textContent = '$' + yearlyUSD.toFixed(2);
+        }
+
+        // Add event listeners for calculator
+        document.getElementById('hashrate-slider').addEventListener('input', updateCalculations);
+        document.getElementById('devices-slider').addEventListener('input', updateCalculations);
+        document.getElementById('uptime-slider').addEventListener('input', updateCalculations);
+        document.getElementById('xmr-price-slider').addEventListener('input', updateCalculations);
+        document.getElementById('advanced-processors-toggle').addEventListener('change', updateCalculations);
+        document.getElementById('solid-state-battery-toggle').addEventListener('change', updateCalculations);
+
+        // Initialize
+        updateCalculations();
+        updateMetrics();
+        
+        // Update metrics every 5 seconds
+        setInterval(updateMetrics, 5000);
+    </script>
+</body>
+</html>
+

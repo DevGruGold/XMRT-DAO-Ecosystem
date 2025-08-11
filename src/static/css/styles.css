@@ -524,6 +524,73 @@ input:checked + .toggle-slider:before {
     max-height: calc(100vh - 120px);
 }
 
+/* ===== CHATBOT TOGGLE BUTTON (Desktop Only) ===== */
+.chatbot-toggle {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #238636, #2ea043);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(46, 160, 67, 0.4);
+    transition: all 0.3s ease;
+}
+
+.chatbot-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(46, 160, 67, 0.6);
+}
+
+.chatbot-toggle svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+/* ===== FLOATING CHATBOT (Desktop Only) ===== */
+.chatbot-floating {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 400px;
+    height: 500px;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.chatbot-floating .chatbot-container {
+    height: 100%;
+    border: 2px solid #58a6ff;
+}
+
+/* ===== DESKTOP CHATBOT IMPROVEMENTS ===== */
+@media (min-width: 1201px) {
+    .chatbot-toggle {
+        display: flex;
+    }
+    
+    .chatbot-section {
+        display: none;
+    }
+    
+    .chatbot-floating.active {
+        display: block;
+    }
+    
+    .dashboard-container {
+        grid-template-columns: 1fr;
+        max-width: 1200px;
+    }
+}
+
 .chatbot-container {
     background: rgba(22, 27, 34, 0.95);
     border: 1px solid #30363d;

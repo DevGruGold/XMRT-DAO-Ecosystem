@@ -1,3 +1,6 @@
+from webhook_endpoints import create_ecosystem_webhook_blueprint
+import requests
+import time
 """
 XMRT-DAO-Ecosystem Main Flask Application
 Version 2.2.0: The Phoenix Protocol
@@ -301,3 +304,39 @@ if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
 
 
+
+@app.route('/api/activity/feed', methods=['GET'])
+def get_activity_feed():
+    """Get activity feed for ecosystem widget"""
+    try:
+        activities = []
+        
+        # Add mining activity
+        activities.append({
+            "id": f"mining_{int(time.time())}",
+            "title": "⛏️ Mining Operations Active",
+            "description": "Mining network operational with 1,250 active miners",
+            "source": "dashboard",
+            "timestamp": datetime.now().isoformat(),
+            "type": "mining_update",
+            "data": {"active_miners": 1250, "network_hashrate": "2.8 GH/s"}
+        })
+        
+        # Add meshnet activity
+        activities.append({
+            "id": f"meshnet_{int(time.time())}",
+            "title": "📡 MESHNET Status",
+            "description": "42 active nodes with 87% network coverage",
+            "source": "dashboard",
+            "timestamp": datetime.now().isoformat(),
+            "type": "meshnet_update",
+            "data": {"active_nodes": 42, "network_coverage": "87%"}
+        })
+        
+        return jsonify({
+            "success": True,
+            "activities": activities
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

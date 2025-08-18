@@ -43,3 +43,9 @@ pytest-asyncio
 
 openai
 
+
+# n8n integration dependencies
+aiohttp
+asyncio
+dataclasses
+

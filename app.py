@@ -27,6 +27,8 @@ try:
     from src.services.speech_service import SpeechService
     from src.services.memory_service import MemoryService
     from src.services.autonomy_service import AutonomyService
+    from src.services.n8n_service import N8NService
+    from src.api.n8n_routes import n8n_bp, init_n8n_service
 except ModuleNotFoundError:
     # This block helps with local development if the path isn't set.
     import sys
@@ -39,6 +41,8 @@ except ModuleNotFoundError:
     from services.speech_service import SpeechService
     from services.memory_service import MemoryService
     from services.autonomy_service import AutonomyService
+    from services.n8n_service import N8NService
+    from api.n8n_routes import n8n_bp, init_n8n_service
 
 
 # --- Logging Configuration ---
@@ -89,10 +93,28 @@ def create_app():
             meshnet_service=current_app.meshnet_service
         )
         logger.info("✅ Health Service initialized.")
+        
+        # Initialize n8n service
+        n8n_config = {
+            'n8n_url': os.environ.get('N8N_URL', 'http://localhost:5678'),
+            'n8n_api_key': os.environ.get('N8N_API_KEY')
+        }
+        current_app.n8n_service = N8NService(n8n_config)
+        current_app.n8n_service.set_memory_service(current_app.memory_service)
+        
+        # Initialize n8n service asynchronously
+        try:
+            asyncio.run(current_app.n8n_service.initialize())
+            logger.info("✅ N8N Service initialized and connected.")
+        except Exception as e:
+            logger.warning(f"⚠️ N8N Service initialization failed: {e}. Service will run without n8n integration.")
 
     # --- Blueprint Registration ---
     app.register_blueprint(meshnet_bp, url_prefix='/api/meshnet')
     logger.info("✅ MESHNET API blueprint registered.")
+    
+    app.register_blueprint(n8n_bp, url_prefix='/api/n8n')
+    logger.info("✅ N8N API blueprint registered.")
 
     # --- Core API & UI Routes ---
 

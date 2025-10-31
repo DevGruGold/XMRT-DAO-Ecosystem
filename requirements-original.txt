@@ -1,0 +1,48 @@
+# XMRT-DAO-Ecosystem Requirements
+# Flask and web framework
+Flask
+flask-cors
+gunicorn
+
+# API and HTTP clients
+requests
+urllib3
+aiohttp
+
+# GitHub integration
+PyGithub
+
+# Async support
+asyncio-mqtt
+
+# Meshtastic integration
+meshtastic
+pyserial
+ping3
+
+# System monitoring
+psutil
+
+# Data processing
+python-dotenv
+dataclasses-json
+pandas
+numpy
+scikit-learn
+
+# Logging and monitoring
+structlog
+
+# Web3 and blockchain (future enhancement)
+web3
+
+# Development and testing
+pytest
+pytest-asyncio
+
+
+openai
+
+
+# Redis event bus
+upstash-redis==0.15.0

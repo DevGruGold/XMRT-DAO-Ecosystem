@@ -3,10 +3,7 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "50mb"
-      }
+      "use": "@vercel/python"
     }
   ],
   "routes": [
@@ -14,11 +11,5 @@
       "src": "/(.*)",
       "dest": "api/index.py"
     }
-  ],
-  "env": {
-    "PYTHON_VERSION": "3.9",
-    "MESH_PORT": "simulate",
-    "MESH_UPDATE_INTERVAL": "30",
-    "FLASK_ENV": "production"
-  }
+  ]
 }

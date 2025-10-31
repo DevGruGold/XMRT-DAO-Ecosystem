@@ -1,16 +1,16 @@
 # XMRT-DAO-Ecosystem Vercel-Optimized Requirements
 # Core Flask dependencies
 Flask==3.0.0
-flask-cors==4.0.0
-Werkzeug==3.0.1
+flask-cors==6.0.0
+Werkzeug==3.0.6
 gunicorn==21.2.0
 
 # API and HTTP clients
-requests==2.31.0
-urllib3==2.1.0
+requests==2.32.4
+urllib3==2.5.0
 
 # Async support
-aiohttp==3.9.1
+aiohttp==3.12.14
 
 # GitHub integration
 PyGithub==2.1.1

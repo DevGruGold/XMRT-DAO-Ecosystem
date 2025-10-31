@@ -43,3 +43,6 @@ pytest-asyncio
 
 openai
 
+
+# Redis event bus
+upstash-redis==0.15.0

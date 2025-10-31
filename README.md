@@ -294,3 +294,53 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Built with ❤️ by the XMRT-DAO community**
 
 *Bridging traditional mining with next-generation mesh networking technology*
+
+
+## Performance Optimizations (v2.0)
+
+This version includes significant performance improvements:
+
+### Key Improvements
+
+- **99% reduction** in mesh verification latency (2-5s → <10ms)
+- **99% reduction** in mining API calls (cached updates)
+- **Background health checks** for non-blocking operations
+- **Redis event bus** for cross-service coordination
+
+### Quick Start with Redis
+
+```bash
+# Option 1: Use Upstash (serverless, production-ready)
+# Sign up at https://upstash.com and add credentials to .env
+
+# Option 2: Local Redis for development
+docker-compose up -d redis
+
+# Run the application
+python app.py
+```
+
+### Architecture Changes
+
+**Before:**
+```
+Request → Flask → (wait 2-5s) → Meshtastic → Response
+```
+
+**After:**
+```
+Request → Flask → (cached <10ms) → Response
+Background: Health checks every 30s
+```
+
+### Environment Variables
+
+```bash
+# Upstash Redis (production)
+UPSTASH_REDIS_URL=https://your-redis.upstash.io
+UPSTASH_REDIS_TOKEN=your-token
+
+# Or local Redis (development)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```

@@ -1,70 +1,36 @@
 version: '3.8'
 
 services:
-  xmrt_dao_ecosystem:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
-    ports:
-      - "8000:8000"
-    environment:
-      - NODE_ENV=production
-      - LOG_LEVEL=info
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
-    healthcheck:
-      test: curl -f http://localhost:8000/health || exit 1
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - xmrt-network
-
-  # Database (if needed)
-  postgresql:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: xmrt_db
-      POSTGRES_USER: xmrt_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-xmrt_password}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks:
-      - xmrt-network
-
-  # Redis (if needed)
+  # Local Redis for development/testing
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
-    restart: unless-stopped
-    networks:
-      - xmrt-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
-  # Monitoring
-  prometheus:
-    image: prom/prometheus:latest
+  # XMRT DAO Ecosystem API
+  api:
+    build: .
     ports:
-      - "9090:9090"
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MESH_PORT=simulate
+      - MESH_UPDATE_INTERVAL=30
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    networks:
-      - xmrt-network
+      - .:/app
 
 volumes:
-  postgres_data:
   redis_data:
-  prometheus_data:
-
-networks:
-  xmrt-network:
-    driver: bridge

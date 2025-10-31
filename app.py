@@ -32,6 +32,16 @@ except ModuleNotFoundError:
     import sys
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
     from services.mining_service import EnhancedSupportXMRService
+
+# Optimized services with Redis caching
+try:
+    from services.mining_service_optimized import OptimizedMiningService
+    from services.meshnet_service_optimized import OptimizedMESHNETService
+    USE_OPTIMIZED = True
+except ImportError:
+    USE_OPTIMIZED = False
+    logger.warning("Optimized services not available, using standard services")
+
     from services.meshnet_service import MESHNETService
     from api.meshnet_routes import meshnet_bp, init_meshnet_service
     from services.eliza_agent_service import ElizaAgentService

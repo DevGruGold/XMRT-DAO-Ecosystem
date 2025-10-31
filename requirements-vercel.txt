@@ -1,0 +1,40 @@
+# XMRT-DAO-Ecosystem Vercel Requirements
+# Optimized for serverless deployment
+
+# Flask and web framework
+Flask==3.0.0
+flask-cors==4.0.0
+Werkzeug==3.0.1
+
+# API and HTTP clients
+requests==2.31.0
+urllib3==2.1.0
+aiohttp==3.9.1
+
+# GitHub integration
+PyGithub==2.1.1
+
+# Async support (compatible with serverless)
+asyncio==3.4.3
+
+# System monitoring (lightweight)
+psutil==5.9.6
+
+# Data processing
+python-dotenv==1.0.0
+dataclasses-json==0.6.3
+pandas==2.1.4
+numpy==1.26.2
+scikit-learn==1.3.2
+
+# Logging
+structlog==23.2.0
+
+# OpenAI for agent capabilities
+openai==1.6.1
+
+# Redis event bus (Upstash for serverless)
+upstash-redis==0.15.0
+
+# Note: Meshtastic and hardware-dependent packages excluded for serverless
+# The app will use simulation mode on Vercel

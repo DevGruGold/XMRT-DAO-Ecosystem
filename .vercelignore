@@ -1,0 +1,43 @@
+# Development and testing
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Git
+.git/
+.gitignore
+
+# Development dependencies
+requirements-dev.txt
+
+# Local data
+data/
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Environment
+.env.local
+.env.development
